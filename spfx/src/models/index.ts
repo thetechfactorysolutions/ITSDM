@@ -9,3 +9,7 @@ export * from './Risk';
 export * from './Decision';
 export * from './Lesson';
 export * from './Review';
+export * from './Budget';
+export * from './Expense';
+export * from './Vendor';
+export * from './Contract';

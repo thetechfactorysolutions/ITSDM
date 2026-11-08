@@ -6,10 +6,12 @@ import { buildProjectPayload } from '../../entities/payloads';
 import { TranslateFn, useT } from '../../i18n/I18n';
 import { Project, ProjectRiskLevel, ProjectStatus } from '../../models';
 import { isProjectAtRiskByVariance } from '../../rules/businessRules';
+import { countsAgainstBudget, opexAnnualAmount } from '../../rules/finance';
 import { riskScore } from '../../rules/governance';
 import { generateBusinessId } from '../../rules/ids';
 import { getAllowedProjectStatuses } from '../../rules/transitions';
 import { validateProject } from '../../rules/validation';
+import { formatMoney } from '../../utils/format';
 import DateField from '../shared/DateField';
 import { DetailFields, RelatedList } from '../shared/DetailSection';
 import EntityScreen, { IApprovalConfig, IFormContext } from '../shared/EntityScreen';
@@ -65,7 +67,7 @@ const csvColumns = [
 
 const Projects: React.FC = () => {
   const t = useT();
-  const { service, userEmail, projects: state, initiatives, actions, notes, risks, decisions, lessons, reviews } = useHubData();
+  const { service, userEmail, projects: state, initiatives, actions, notes, risks, decisions, lessons, reviews, capex, opex } = useHubData();
   const columns = React.useMemo(() => makeColumns(t), [t]);
 
   const initiativeOptions = React.useMemo(() => initiatives.items.map(i => ({ id: i.initiativeId, title: i.title })), [initiatives.items]);
@@ -124,6 +126,10 @@ const Projects: React.FC = () => {
     const myDecisions = decisions.items.filter(d => d.projectId === project.projectId);
     const myLessons = lessons.items.filter(l => l.projectId === project.projectId);
     const myReviews = reviews.items.filter(r => r.projectId === project.projectId);
+    const myCapex = capex.items.filter(c => c.projectId === project.projectId);
+    const myOpex = opex.items.filter(o => o.projectId === project.projectId);
+    const spend = myCapex.filter(c => countsAgainstBudget(c.status)).reduce((sum, c) => sum + c.amount, 0)
+      + myOpex.filter(o => countsAgainstBudget(o.status)).reduce((sum, o) => sum + opexAnnualAmount(o), 0);
     const initiative = initiatives.items.filter(i => i.initiativeId === project.initiativeId)[0];
     const variance = project.budgetAmount > 0 ? Math.round(((project.forecastAmount - project.budgetAmount) / project.budgetAmount) * 100) : 0;
 
@@ -140,6 +146,7 @@ const Projects: React.FC = () => {
           { label: t('field.budget'), value: project.budgetAmount.toFixed(2) },
           { label: t('field.forecast'), value: `${project.forecastAmount.toFixed(2)} (${variance > 0 ? '+' : ''}${variance}%)` },
           { label: t('field.risk'), value: t(`risk.${project.riskLevel}`) },
+          { label: t('project.spend'), value: formatMoney(spend) },
           { label: t('projects.atRisk'), value: isProjectAtRiskByVariance(project) ? t('common.yes') : t('common.no') },
           { label: t('common.modifiedBy'), value: `${(project.modified ?? '').slice(0, 10)} ${project.editor ?? ''}`.trim() }
         ]} />
@@ -149,6 +156,8 @@ const Projects: React.FC = () => {
         <RelatedList title={t('nav.decisions')} items={myDecisions.map(d => ({ key: d.decisionId, title: d.title, meta: t(`status.${d.status}`) }))} />
         <RelatedList title={t('nav.lessons')} items={myLessons.map(l => ({ key: l.lessonId, title: l.title, meta: t(`lessonCategory.${l.category}`) }))} />
         <RelatedList title={t('nav.reviews')} items={myReviews.map(r => ({ key: r.reviewId, title: r.title, meta: t(`status.${r.status}`) }))} />
+        <RelatedList title={t('nav.capex')} items={myCapex.map(c => ({ key: c.capexId, title: c.title, meta: `${formatMoney(c.amount)} · ${t(`status.${c.status}`)}` }))} />
+        <RelatedList title={t('nav.opex')} items={myOpex.map(o => ({ key: o.opexId, title: o.title, meta: `${formatMoney(opexAnnualAmount(o))} / ${t('budget.perYear')} · ${t(`status.${o.status}`)}` }))} />
       </Stack>
     );
   };

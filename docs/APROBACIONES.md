@@ -9,9 +9,12 @@ Algunos cambios no deberían hacerse sin el visto bueno de otra persona. La apli
 | `idea.validate` | Ideas | la idea pasa a **Validada** | Activa |
 | `project.overBudget` | Proyectos | la previsión supera el presupuesto en **más de un 10 %** y el cambio introduce o aumenta ese exceso | Activa |
 | `project.highBudgetStart` | Proyectos | un proyecto con presupuesto de **100.000 o más** pasa a **Activo** | Activa |
+| `capex.commit` | CAPEX | un gasto de **50.000 o más** pasa a **Comprometido** o **Pagado** | Activa |
+| `opex.commit` | OPEX | un gasto cuyo importe **anual** (importe x 12, 4 o 1 según la frecuencia) es de 50.000 o más pasa a Comprometido o Pagado | Activa |
+| `contract.activate` | Contratos | un contrato de **50.000 o más** de importe anual pasa a **Activo** (también al renovarlo) | Activa |
 | `initiative.activate` | Iniciativas | una iniciativa pasa a **Activa** | **Desactivada** (ejemplo) |
 
-Los umbrales (10 % y 100.000) están en `spfx/src/config/AppConfig.ts`, en `approvals`.
+Los umbrales (10 %, 100.000 y 50.000) están en `spfx/src/config/AppConfig.ts`, en `approvals` (`overBudgetRatio`, `highBudget` y `highSpend`).
 
 ## Cómo funciona, paso a paso
 
@@ -42,7 +45,7 @@ Todo está en **un solo archivo**: `spfx/src/rules/approvals.ts`, lista `APPROVA
    ```ts
    rule({
      id: 'action.criticalClose',          // único; no lo cambies una vez en uso
-     entity: 'actions',                   // ideas | initiatives | projects | actions
+     entity: 'actions',                   // ideas | initiatives | projects | actions | capex | opex | contracts
      enabled: true,
      // true cuando ESTE cambio necesita aprobación. `current` es undefined si el elemento es nuevo.
      requires: (current, next) =>

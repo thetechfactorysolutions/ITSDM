@@ -16,7 +16,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-const OUT_DIR = path.join(__dirname, '..', 'sharepoint', 'assets');
+const OUT_DIR = process.env.ITSDM_ASSETS_DIR || path.join(__dirname, '..', 'sharepoint', 'assets');
 const CUSTOM_LIST_FEATURE_ID = '00bfea71-de22-43b2-a848-c05709900100';
 // Placeholder: the installer's identity is not known when the package is built.
 const SAMPLE_OWNER = 'demo.owner@example.com';
@@ -89,6 +89,69 @@ const LISTS = [
       if (s === 'DONE') row.CompletedDate = day(d + 1);
       return row;
     })
+  },
+  {
+    title: 'IT_06_Budgets', file: 'schema_budgets.xml', description: 'Budgets by year; committed and used are calculated from the expenses linked to them',
+    fields: [T('BudgetId'), NUM('FiscalYear'), N('Description'), C('Status', ['DRAFT', 'APPROVED', 'CLOSED']), NUM('PlannedAmount'), T('OwnerUPN')],
+    rows: () => [
+      ['IT Infrastructure', 'BUD-DEMO-001', 'Laptops, telephony, licences and support for the year.', 500000],
+      ['Cloud hosting', 'BUD-DEMO-002', 'Cloud platform costs for the year.', 60000]
+    ].map(([t, id, d, planned]) => ({
+      Title: t + ' ' + new Date().getFullYear(), BudgetId: id, FiscalYear: new Date().getFullYear(), Description: d, Status: 'APPROVED', PlannedAmount: planned, OwnerUPN: SAMPLE_OWNER
+    }))
+  },
+  {
+    title: 'IT_07_CAPEX', file: 'schema_capex.xml', description: 'Investments, linked to a budget, a project and a vendor',
+    fields: [T('CapexId'), N('Description'), C('Status', ['PLANNED', 'COMMITTED', 'PAID', 'CANCELLED']), NUM('Amount'), D('ExpenseDate'), T('InvoiceRef'),
+      T('OwnerUPN'), T('BudgetId'), T('ProjectId'), T('VendorId')],
+    rows: (day) => [
+      ['Laptops, wave 1', 'CAPEX-DEMO-001', 'COMMITTED', 205000, -20, 'BUD-DEMO-001', 'PROJ-DEMO-001', 'VEN-DEMO-001', false],
+      ['Telephony hardware', 'CAPEX-DEMO-002', 'PLANNED', 90000, 30, 'BUD-DEMO-001', 'PROJ-DEMO-002', 'VEN-DEMO-002', false],
+      ['Meeting-room equipment', 'CAPEX-DEMO-003', 'PLANNED', 80000, 45, 'BUD-DEMO-001', '', 'VEN-DEMO-001', true]
+    ].map(([t, id, st, amount, d, bud, proj, ven, pending]) => {
+      const row = { Title: t, CapexId: id, Description: `Sample investment: ${t}.`, Status: st, Amount: amount, ExpenseDate: day(d), OwnerUPN: SAMPLE_OWNER, BudgetId: bud, ProjectId: proj, VendorId: ven };
+      // This one is large and waits for approval before it can be committed.
+      if (pending) { Object.assign(row, { ApprovalRule: 'capex.commit', ApprovalStatus: 'PENDING', Approver: SAMPLE_OWNER, ApprovalRequestedOn: day(-1) }); }
+      return row;
+    })
+  },
+  {
+    title: 'IT_08_OPEX', file: 'schema_opex.xml', description: 'Recurring costs; the annual amount counts against the budget',
+    fields: [T('OpexId'), N('Description'), C('Status', ['PLANNED', 'COMMITTED', 'PAID', 'CANCELLED']), NUM('Amount'), C('Frequency', ['ONE_OFF', 'MONTHLY', 'QUARTERLY', 'ANNUAL']),
+      D('ExpenseDate'), T('OwnerUPN'), T('BudgetId'), T('ProjectId'), T('VendorId'), T('ContractId')],
+    rows: (day) => [
+      ['Microsoft 365 licences', 'OPEX-DEMO-001', 'COMMITTED', 8000, 'MONTHLY', -60, 'BUD-DEMO-001', '', '', ''],
+      ['Cloud hosting', 'OPEX-DEMO-002', 'COMMITTED', 6500, 'MONTHLY', -90, 'BUD-DEMO-002', '', 'VEN-DEMO-003', 'CON-DEMO-002'],
+      ['Support retainer', 'OPEX-DEMO-003', 'PLANNED', 3000, 'QUARTERLY', 15, 'BUD-DEMO-001', '', 'VEN-DEMO-001', '']
+    ].map(([t, id, st, amount, freq, d, bud, proj, ven, con]) => ({
+      Title: t, OpexId: id, Description: `Sample recurring cost: ${t}.`, Status: st, Amount: amount, Frequency: freq, ExpenseDate: day(d),
+      OwnerUPN: SAMPLE_OWNER, BudgetId: bud, ProjectId: proj, VendorId: ven, ContractId: con
+    }))
+  },
+  {
+    title: 'IT_09_Vendors', file: 'schema_vendors.xml', description: 'Vendors with contact and relationship owner',
+    fields: [T('VendorId'), N('Description'), C('Status', ['ACTIVE', 'UNDER_REVIEW', 'INACTIVE']), C('Category', ['SOFTWARE', 'HARDWARE', 'SERVICES', 'TELECOM', 'CLOUD', 'OTHER']),
+      T('ContactName'), T('ContactEmail'), T('Website'), T('OwnerUPN')],
+    rows: () => [
+      ['Contoso Hardware', 'VEN-DEMO-001', 'ACTIVE', 'HARDWARE', 'Alex Morgan', 'alex.morgan@example.com', 'Laptops, screens and room equipment.'],
+      ['Fabrikam Telecom', 'VEN-DEMO-002', 'ACTIVE', 'TELECOM', 'Sam Rivera', 'sam.rivera@example.com', 'Telephony and connectivity.'],
+      ['Northwind Cloud', 'VEN-DEMO-003', 'UNDER_REVIEW', 'CLOUD', 'Jo Bennett', 'jo.bennett@example.com', 'Cloud hosting platform.']
+    ].map(([t, id, st, cat, contact, email, d]) => ({
+      Title: t, VendorId: id, Description: d, Status: st, Category: cat, ContactName: contact, ContactEmail: email, Website: 'https://example.com', OwnerUPN: SAMPLE_OWNER
+    }))
+  },
+  {
+    title: 'IT_10_Contracts', file: 'schema_contracts.xml', description: 'Contracts with renewal notice, linked to a vendor',
+    fields: [T('ContractId'), N('Description'), C('Status', ['DRAFT', 'ACTIVE', 'EXPIRED', 'TERMINATED']), T('VendorId'), D('StartDate'), D('EndDate'),
+      NUM('NoticeDays', 'Min="0" Max="365"'), NUM('AnnualValue'), C('AutoRenew', ['NO', 'YES']), T('OwnerUPN'), T('ProjectId')],
+    rows: (day) => [
+      ['Hardware supply agreement', 'CON-DEMO-001', 'VEN-DEMO-001', 'ACTIVE', -300, 400, 90, 120000, 'NO'],
+      ['Cloud hosting contract', 'CON-DEMO-002', 'VEN-DEMO-003', 'ACTIVE', -325, 40, 90, 78000, 'YES'],
+      ['Telephony service', 'CON-DEMO-003', 'VEN-DEMO-002', 'DRAFT', 30, 395, 60, 60000, 'NO']
+    ].map(([t, id, ven, st, sd, ed, notice, value, auto]) => ({
+      Title: t, ContractId: id, Description: `Sample contract: ${t}.`, Status: st, VendorId: ven, StartDate: day(sd), EndDate: day(ed),
+      NoticeDays: notice, AnnualValue: value, AutoRenew: auto, OwnerUPN: SAMPLE_OWNER
+    }))
   },
   {
     title: 'IT_11_Risks', file: 'schema_risks.xml', description: 'Risks with probability, impact and mitigation',
@@ -169,7 +232,7 @@ const APPROVAL_FIELDS = [
   T('ApprovalRule'), C('ApprovalStatus', ['NONE', 'PENDING', 'APPROVED', 'REJECTED']), T('Approver'),
   D('ApprovalRequestedOn'), D('ApprovalDecidedOn'), T('ApprovalDecidedBy'), N('ApprovalComment')
 ];
-const WITH_APPROVALS = ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions'];
+const WITH_APPROVALS = ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts'];
 for (const list of LISTS) {
   if (WITH_APPROVALS.indexOf(list.title) > -1) {
     list.fields = list.fields.concat(APPROVAL_FIELDS);

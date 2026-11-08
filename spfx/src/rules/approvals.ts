@@ -1,6 +1,9 @@
 import { AppConfig } from '../config/AppConfig';
-import { ActionItem, ApprovalStatus, IApprovalState, Idea, IdeaStatus, Initiative, InitiativeStatus, Project, ProjectStatus } from '../models';
+import {
+  ActionItem, ApprovalStatus, CapexItem, Contract, ContractStatus, IApprovalState, Idea, IdeaStatus, Initiative, InitiativeStatus, OpexItem, Project, ProjectStatus
+} from '../models';
 import { toDayKey } from './dates';
+import { isCommitted, opexAnnualAmount } from './finance';
 
 /**
  * Approval rules, as data.
@@ -11,13 +14,16 @@ import { toDayKey } from './dates';
  * quick status change, the CSV import and the dashboard all read this list.
  */
 
-export type ApprovalEntity = 'ideas' | 'initiatives' | 'projects' | 'actions';
+export type ApprovalEntity = 'ideas' | 'initiatives' | 'projects' | 'actions' | 'capex' | 'opex' | 'contracts';
 
 export interface IEntityByApprovalKey {
   ideas: Idea;
   initiatives: Initiative;
   projects: Project;
   actions: ActionItem;
+  capex: CapexItem;
+  opex: OpexItem;
+  contracts: Contract;
 }
 
 export interface IApprovalRule {
@@ -75,6 +81,32 @@ export const APPROVAL_RULES: IApprovalRule[] = [
     enabled: true,
     requires: (current, next) =>
       next.status === ProjectStatus.ACTIVE && (!current || current.status !== ProjectStatus.ACTIVE) && next.budgetAmount >= AppConfig.approvals.highBudget
+  }),
+
+  // Spending: a commitment (or payment) of at least AppConfig.approvals.highSpend, and a contract of that yearly value.
+  rule({
+    id: 'capex.commit',
+    entity: 'capex',
+    enabled: true,
+    requires: (current, next) =>
+      isCommitted(next.status) && (!current || !isCommitted(current.status)) && next.amount >= AppConfig.approvals.highSpend
+  }),
+
+  rule({
+    id: 'opex.commit',
+    entity: 'opex',
+    enabled: true,
+    // The yearly cost decides, so a small monthly fee that adds up over a year is covered too.
+    requires: (current, next) =>
+      isCommitted(next.status) && (!current || !isCommitted(current.status)) && opexAnnualAmount(next) >= AppConfig.approvals.highSpend
+  }),
+
+  rule({
+    id: 'contract.activate',
+    entity: 'contracts',
+    enabled: true,
+    requires: (current, next) =>
+      next.status === ContractStatus.ACTIVE && (!current || current.status !== ContractStatus.ACTIVE) && next.annualValue >= AppConfig.approvals.highSpend
   }),
 
   // Off by default: an example of a rule that is switched on by changing `enabled` to true.

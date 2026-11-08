@@ -1,4 +1,4 @@
-import { ActionItem, Decision, Idea, Initiative, Lesson, Meeting, Note, Project, Review, Risk } from '../models';
+import { ActionItem, Budget, CapexItem, Contract, Decision, Idea, Initiative, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Vendor } from '../models';
 import { isValidDayKey } from './dates';
 
 /** Translation key of the error per field name (e.g. validation.titleRequired); a missing key means the field is valid. */
@@ -145,6 +145,59 @@ export const validateReview = (review: Review): ValidationErrors => {
   validateOptionalDate(errors, 'nextReviewDate', review.nextReviewDate);
   if (!errors.reviewDate && !errors.nextReviewDate && review.reviewDate && review.nextReviewDate && review.nextReviewDate < review.reviewDate) {
     errors.nextReviewDate = 'validation.nextBeforeReview';
+  }
+  return errors;
+};
+
+export const validateBudget = (budget: Budget): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, budget.title);
+  validateOwner(errors, budget.ownerUpn);
+  if (!isFinite(budget.fiscalYear) || Math.floor(budget.fiscalYear) !== budget.fiscalYear || budget.fiscalYear < 2000 || budget.fiscalYear > 2100) {
+    errors.fiscalYear = 'validation.yearInvalid';
+  }
+  validateNonNegative(errors, 'plannedAmount', budget.plannedAmount);
+  return errors;
+};
+
+export const validateCapex = (capex: CapexItem): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, capex.title);
+  validateNonNegative(errors, 'amount', capex.amount);
+  validateOptionalDate(errors, 'expenseDate', capex.expenseDate);
+  validateOptionalEmail(errors, 'ownerUpn', capex.ownerUpn, 'validation.ownerInvalid');
+  return errors;
+};
+
+export const validateOpex = (opex: OpexItem): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, opex.title);
+  validateNonNegative(errors, 'amount', opex.amount);
+  validateOptionalDate(errors, 'expenseDate', opex.expenseDate);
+  validateOptionalEmail(errors, 'ownerUpn', opex.ownerUpn, 'validation.ownerInvalid');
+  return errors;
+};
+
+export const validateVendor = (vendor: Vendor): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, vendor.title);
+  validateOptionalEmail(errors, 'contactEmail', vendor.contactEmail, 'validation.contactInvalid');
+  validateOptionalEmail(errors, 'ownerUpn', vendor.ownerUpn, 'validation.ownerInvalid');
+  return errors;
+};
+
+export const validateContract = (contract: Contract): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, contract.title);
+  validateOwner(errors, contract.ownerUpn);
+  validateOptionalDate(errors, 'startDate', contract.startDate);
+  validateOptionalDate(errors, 'endDate', contract.endDate);
+  if (!errors.startDate && !errors.endDate && contract.startDate && contract.endDate && contract.endDate < contract.startDate) {
+    errors.endDate = 'validation.endBeforeStart';
+  }
+  validateNonNegative(errors, 'annualValue', contract.annualValue);
+  if (!isFinite(contract.noticeDays) || Math.floor(contract.noticeDays) !== contract.noticeDays || contract.noticeDays < 0 || contract.noticeDays > 365) {
+    errors.noticeDays = 'validation.noticeDaysRange';
   }
   return errors;
 };

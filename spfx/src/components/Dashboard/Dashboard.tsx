@@ -3,6 +3,7 @@ import { DefaultButton, DetailsList, IColumn, IconButton, MessageBar, MessageBar
 import { useT } from '../../i18n/I18n';
 import { buildApprovalPayload } from '../../entities/payloads';
 import { ActionItem, ActionStatus, ApprovalStatus, IApprovalState, IdeaStatus, Initiative, InitiativeStatus, ProjectStatus } from '../../models';
+import { budgetFigures, contractAlert, isLiveBudget, needsContractAttention } from '../../rules/finance';
 import { isHighActiveRisk } from '../../rules/governance';
 import { ApprovalEntity, decideApproval, findRule, getApproval, isPending } from '../../rules/approvals';
 import { isActionDueToday, isActionDueWithinDays, isOverdueAction, isProjectAtRiskByVariance } from '../../rules/businessRules';
@@ -24,7 +25,8 @@ interface IPendingApproval {
 const Dashboard: React.FC = () => {
   const t = useT();
   const theme = getTheme();
-  const { userEmail, ideas: ideasState, initiatives: initiativesState, projects: projectsState, actions: actionsState, risks: risksState } = useHubData();
+  const { userEmail, ideas: ideasState, initiatives: initiativesState, projects: projectsState, actions: actionsState, risks: risksState,
+    budgets: budgetsState, capex: capexState, opex: opexState, contracts: contractsState } = useHubData();
   const [actionError, setActionError] = React.useState<string | undefined>();
   const [deciding, setDeciding] = React.useState<{ row: IPendingApproval; decision: ApprovalStatus.APPROVED | ApprovalStatus.REJECTED } | undefined>();
 
@@ -45,9 +47,17 @@ const Dashboard: React.FC = () => {
     ideasState.items.filter(isPending).map(i => ({ key: `ideas-${i.id}`, entity: 'ideas' as ApprovalEntity, id: i.id, title: i.title, approval: getApproval(i), update: ideasState.update })),
     initiativesState.items.filter(isPending).map(i => ({ key: `initiatives-${i.id}`, entity: 'initiatives' as ApprovalEntity, id: i.id, title: i.title, approval: getApproval(i), update: initiativesState.update })),
     projectsState.items.filter(isPending).map(p => ({ key: `projects-${p.id}`, entity: 'projects' as ApprovalEntity, id: p.id, title: p.title, approval: getApproval(p), update: projectsState.update })),
-    actionsState.items.filter(isPending).map(a => ({ key: `actions-${a.id}`, entity: 'actions' as ApprovalEntity, id: a.id, title: a.title, approval: getApproval(a), update: actionsState.update }))
+    actionsState.items.filter(isPending).map(a => ({ key: `actions-${a.id}`, entity: 'actions' as ApprovalEntity, id: a.id, title: a.title, approval: getApproval(a), update: actionsState.update })),
+    capexState.items.filter(isPending).map(c => ({ key: `capex-${c.id}`, entity: 'capex' as ApprovalEntity, id: c.id, title: c.title, approval: getApproval(c), update: capexState.update })),
+    opexState.items.filter(isPending).map(o => ({ key: `opex-${o.id}`, entity: 'opex' as ApprovalEntity, id: o.id, title: o.title, approval: getApproval(o), update: opexState.update })),
+    contractsState.items.filter(isPending).map(c => ({ key: `contracts-${c.id}`, entity: 'contracts' as ApprovalEntity, id: c.id, title: c.title, approval: getApproval(c), update: contractsState.update }))
   );
   const highRisks = risksState.items.filter(isHighActiveRisk);
+  const contractsToAttend = contractsState.items.filter(c => needsContractAttention(c, now));
+  const lapsedContracts = contractsToAttend.filter(c => contractAlert(c, now).alert === 'LAPSED');
+  const liveBudgets = budgetsState.items.filter(isLiveBudget).map(b => ({ budget: b, figures: budgetFigures(b, capexState.items, opexState.items) }));
+  const overBudgets = liveBudgets.filter(x => x.figures.level === 'OVER');
+  const nearBudgets = liveBudgets.filter(x => x.figures.level === 'NEAR');
   const openInitiatives = initiativesState.items.filter(item => item.status !== InitiativeStatus.COMPLETED && item.status !== InitiativeStatus.CANCELLED);
 
   const initiativeColumns: IColumn[] = [
@@ -112,6 +122,14 @@ const Dashboard: React.FC = () => {
     ]
   }));
 
+  const spendRows = liveBudgets.slice(0, 8).map(x => ({
+    label: x.budget.title,
+    bars: [
+      { name: t('field.plannedAmount'), value: x.budget.plannedAmount, color: theme.palette.neutralTertiary },
+      { name: t('budget.committed'), value: x.figures.committed, color: x.figures.level === 'OVER' ? theme.palette.redDark : x.figures.level === 'NEAR' ? theme.palette.orange : theme.palette.themePrimary }
+    ]
+  }));
+
   const attention: string[] = [];
   if (overdueActions.length > 0) {
     attention.push(t('dashboard.attentionOverdue', { count: overdueActions.length }));
@@ -122,9 +140,18 @@ const Dashboard: React.FC = () => {
   if (highRisks.length > 0) {
     attention.push(t('dashboard.attentionHighRisks', { count: highRisks.length }));
   }
+  if (contractsToAttend.length > 0) {
+    attention.push(t('dashboard.attentionContracts', { count: contractsToAttend.length }));
+  }
+  if (overBudgets.length > 0) {
+    attention.push(t('dashboard.attentionBudgetsOver', { count: overBudgets.length }));
+  }
+  if (nearBudgets.length > 0) {
+    attention.push(t('dashboard.attentionBudgetsNear', { count: nearBudgets.length }));
+  }
 
-  const hasLoading = ideasState.loading || initiativesState.loading || projectsState.loading || actionsState.loading || risksState.loading;
-  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, actionError].filter(Boolean);
+  const hasLoading = ideasState.loading || initiativesState.loading || projectsState.loading || actionsState.loading || risksState.loading || budgetsState.loading || contractsState.loading;
+  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, actionError].filter(Boolean);
 
   return (
     <Stack tokens={{ childrenGap: 20 }}>
@@ -142,6 +169,8 @@ const Dashboard: React.FC = () => {
         <KpiTile label={t('dashboard.openActions')} value={openActions.length} tone="good" />
         <KpiTile label={t('dashboard.overdueActions')} value={overdueActions.length} tone={overdueActions.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.pendingApprovals')} value={pendingApprovals.length} tone={pendingApprovals.length > 0 ? 'warning' : 'good'} />
+        <KpiTile label={t('dashboard.contractsToRenew')} value={contractsToAttend.length} tone={lapsedContracts.length > 0 ? 'danger' : contractsToAttend.length > 0 ? 'warning' : 'good'} />
+        <KpiTile label={t('dashboard.budgetsOver')} value={overBudgets.length} tone={overBudgets.length > 0 ? 'danger' : nearBudgets.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.highRisks')} value={highRisks.length} tone={highRisks.length > 0 ? 'danger' : 'good'} />
         <KpiTile label={t('dashboard.projectsAtRisk')} value={projectsAtRisk.length} tone={projectsAtRisk.length > 0 ? 'danger' : 'good'} />
       </div>
@@ -185,6 +214,7 @@ const Dashboard: React.FC = () => {
       <Stack horizontal wrap tokens={{ childrenGap: 24 }}>
         <BarChart title={t('dashboard.chartActions')} rows={actionStatusRows} />
         <BarChart title={t('dashboard.chartBudget')} rows={budgetRows} formatValue={v => v.toLocaleString()} />
+        <BarChart title={t('dashboard.chartSpend')} rows={spendRows} formatValue={v => v.toLocaleString()} />
       </Stack>
 
       <Stack>

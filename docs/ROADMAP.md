@@ -32,11 +32,13 @@ Diseño en `docs/superpowers/specs/2026-11-08-ronda-2-diseno.md`: vínculos con 
 
 - **Listas restantes, fase 1 (gobierno):** riesgos, decisiones, lecciones aprendidas y revisiones, con su importación desde reuniones (diseño en `docs/superpowers/specs/2026-11-08-listas-fase1-diseno.md`). Campos y reglas elegidos por defecto, a ajustar.
 
+- **Listas restantes, fase 2 (dinero y proveedores):** presupuestos, CAPEX, OPEX, proveedores y contratos, con cifras calculadas, alertas de renovación y aprobaciones de gasto (diseño en `docs/superpowers/specs/2026-11-08-listas-fase2-diseno.md`). Campos y reglas elegidos por defecto, a ajustar.
+
 ## Aplazado tras la ronda 2 (pendiente de retomar)
 Quedó fuera a propósito. Para retomarlo, pedir "retoma el roadmap".
 - **Integraciones:** Planner (crear plan/tarea al activar iniciativas y proyectos), Power Automate (avisos de acciones vencidas y proyectos en riesgo, resumen semanal) y Microsoft Graph (perfil, foto, calendario). Necesitan permisos y flujos del tenant.
 - **Roles propios dentro de la aplicación.** Hoy mandan los permisos de SharePoint. (Las **aprobaciones** ya están hechas: ver `docs/APROBACIONES.md`. Quedan fuera los flujos de varios aprobadores y el envío automático de avisos, que dependen de Power Automate.)
-- **Las 12 listas restantes sin interfaz** (`IT_05` a `IT_10` y `IT_13` a `IT_18`), por fases: **dinero y proveedores** (presupuestos, CAPEX, OPEX, proveedores, contratos); **servicio y operación** (incidentes, interacciones, cambios, KPIs); **personas y conocimiento** (habilidades, formación, base de conocimiento).
+- **Las 7 listas restantes sin interfaz** (`IT_05`, `IT_13` a `IT_18`), por fases: **servicio y operación** (KPIs, incidentes, interacciones, cambios); **personas y conocimiento** (habilidades, formación, base de conocimiento).
 - **Migración de esquemas:** cambiar columnas de listas ya creadas sin borrarlas.
 - **Responsable como columna de persona** de SharePoint (hoy es el email en texto) y **columnas de búsqueda** reales entre listas.
 - **Datos de ejemplo opcionales** al instalar y paquetes separados para sandbox y producción.

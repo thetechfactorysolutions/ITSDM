@@ -4,7 +4,7 @@ Created automatically when the app is added to a site (`scripts/generate-assets.
 
 ## Lists in use
 
-IT_01 to IT_04 also have the seven approval columns: ApprovalRule (Text), ApprovalStatus (Choice: NONE, PENDING, APPROVED, REJECTED), Approver (Text), ApprovalRequestedOn (Date), ApprovalDecidedOn (Date), ApprovalDecidedBy (Text), ApprovalComment (Multiple lines).
+IT_01 to IT_04, IT_07, IT_08 and IT_10 also have the seven approval columns: ApprovalRule (Text), ApprovalStatus (Choice: NONE, PENDING, APPROVED, REJECTED), Approver (Text), ApprovalRequestedOn (Date), ApprovalDecidedOn (Date), ApprovalDecidedBy (Text), ApprovalComment (Multiple lines).
 
 ### IT_01_Ideas
 Title, IdeaId (Text), Description (Multiple lines), Status (Choice: NEW, DISCOVERY, VALIDATED, PLANNED, IN_PROGRESS, PILOT, ROLLOUT, COMPLETED, REJECTED, CANCELLED), OwnerUPN (Text), SponsorUPN (Text), EstimatedValue (Number), TargetDate (Date), Tags (Multiple lines), ConvertedInitiativeId (Text)
@@ -17,6 +17,21 @@ Title, ProjectId (Text), InitiativeId (Text), Description (Multiple lines), Stat
 
 ### IT_04_Actions
 Title, ActionId (Text), InitiativeId (Text), ProjectId (Text), Description (Multiple lines), Status (Choice: OPEN, IN_PROGRESS, BLOCKED, DONE, CANCELLED), Priority (Choice: LOW, MEDIUM, HIGH, CRITICAL), OwnerUPN (Text), DueDate (Date), CompletedDate (Date), PlannerTaskId (Text)
+
+### IT_06_Budgets
+Title, BudgetId (Text), FiscalYear (Number), Description (Multiple lines), Status (Choice: DRAFT, APPROVED, CLOSED), PlannedAmount (Number), OwnerUPN (Text). Committed, paid, remaining and % used are calculated from the expenses that point at the budget.
+
+### IT_07_CAPEX
+Title, CapexId (Text), Description (Multiple lines), Status (Choice: PLANNED, COMMITTED, PAID, CANCELLED), Amount (Number), ExpenseDate (Date), InvoiceRef (Text), OwnerUPN (Text), BudgetId (Text), ProjectId (Text), VendorId (Text)
+
+### IT_08_OPEX
+Title, OpexId (Text), Description (Multiple lines), Status (Choice: PLANNED, COMMITTED, PAID, CANCELLED), Amount (Number, per occurrence), Frequency (Choice: ONE_OFF, MONTHLY, QUARTERLY, ANNUAL), ExpenseDate (Date), OwnerUPN (Text), BudgetId (Text), ProjectId (Text), VendorId (Text), ContractId (Text)
+
+### IT_09_Vendors
+Title (the vendor's name), VendorId (Text), Description (Multiple lines), Status (Choice: ACTIVE, UNDER_REVIEW, INACTIVE), Category (Choice: SOFTWARE, HARDWARE, SERVICES, TELECOM, CLOUD, OTHER), ContactName (Text), ContactEmail (Text), Website (Text), OwnerUPN (Text)
+
+### IT_10_Contracts
+Title, ContractId (Text), Description (Multiple lines), Status (Choice: DRAFT, ACTIVE, EXPIRED, TERMINATED), VendorId (Text), StartDate (Date), EndDate (Date), NoticeDays (Number 0-365), AnnualValue (Number), AutoRenew (Choice: NO, YES), OwnerUPN (Text), ProjectId (Text)
 
 ### IT_11_Risks
 Title, RiskId (Text), Description (Multiple lines), Status (Choice: OPEN, MITIGATING, ACCEPTED, CLOSED), Probability (Choice: LOW, MEDIUM, HIGH), Impact (Choice: LOW, MEDIUM, HIGH), OwnerUPN (Text), Mitigation (Multiple lines), DueDate (Date), ProjectId (Text), InitiativeId (Text), MeetingId (Text)
@@ -37,7 +52,7 @@ Title, MeetingId (Text), MeetingDate (Date), Summary (Multiple lines), Attendees
 Title, NoteId (Text), Body (Multiple lines), Category (Choice: DECISION, RISK, INFO, FOLLOW_UP), Status (Choice: ACTIVE, ARCHIVED), MeetingId (Text), InitiativeId (Text), ProjectId (Text)
 
 ## Future lists (documented only, not implemented)
-IT_05_KPIs, IT_06_Budgets, IT_07_CAPEX, IT_08_OPEX, IT_09_Vendors, IT_10_Contracts, IT_13_Incidents, IT_14_Interactions, IT_15_ChangeRequests, IT_16_TeamSkills, IT_17_TrainingPlans, IT_18_KnowledgeBase
+IT_05_KPIs, IT_13_Incidents, IT_14_Interactions, IT_15_ChangeRequests, IT_16_TeamSkills, IT_17_TrainingPlans, IT_18_KnowledgeBase
 
 ## Notes
 - Changing the columns of a list that already exists is not automated (see `ROADMAP.md`).

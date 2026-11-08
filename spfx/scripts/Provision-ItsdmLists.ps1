@@ -156,6 +156,33 @@ $notes = @(
   @{ Name = 'MeetingId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }
 )
 
+$budgets = @(
+  @{ Name = 'BudgetId'; Type = 'Text' }, @{ Name = 'FiscalYear'; Type = 'Number' }, @{ Name = 'Description'; Type = 'Note' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'DRAFT', 'APPROVED', 'CLOSED' }, @{ Name = 'PlannedAmount'; Type = 'Number' }, @{ Name = 'OwnerUPN'; Type = 'Text' }
+)
+$capex = @(
+  @{ Name = 'CapexId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'PLANNED', 'COMMITTED', 'PAID', 'CANCELLED' }, @{ Name = 'Amount'; Type = 'Number' },
+  @{ Name = 'ExpenseDate'; Type = 'Date' }, @{ Name = 'InvoiceRef'; Type = 'Text' }, @{ Name = 'OwnerUPN'; Type = 'Text' },
+  @{ Name = 'BudgetId'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'VendorId'; Type = 'Text' }
+)
+$opex = @(
+  @{ Name = 'OpexId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'PLANNED', 'COMMITTED', 'PAID', 'CANCELLED' }, @{ Name = 'Amount'; Type = 'Number' },
+  @{ Name = 'Frequency'; Type = 'Choice'; Choices = 'ONE_OFF', 'MONTHLY', 'QUARTERLY', 'ANNUAL' }, @{ Name = 'ExpenseDate'; Type = 'Date' }, @{ Name = 'OwnerUPN'; Type = 'Text' },
+  @{ Name = 'BudgetId'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'VendorId'; Type = 'Text' }, @{ Name = 'ContractId'; Type = 'Text' }
+)
+$vendors = @(
+  @{ Name = 'VendorId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'ACTIVE', 'UNDER_REVIEW', 'INACTIVE' },
+  @{ Name = 'Category'; Type = 'Choice'; Choices = 'SOFTWARE', 'HARDWARE', 'SERVICES', 'TELECOM', 'CLOUD', 'OTHER' },
+  @{ Name = 'ContactName'; Type = 'Text' }, @{ Name = 'ContactEmail'; Type = 'Text' }, @{ Name = 'Website'; Type = 'Text' }, @{ Name = 'OwnerUPN'; Type = 'Text' }
+)
+$contracts = @(
+  @{ Name = 'ContractId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'DRAFT', 'ACTIVE', 'EXPIRED', 'TERMINATED' },
+  @{ Name = 'VendorId'; Type = 'Text' }, @{ Name = 'StartDate'; Type = 'Date' }, @{ Name = 'EndDate'; Type = 'Date' },
+  @{ Name = 'NoticeDays'; Type = 'Number'; Extra = 'Min="0" Max="365"' }, @{ Name = 'AnnualValue'; Type = 'Number' },
+  @{ Name = 'AutoRenew'; Type = 'Choice'; Choices = 'NO', 'YES' }, @{ Name = 'OwnerUPN'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }
+)
 $risks = @(
   @{ Name = 'RiskId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' },
   @{ Name = 'Status'; Type = 'Choice'; Choices = 'OPEN', 'MITIGATING', 'ACCEPTED', 'CLOSED' },
@@ -193,6 +220,9 @@ $ideas += $approval
 $initiatives += $approval
 $projects += $approval
 $actions += $approval
+$capex += $approval
+$opex += $approval
+$contracts += $approval
 
 # ---------- create structure ----------
 Write-Host 'Creating lists and columns...' -ForegroundColor Cyan
@@ -200,6 +230,11 @@ Initialize-ItsdmList -Title 'IT_01_Ideas'       -Fields $ideas
 Initialize-ItsdmList -Title 'IT_02_Initiatives' -Fields $initiatives
 Initialize-ItsdmList -Title 'IT_03_Projects'    -Fields $projects
 Initialize-ItsdmList -Title 'IT_04_Actions'     -Fields $actions
+Initialize-ItsdmList -Title 'IT_06_Budgets'     -Fields $budgets
+Initialize-ItsdmList -Title 'IT_07_CAPEX'       -Fields $capex
+Initialize-ItsdmList -Title 'IT_08_OPEX'        -Fields $opex
+Initialize-ItsdmList -Title 'IT_09_Vendors'     -Fields $vendors
+Initialize-ItsdmList -Title 'IT_10_Contracts'   -Fields $contracts
 Initialize-ItsdmList -Title 'IT_11_Risks'       -Fields $risks
 Initialize-ItsdmList -Title 'IT_12_Decisions'   -Fields $decisions
 Initialize-ItsdmList -Title 'IT_19_Reviews'     -Fields $reviews

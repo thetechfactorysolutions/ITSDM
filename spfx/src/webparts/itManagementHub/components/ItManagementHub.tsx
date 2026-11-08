@@ -5,6 +5,7 @@ import styles from './ItManagementHub.module.scss';
 import { AppConfig } from '../../../config/AppConfig';
 import { HubDataProvider } from '../../../components/shared/HubData';
 import Dashboard from '../../../components/Dashboard/Dashboard';
+import Finance from '../../../components/Finance/Finance';
 import Governance from '../../../components/Governance/Governance';
 import Help from '../../../components/Help/Help';
 import Ideas from '../../../components/Ideas/Ideas';
@@ -13,6 +14,7 @@ import Initiatives from '../../../components/Initiatives/Initiatives';
 import Actions from '../../../components/Actions/Actions';
 import Notes from '../../../components/Notes/Notes';
 import Projects from '../../../components/Projects/Projects';
+import VendorsTab from '../../../components/Vendors/VendorsTab';
 import { I18nProvider, resolveLanguage, useT } from '../../../i18n/I18n';
 
 /** Tabs, translated. Separate from the root so it can read the language set by the provider. */
@@ -31,6 +33,8 @@ const Tabs: React.FC<{ description: string }> = ({ description }) => {
         <PivotItem headerText={t('nav.initiatives')}><Initiatives /></PivotItem>
         <PivotItem headerText={t('nav.projects')}><Projects /></PivotItem>
         <PivotItem headerText={t('nav.actions')}><Actions /></PivotItem>
+        <PivotItem headerText={t('nav.finance')}><Finance /></PivotItem>
+        <PivotItem headerText={t('nav.vendorsTab')}><VendorsTab /></PivotItem>
         <PivotItem headerText={t('nav.governance')}><Governance /></PivotItem>
         <PivotItem headerText={t('nav.notes')}><Notes /></PivotItem>
         <PivotItem headerText={t('nav.import')}><Import /></PivotItem>

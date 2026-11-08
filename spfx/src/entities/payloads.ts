@@ -1,4 +1,4 @@
-import { ActionItem, Decision, IApprovalState, Idea, Initiative, Lesson, Meeting, Note, Project, Review, Risk } from '../models';
+import { ActionItem, Budget, CapexItem, Contract, Decision, IApprovalState, Idea, Initiative, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Vendor } from '../models';
 import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
 
@@ -153,6 +153,75 @@ export const buildReviewPayload = (review: Review): Record<string, unknown> => (
   InitiativeId: review.initiativeId ?? ''
 });
 
+export const buildBudgetPayload = (budget: Budget): Record<string, unknown> => ({
+  Title: budget.title.trim(),
+  BudgetId: budget.budgetId,
+  FiscalYear: budget.fiscalYear,
+  Description: budget.description,
+  Status: budget.status,
+  PlannedAmount: budget.plannedAmount,
+  OwnerUPN: budget.ownerUpn
+});
+
+export const buildCapexPayload = (capex: CapexItem): Record<string, unknown> => ({
+  Title: capex.title.trim(),
+  CapexId: capex.capexId,
+  Description: capex.description,
+  Status: capex.status,
+  Amount: capex.amount,
+  ExpenseDate: dayKeyToSharePoint(capex.expenseDate),
+  InvoiceRef: capex.invoiceRef,
+  OwnerUPN: capex.ownerUpn,
+  BudgetId: capex.budgetId ?? '',
+  ProjectId: capex.projectId ?? '',
+  VendorId: capex.vendorId ?? '',
+  ...buildApprovalPayload(getApproval(capex))
+});
+
+export const buildOpexPayload = (opex: OpexItem): Record<string, unknown> => ({
+  Title: opex.title.trim(),
+  OpexId: opex.opexId,
+  Description: opex.description,
+  Status: opex.status,
+  Amount: opex.amount,
+  Frequency: opex.frequency,
+  ExpenseDate: dayKeyToSharePoint(opex.expenseDate),
+  OwnerUPN: opex.ownerUpn,
+  BudgetId: opex.budgetId ?? '',
+  ProjectId: opex.projectId ?? '',
+  VendorId: opex.vendorId ?? '',
+  ContractId: opex.contractId ?? '',
+  ...buildApprovalPayload(getApproval(opex))
+});
+
+export const buildVendorPayload = (vendor: Vendor): Record<string, unknown> => ({
+  Title: vendor.title.trim(),
+  VendorId: vendor.vendorId,
+  Description: vendor.description,
+  Status: vendor.status,
+  Category: vendor.category,
+  ContactName: vendor.contactName,
+  ContactEmail: vendor.contactEmail,
+  Website: vendor.website,
+  OwnerUPN: vendor.ownerUpn
+});
+
+export const buildContractPayload = (contract: Contract): Record<string, unknown> => ({
+  Title: contract.title.trim(),
+  ContractId: contract.contractId,
+  Description: contract.description,
+  Status: contract.status,
+  VendorId: contract.vendorId ?? '',
+  StartDate: dayKeyToSharePoint(contract.startDate),
+  EndDate: dayKeyToSharePoint(contract.endDate),
+  NoticeDays: contract.noticeDays,
+  AnnualValue: contract.annualValue,
+  AutoRenew: contract.autoRenew,
+  OwnerUPN: contract.ownerUpn,
+  ProjectId: contract.projectId ?? '',
+  ...buildApprovalPayload(getApproval(contract))
+});
+
 /** Columns requested from each list. Asking only for what the app uses keeps the responses small. */
 export const SELECT = {
   ideas: ['Id', 'Title', 'IdeaId', 'Description', 'Status', 'OwnerUPN', 'SponsorUPN', 'EstimatedValue', 'TargetDate', 'Tags', 'ConvertedInitiativeId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
@@ -164,6 +233,11 @@ export const SELECT = {
   decisions: ['Id', 'Title', 'DecisionId', 'Description', 'Rationale', 'Status', 'DecidedBy', 'DecisionDate', 'ProjectId', 'InitiativeId', 'MeetingId', 'Created', 'Modified', 'Editor/Title'],
   lessons: ['Id', 'Title', 'LessonId', 'Description', 'Recommendation', 'Category', 'Status', 'OwnerUPN', 'ProjectId', 'InitiativeId', 'MeetingId', 'Created', 'Modified', 'Editor/Title'],
   reviews: ['Id', 'Title', 'ReviewId', 'ReviewType', 'Status', 'Health', 'ReviewDate', 'NextReviewDate', 'Summary', 'NextSteps', 'OwnerUPN', 'ProjectId', 'InitiativeId', 'Created', 'Modified', 'Editor/Title'],
+  budgets: ['Id', 'Title', 'BudgetId', 'FiscalYear', 'Description', 'Status', 'PlannedAmount', 'OwnerUPN', 'Created', 'Modified', 'Editor/Title'],
+  capex: ['Id', 'Title', 'CapexId', 'Description', 'Status', 'Amount', 'ExpenseDate', 'InvoiceRef', 'OwnerUPN', 'BudgetId', 'ProjectId', 'VendorId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
+  opex: ['Id', 'Title', 'OpexId', 'Description', 'Status', 'Amount', 'Frequency', 'ExpenseDate', 'OwnerUPN', 'BudgetId', 'ProjectId', 'VendorId', 'ContractId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
+  vendors: ['Id', 'Title', 'VendorId', 'Description', 'Status', 'Category', 'ContactName', 'ContactEmail', 'Website', 'OwnerUPN', 'Created', 'Modified', 'Editor/Title'],
+  contracts: ['Id', 'Title', 'ContractId', 'Description', 'Status', 'VendorId', 'StartDate', 'EndDate', 'NoticeDays', 'AnnualValue', 'AutoRenew', 'OwnerUPN', 'ProjectId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   notes: ['Id', 'Title', 'NoteId', 'Body', 'Category', 'Status', 'MeetingId', 'InitiativeId', 'ProjectId', 'Created', 'Modified', 'Editor/Title']
 };
 

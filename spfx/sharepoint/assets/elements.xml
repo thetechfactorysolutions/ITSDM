@@ -43,6 +43,50 @@
       </Rows>
     </Data>
   </ListInstance>
+  <ListInstance Title="IT_06_Budgets" Description="Budgets by year; committed and used are calculated from the expenses linked to them" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_06_Budgets" CustomSchema="schema_budgets.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">IT Infrastructure 2026</Field><Field Name="BudgetId">BUD-DEMO-001</Field><Field Name="FiscalYear">2026</Field><Field Name="Description">Laptops, telephony, licences and support for the year.</Field><Field Name="Status">APPROVED</Field><Field Name="PlannedAmount">500000</Field><Field Name="OwnerUPN">demo.owner@example.com</Field></Row>
+          <Row><Field Name="Title">Cloud hosting 2026</Field><Field Name="BudgetId">BUD-DEMO-002</Field><Field Name="FiscalYear">2026</Field><Field Name="Description">Cloud platform costs for the year.</Field><Field Name="Status">APPROVED</Field><Field Name="PlannedAmount">60000</Field><Field Name="OwnerUPN">demo.owner@example.com</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
+  <ListInstance Title="IT_07_CAPEX" Description="Investments, linked to a budget, a project and a vendor" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_07_CAPEX" CustomSchema="schema_capex.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Laptops, wave 1</Field><Field Name="CapexId">CAPEX-DEMO-001</Field><Field Name="Description">Sample investment: Laptops, wave 1.</Field><Field Name="Status">COMMITTED</Field><Field Name="Amount">205000</Field><Field Name="ExpenseDate">2026-10-19T12:00:00Z</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="BudgetId">BUD-DEMO-001</Field><Field Name="ProjectId">PROJ-DEMO-001</Field><Field Name="VendorId">VEN-DEMO-001</Field></Row>
+          <Row><Field Name="Title">Telephony hardware</Field><Field Name="CapexId">CAPEX-DEMO-002</Field><Field Name="Description">Sample investment: Telephony hardware.</Field><Field Name="Status">PLANNED</Field><Field Name="Amount">90000</Field><Field Name="ExpenseDate">2026-12-08T12:00:00Z</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="BudgetId">BUD-DEMO-001</Field><Field Name="ProjectId">PROJ-DEMO-002</Field><Field Name="VendorId">VEN-DEMO-002</Field></Row>
+          <Row><Field Name="Title">Meeting-room equipment</Field><Field Name="CapexId">CAPEX-DEMO-003</Field><Field Name="Description">Sample investment: Meeting-room equipment.</Field><Field Name="Status">PLANNED</Field><Field Name="Amount">80000</Field><Field Name="ExpenseDate">2026-12-23T12:00:00Z</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="BudgetId">BUD-DEMO-001</Field><Field Name="ProjectId"></Field><Field Name="VendorId">VEN-DEMO-001</Field><Field Name="ApprovalRule">capex.commit</Field><Field Name="ApprovalStatus">PENDING</Field><Field Name="Approver">demo.owner@example.com</Field><Field Name="ApprovalRequestedOn">2026-11-07T12:00:00Z</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
+  <ListInstance Title="IT_08_OPEX" Description="Recurring costs; the annual amount counts against the budget" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_08_OPEX" CustomSchema="schema_opex.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Microsoft 365 licences</Field><Field Name="OpexId">OPEX-DEMO-001</Field><Field Name="Description">Sample recurring cost: Microsoft 365 licences.</Field><Field Name="Status">COMMITTED</Field><Field Name="Amount">8000</Field><Field Name="Frequency">MONTHLY</Field><Field Name="ExpenseDate">2026-09-09T12:00:00Z</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="BudgetId">BUD-DEMO-001</Field><Field Name="ProjectId"></Field><Field Name="VendorId"></Field><Field Name="ContractId"></Field></Row>
+          <Row><Field Name="Title">Cloud hosting</Field><Field Name="OpexId">OPEX-DEMO-002</Field><Field Name="Description">Sample recurring cost: Cloud hosting.</Field><Field Name="Status">COMMITTED</Field><Field Name="Amount">6500</Field><Field Name="Frequency">MONTHLY</Field><Field Name="ExpenseDate">2026-08-10T12:00:00Z</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="BudgetId">BUD-DEMO-002</Field><Field Name="ProjectId"></Field><Field Name="VendorId">VEN-DEMO-003</Field><Field Name="ContractId">CON-DEMO-002</Field></Row>
+          <Row><Field Name="Title">Support retainer</Field><Field Name="OpexId">OPEX-DEMO-003</Field><Field Name="Description">Sample recurring cost: Support retainer.</Field><Field Name="Status">PLANNED</Field><Field Name="Amount">3000</Field><Field Name="Frequency">QUARTERLY</Field><Field Name="ExpenseDate">2026-11-23T12:00:00Z</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="BudgetId">BUD-DEMO-001</Field><Field Name="ProjectId"></Field><Field Name="VendorId">VEN-DEMO-001</Field><Field Name="ContractId"></Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
+  <ListInstance Title="IT_09_Vendors" Description="Vendors with contact and relationship owner" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_09_Vendors" CustomSchema="schema_vendors.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Contoso Hardware</Field><Field Name="VendorId">VEN-DEMO-001</Field><Field Name="Description">Laptops, screens and room equipment.</Field><Field Name="Status">ACTIVE</Field><Field Name="Category">HARDWARE</Field><Field Name="ContactName">Alex Morgan</Field><Field Name="ContactEmail">alex.morgan@example.com</Field><Field Name="Website">https://example.com</Field><Field Name="OwnerUPN">demo.owner@example.com</Field></Row>
+          <Row><Field Name="Title">Fabrikam Telecom</Field><Field Name="VendorId">VEN-DEMO-002</Field><Field Name="Description">Telephony and connectivity.</Field><Field Name="Status">ACTIVE</Field><Field Name="Category">TELECOM</Field><Field Name="ContactName">Sam Rivera</Field><Field Name="ContactEmail">sam.rivera@example.com</Field><Field Name="Website">https://example.com</Field><Field Name="OwnerUPN">demo.owner@example.com</Field></Row>
+          <Row><Field Name="Title">Northwind Cloud</Field><Field Name="VendorId">VEN-DEMO-003</Field><Field Name="Description">Cloud hosting platform.</Field><Field Name="Status">UNDER_REVIEW</Field><Field Name="Category">CLOUD</Field><Field Name="ContactName">Jo Bennett</Field><Field Name="ContactEmail">jo.bennett@example.com</Field><Field Name="Website">https://example.com</Field><Field Name="OwnerUPN">demo.owner@example.com</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
+  <ListInstance Title="IT_10_Contracts" Description="Contracts with renewal notice, linked to a vendor" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_10_Contracts" CustomSchema="schema_contracts.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Hardware supply agreement</Field><Field Name="ContractId">CON-DEMO-001</Field><Field Name="Description">Sample contract: Hardware supply agreement.</Field><Field Name="Status">ACTIVE</Field><Field Name="VendorId">VEN-DEMO-001</Field><Field Name="StartDate">2026-01-12T12:00:00Z</Field><Field Name="EndDate">2027-12-13T12:00:00Z</Field><Field Name="NoticeDays">90</Field><Field Name="AnnualValue">120000</Field><Field Name="AutoRenew">NO</Field><Field Name="OwnerUPN">demo.owner@example.com</Field></Row>
+          <Row><Field Name="Title">Cloud hosting contract</Field><Field Name="ContractId">CON-DEMO-002</Field><Field Name="Description">Sample contract: Cloud hosting contract.</Field><Field Name="Status">ACTIVE</Field><Field Name="VendorId">VEN-DEMO-003</Field><Field Name="StartDate">2025-12-18T12:00:00Z</Field><Field Name="EndDate">2026-12-18T12:00:00Z</Field><Field Name="NoticeDays">90</Field><Field Name="AnnualValue">78000</Field><Field Name="AutoRenew">YES</Field><Field Name="OwnerUPN">demo.owner@example.com</Field></Row>
+          <Row><Field Name="Title">Telephony service</Field><Field Name="ContractId">CON-DEMO-003</Field><Field Name="Description">Sample contract: Telephony service.</Field><Field Name="Status">DRAFT</Field><Field Name="VendorId">VEN-DEMO-002</Field><Field Name="StartDate">2026-12-08T12:00:00Z</Field><Field Name="EndDate">2027-12-08T12:00:00Z</Field><Field Name="NoticeDays">60</Field><Field Name="AnnualValue">60000</Field><Field Name="AutoRenew">NO</Field><Field Name="OwnerUPN">demo.owner@example.com</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
   <ListInstance Title="IT_11_Risks" Description="Risks with probability, impact and mitigation" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_11_Risks" CustomSchema="schema_risks.xml">
     <Data>
       <Rows>

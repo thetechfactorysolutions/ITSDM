@@ -1,5 +1,5 @@
 import {
-  ActionItem, ActionPriority, ActionStatus, ApprovalStatus, Decision, DecisionStatus, IApprovalState, Idea, Lesson, LessonCategory, LessonStatus, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
+  ActionItem, ActionPriority, ActionStatus, ApprovalStatus, AutoRenew, Budget, BudgetStatus, CapexItem, Contract, ContractStatus, ExpenseStatus, OpexFrequency, OpexItem, Vendor, VendorCategory, VendorStatus, Decision, DecisionStatus, IApprovalState, Idea, Lesson, LessonCategory, LessonStatus, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
   Project, ProjectRiskLevel, ProjectStatus, Review, ReviewHealth, ReviewStatus, ReviewType, Risk, RiskScale, RiskStatus
 } from '../../models';
 import { dayKeyFromValue } from '../../rules/dates';
@@ -225,4 +225,93 @@ export const mapReview = (item: Record<string, unknown>): Review => ({
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
   editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapBudget = (item: Record<string, unknown>): Budget => ({
+  id: readId(item),
+  budgetId: readString(item, 'BudgetId'),
+  title: readString(item, 'Title'),
+  fiscalYear: readNumber(item, 'FiscalYear'),
+  description: readString(item, 'Description'),
+  status: readEnum(item, 'Status', enumValues(BudgetStatus), BudgetStatus.DRAFT),
+  plannedAmount: readNumber(item, 'PlannedAmount'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapCapex = (item: Record<string, unknown>): CapexItem => ({
+  id: readId(item),
+  capexId: readString(item, 'CapexId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  status: readEnum(item, 'Status', enumValues(ExpenseStatus), ExpenseStatus.PLANNED),
+  amount: readNumber(item, 'Amount'),
+  expenseDate: readDate(item, 'ExpenseDate'),
+  invoiceRef: readString(item, 'InvoiceRef'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  budgetId: readString(item, 'BudgetId'),
+  projectId: readString(item, 'ProjectId'),
+  vendorId: readString(item, 'VendorId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor'),
+  approval: readApproval(item)
+});
+
+export const mapOpex = (item: Record<string, unknown>): OpexItem => ({
+  id: readId(item),
+  opexId: readString(item, 'OpexId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  status: readEnum(item, 'Status', enumValues(ExpenseStatus), ExpenseStatus.PLANNED),
+  amount: readNumber(item, 'Amount'),
+  frequency: readEnum(item, 'Frequency', enumValues(OpexFrequency), OpexFrequency.ONE_OFF),
+  expenseDate: readDate(item, 'ExpenseDate'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  budgetId: readString(item, 'BudgetId'),
+  projectId: readString(item, 'ProjectId'),
+  vendorId: readString(item, 'VendorId'),
+  contractId: readString(item, 'ContractId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor'),
+  approval: readApproval(item)
+});
+
+export const mapVendor = (item: Record<string, unknown>): Vendor => ({
+  id: readId(item),
+  vendorId: readString(item, 'VendorId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  status: readEnum(item, 'Status', enumValues(VendorStatus), VendorStatus.ACTIVE),
+  category: readEnum(item, 'Category', enumValues(VendorCategory), VendorCategory.OTHER),
+  contactName: readString(item, 'ContactName'),
+  contactEmail: readString(item, 'ContactEmail'),
+  website: readString(item, 'Website'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapContract = (item: Record<string, unknown>): Contract => ({
+  id: readId(item),
+  contractId: readString(item, 'ContractId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  status: readEnum(item, 'Status', enumValues(ContractStatus), ContractStatus.DRAFT),
+  vendorId: readString(item, 'VendorId'),
+  startDate: readDate(item, 'StartDate'),
+  endDate: readDate(item, 'EndDate'),
+  noticeDays: item.NoticeDays === undefined || item.NoticeDays === null ? 90 : readNumber(item, 'NoticeDays'),
+  annualValue: readNumber(item, 'AnnualValue'),
+  autoRenew: readEnum(item, 'AutoRenew', enumValues(AutoRenew), AutoRenew.NO),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  projectId: readString(item, 'ProjectId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor'),
+  approval: readApproval(item)
 });

@@ -2,6 +2,23 @@ import * as React from 'react';
 import { ILinkOption } from './LinkField';
 import { useHubData } from './HubData';
 
+export interface IFinanceLinkOptions {
+  budgetOptions: ILinkOption[];
+  vendorOptions: ILinkOption[];
+  contractOptions: ILinkOption[];
+  projectOptions: ILinkOption[];
+}
+
+/** The choices for budget, vendor, contract and project pickers, used by the finance and vendor screens. */
+export const useFinanceLinkOptions = (): IFinanceLinkOptions => {
+  const { budgets, vendors, contracts, projects } = useHubData();
+  const budgetOptions = React.useMemo(() => budgets.items.map(b => ({ id: b.budgetId, title: b.title })), [budgets.items]);
+  const vendorOptions = React.useMemo(() => vendors.items.map(v => ({ id: v.vendorId, title: v.title })), [vendors.items]);
+  const contractOptions = React.useMemo(() => contracts.items.map(c => ({ id: c.contractId, title: c.title })), [contracts.items]);
+  const projectOptions = React.useMemo(() => projects.items.map(p => ({ id: p.projectId, title: p.title })), [projects.items]);
+  return { budgetOptions, vendorOptions, contractOptions, projectOptions };
+};
+
 export interface ILinkOptions {
   initiativeOptions: ILinkOption[];
   projectOptions: ILinkOption[];

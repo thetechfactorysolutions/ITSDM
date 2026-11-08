@@ -120,6 +120,15 @@
     IT_04_Actions: [T('ActionId'), T('InitiativeId'), T('ProjectId'), N('Description'),
       C('Status', ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED']), C('Priority', level),
       T('OwnerUPN'), D('DueDate'), D('CompletedDate'), T('PlannerTaskId')],
+    IT_06_Budgets: [T('BudgetId'), NUM('FiscalYear'), N('Description'), C('Status', ['DRAFT', 'APPROVED', 'CLOSED']), NUM('PlannedAmount'), T('OwnerUPN')],
+    IT_07_CAPEX: [T('CapexId'), N('Description'), C('Status', ['PLANNED', 'COMMITTED', 'PAID', 'CANCELLED']), NUM('Amount'), D('ExpenseDate'), T('InvoiceRef'), T('OwnerUPN'),
+      T('BudgetId'), T('ProjectId'), T('VendorId')],
+    IT_08_OPEX: [T('OpexId'), N('Description'), C('Status', ['PLANNED', 'COMMITTED', 'PAID', 'CANCELLED']), NUM('Amount'), C('Frequency', ['ONE_OFF', 'MONTHLY', 'QUARTERLY', 'ANNUAL']),
+      D('ExpenseDate'), T('OwnerUPN'), T('BudgetId'), T('ProjectId'), T('VendorId'), T('ContractId')],
+    IT_09_Vendors: [T('VendorId'), N('Description'), C('Status', ['ACTIVE', 'UNDER_REVIEW', 'INACTIVE']), C('Category', ['SOFTWARE', 'HARDWARE', 'SERVICES', 'TELECOM', 'CLOUD', 'OTHER']),
+      T('ContactName'), T('ContactEmail'), T('Website'), T('OwnerUPN')],
+    IT_10_Contracts: [T('ContractId'), N('Description'), C('Status', ['DRAFT', 'ACTIVE', 'EXPIRED', 'TERMINATED']), T('VendorId'), D('StartDate'), D('EndDate'),
+      NUM('NoticeDays', 'Min="0" Max="365"'), NUM('AnnualValue'), C('AutoRenew', ['NO', 'YES']), T('OwnerUPN'), T('ProjectId')],
     IT_11_Risks: [T('RiskId'), N('Description'), C('Status', ['OPEN', 'MITIGATING', 'ACCEPTED', 'CLOSED']), C('Probability', ['LOW', 'MEDIUM', 'HIGH']),
       C('Impact', ['LOW', 'MEDIUM', 'HIGH']), T('OwnerUPN'), N('Mitigation'), D('DueDate'), T('ProjectId'), T('InitiativeId'), T('MeetingId')],
     IT_12_Decisions: [T('DecisionId'), N('Description'), N('Rationale'), C('Status', ['PROPOSED', 'DECIDED', 'SUPERSEDED']), T('DecidedBy'), D('DecisionDate'),
@@ -136,7 +145,7 @@
   // Same seven approval columns on the four main lists (see src/rules/approvals.ts).
   const approvalFields = [T('ApprovalRule'), C('ApprovalStatus', ['NONE', 'PENDING', 'APPROVED', 'REJECTED']), T('Approver'),
     D('ApprovalRequestedOn'), D('ApprovalDecidedOn'), T('ApprovalDecidedBy'), N('ApprovalComment')];
-  ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions'].forEach((name) => { defs[name] = defs[name].concat(approvalFields); });
+  ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts'].forEach((name) => { defs[name] = defs[name].concat(approvalFields); });
 
   for (const [title, fields] of Object.entries(defs)) await ensureList(title, fields);
 

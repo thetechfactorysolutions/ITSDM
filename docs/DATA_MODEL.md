@@ -11,6 +11,8 @@
 - **Decision**: what was decided, its context, why, who and when
 - **Lesson learned**: what happened and what to do next time
 - **Review**: a periodic look at a project or initiative, with a health (green, amber, red)
+- **Budget**: a yearly amount; the **CAPEX** (investment) and **OPEX** (recurring cost) entries that point at it count against it
+- **Vendor** and **Contract**: who we buy from, and the agreement, with its end date and renewal notice
 
 ## Relationships
 - Idea → (validated + confirmation) → Initiative
@@ -33,6 +35,15 @@
 - **Lesson:** New → Reviewed → Applied.
 - **Review:** Scheduled → Completed or Cancelled (can be rescheduled).
 - Closed statuses (hidden by default): Closed, Superseded, Applied, Completed, Cancelled.
+
+## Money and vendors
+- **Committed** (of a budget) = CAPEX amounts + OPEX **annualised** (amount x 12, 4 or 1 for monthly, quarterly, annual or one-off), for every expense that points at the budget and is not Cancelled. **Paid** is the part already Paid. **Remaining** = planned - committed; **used** = committed / planned. Level: **On track** up to 90%, **Near the limit** from 90% up to 100%, **Over budget** above 100% (spending with nothing planned is over).
+- **Expense:** Planned → Committed → Paid, or Cancelled (can return to Planned).
+- **Budget:** Draft → Approved → Closed (a closed budget can be reopened as Approved).
+- **Vendor:** Active, Under review, Inactive (free between them).
+- **Contract:** Draft → Active → Expired or Terminated; an Expired one can be renewed (Active again); Terminated is final.
+- **Contract alert:** an Active contract is **due for renewal** when the days left to its end date are within its notice period (90 by default), and **lapsed** when the end date passed but it was never closed.
+- Amounts have no currency (as in projects). Closed statuses (hidden by default) now also include Inactive, Expired and Terminated.
 
 ## Approvals
 Ideas, initiatives, projects and actions carry one active approval (`ApprovalRule`, `ApprovalStatus` NONE/PENDING/APPROVED/REJECTED, `Approver`, `ApprovalRequestedOn`, `ApprovalDecidedOn`, `ApprovalDecidedBy`, `ApprovalComment`). Which changes need one is defined as data in `src/rules/approvals.ts`; see `APROBACIONES.md`.

@@ -34,6 +34,8 @@ export interface IAppConfig {
     overBudgetRatio: number;
     /** A project with at least this budget needs approval to become active. */
     highBudget: number;
+    /** A CAPEX or OPEX commitment, or a contract, of at least this amount needs approval. */
+    highSpend: number;
   };
 }
 
@@ -68,6 +70,7 @@ export const AppConfig: IAppConfig = {
   },
   approvals: {
     overBudgetRatio: 0.1,
-    highBudget: 100000
+    highBudget: 100000,
+    highSpend: 50000
   }
 };
