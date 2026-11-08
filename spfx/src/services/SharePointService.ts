@@ -141,6 +141,12 @@ export class SharePointService {
 
   private _toServiceError(message: string, listName: string, error: unknown): Error {
     const reason = error instanceof Error ? error.message : 'Unknown error';
+
+    // A missing list is the most common setup problem; say how to fix it instead of showing raw OData.
+    if (/does not exist|\[404\]/i.test(reason) && /^IT_\d+_/.test(listName)) {
+      return new Error(`The list "${listName}" does not exist on this site. The lists are created when the app is added to the site: remove the app from this site and add it again (see the Help tab).`);
+    }
+
     return new Error(`${message} from ${listName}. ${reason}`);
   }
 }

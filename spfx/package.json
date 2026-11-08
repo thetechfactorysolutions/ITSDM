@@ -8,6 +8,8 @@
   "scripts": {
     "build": "gulp bundle",
     "clean": "gulp clean",
+    "assets": "node scripts/generate-assets.js",
+    "package": "npm run assets && gulp bundle --ship && gulp package-solution --ship",
     "test": "gulp test && tsx tests/businessRules.test.ts && tsx tests/validation.test.ts && tsx tests/ids.test.ts && tsx tests/useListItems.test.tsx"
   },
   "main": "lib/index.js",

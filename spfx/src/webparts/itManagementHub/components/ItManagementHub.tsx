@@ -5,6 +5,7 @@ import styles from './ItManagementHub.module.scss';
 import { AppConfig } from '../../../config/AppConfig';
 import { HubDataProvider } from '../../../components/shared/HubData';
 import Dashboard from '../../../components/Dashboard/Dashboard';
+import Help from '../../../components/Help/Help';
 import Ideas from '../../../components/Ideas/Ideas';
 import Initiatives from '../../../components/Initiatives/Initiatives';
 import Actions from '../../../components/Actions/Actions';
@@ -34,6 +35,9 @@ const ItManagementHub: React.FC<IItManagementHubProps> = ({ description, context
             </PivotItem>
             <PivotItem headerText="Projects">
               <Projects />
+            </PivotItem>
+            <PivotItem headerText="Help">
+              <Help />
             </PivotItem>
           </Pivot>
         </HubDataProvider>

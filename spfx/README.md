@@ -20,10 +20,13 @@ npm install
 | --- | --- |
 | `npx gulp serve` | Servidor local para el workbench de SharePoint |
 | `npx gulp bundle --ship` | Compila y empaqueta en `dist/` (producción) |
-| `npx gulp package-solution --ship` | Genera `sharepoint/solution/itsdm.sppkg` para subir al catálogo de aplicaciones |
+| `npm run package` | Genera los activos de SharePoint (listas), compila y crea `sharepoint/solution/itsdm.sppkg` |
+| `npx gulp package-solution --ship` | Solo empaqueta (usa antes `npm run assets` y `bundle --ship`) |
 | `npm test` | Lint + compilación + tests (reglas, validación, IDs y hook de listas) |
 
-Despliegue: `bundle --ship` → `package-solution --ship` → subir `sharepoint/solution/itsdm.sppkg` al catálogo de aplicaciones y añadir el web part a una página.
+Despliegue: `npm run package` → subir `sharepoint/solution/itsdm.sppkg` al catálogo de aplicaciones → **añadir la app al sitio** (Contenido del sitio → Nuevo → Aplicación). Al añadirla, SharePoint crea las 4 listas con sus columnas y unos datos de ejemplo.
+
+> Las listas solo se crean al **añadir la app al sitio**. Si actualizas una versión ya instalada y faltan listas, quita la app del sitio y vuelve a añadirla. Los datos de ejemplo tienen IDs `…-DEMO-…` y un responsable de ejemplo (`demo.owner@example.com`); bórralos o edítalos cuando quieras.
 
 ## Estructura
 
@@ -47,6 +50,8 @@ tests/             Tests de reglas, validación, IDs y del hook
 Las listas se cargan una vez para todo el web part (`HubData`) y las pestañas comparten ese estado.
 
 ## Listas de SharePoint
+
+Se crean solas al añadir la app (ver Despliegue). Su definición única está en `scripts/generate-assets.js`, que genera `sharepoint/assets/*.xml`. Alternativas si hiciera falta crearlas a mano: `scripts/Provision-ItsdmLists.ps1` (PnP, requiere ClientId de Entra ID) o `scripts/provision-lists.browser.js` (pegar en la consola del navegador).
 
 Los nombres están en `src/config/AppConfig.ts`. La app lee las listas por **título**. Hoy se usan 4 de las 20 definidas; el resto está reservado para fases futuras.
 
@@ -81,7 +86,6 @@ Las columnas de fecha se leen como el día local en que caen y se escriben a med
 
 ## Pendiente
 
-- Script de creación de las listas y columnas (PnP).
 - Integración real con Graph, Planner y Power Automate (hoy son andamiaje).
 - Textos localizados (la interfaz está en inglés fijo).
 - Las 16 listas restantes de `AppConfig` no tienen interfaz.
