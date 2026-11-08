@@ -43,4 +43,20 @@
       </Rows>
     </Data>
   </ListInstance>
+  <ListInstance Title="IT_21_Meetings" Description="Meetings imported from a transcript, with what was created from them" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_21_Meetings" CustomSchema="schema_meetings.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Weekly IT sync</Field><Field Name="MeetingId">MEET-DEMO-001</Field><Field Name="MeetingDate">2026-11-05T12:00:00Z</Field><Field Name="Summary">Laptop refresh wave 1 and the telephony rollout were reviewed.</Field><Field Name="Attendees">ana@example.com; luis@example.com</Field><Field Name="ImportedItems">Sample meeting: its notes below are linked to it.</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
+  <ListInstance Title="IT_22_Notes" Description="Decisions, risks, information and follow-ups" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_22_Notes" CustomSchema="schema_notes.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Budget approved for wave 1</Field><Field Name="NoteId">NOTE-DEMO-001</Field><Field Name="Body">Finance confirmed the budget for the first laptop wave.</Field><Field Name="Category">DECISION</Field><Field Name="Status">ACTIVE</Field><Field Name="MeetingId">MEET-DEMO-001</Field><Field Name="ProjectId">PROJ-DEMO-001</Field></Row>
+          <Row><Field Name="Title">Telephony vendor may delay delivery</Field><Field Name="NoteId">NOTE-DEMO-002</Field><Field Name="Body">The vendor warned of a possible two-week delay.</Field><Field Name="Category">RISK</Field><Field Name="Status">ACTIVE</Field><Field Name="MeetingId">MEET-DEMO-001</Field><Field Name="ProjectId">PROJ-DEMO-002</Field></Row>
+          <Row><Field Name="Title">Share the new service catalogue with the team</Field><Field Name="NoteId">NOTE-DEMO-003</Field><Field Name="Body">Pending: send it before the next sync.</Field><Field Name="Category">FOLLOW_UP</Field><Field Name="Status">ACTIVE</Field><Field Name="MeetingId">MEET-DEMO-001</Field><Field Name="ProjectId"></Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
 </Elements>

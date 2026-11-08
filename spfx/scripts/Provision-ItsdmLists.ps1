@@ -145,12 +145,25 @@ $actions = @(
   @{ Name = 'PlannerTaskId'; Type = 'Text' }
 )
 
+$meetings = @(
+  @{ Name = 'MeetingId'; Type = 'Text' }, @{ Name = 'MeetingDate'; Type = 'Date' }, @{ Name = 'Summary'; Type = 'Note' },
+  @{ Name = 'Attendees'; Type = 'Note' }, @{ Name = 'Transcript'; Type = 'Note' }, @{ Name = 'ImportedItems'; Type = 'Note' }
+)
+$notes = @(
+  @{ Name = 'NoteId'; Type = 'Text' }, @{ Name = 'Body'; Type = 'Note' },
+  @{ Name = 'Category'; Type = 'Choice'; Choices = 'DECISION', 'RISK', 'INFO', 'FOLLOW_UP' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'ACTIVE', 'ARCHIVED' },
+  @{ Name = 'MeetingId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }
+)
+
 # ---------- create structure ----------
 Write-Host 'Creating lists and columns...' -ForegroundColor Cyan
 Initialize-ItsdmList -Title 'IT_01_Ideas'       -Fields $ideas
 Initialize-ItsdmList -Title 'IT_02_Initiatives' -Fields $initiatives
 Initialize-ItsdmList -Title 'IT_03_Projects'    -Fields $projects
 Initialize-ItsdmList -Title 'IT_04_Actions'     -Fields $actions
+Initialize-ItsdmList -Title 'IT_21_Meetings'    -Fields $meetings
+Initialize-ItsdmList -Title 'IT_22_Notes'       -Fields $notes
 
 # ---------- sample data ----------
 if ($SkipSampleData) {

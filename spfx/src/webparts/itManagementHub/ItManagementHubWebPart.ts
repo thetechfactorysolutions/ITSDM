@@ -3,6 +3,7 @@ import * as ReactDom from 'react-dom';
 import { Version } from '@microsoft/sp-core-library';
 import {
   type IPropertyPaneConfiguration,
+  PropertyPaneDropdown,
   PropertyPaneTextField
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
@@ -14,6 +15,7 @@ import { IItManagementHubProps } from './components/IItManagementHubProps';
 
 export interface IItManagementHubWebPartProps {
   description: string;
+  language: string;
 }
 
 export default class ItManagementHubWebPart extends BaseClientSideWebPart<IItManagementHubWebPartProps> {
@@ -25,6 +27,7 @@ export default class ItManagementHubWebPart extends BaseClientSideWebPart<IItMan
       ItManagementHub,
       {
         description: this.properties.description,
+        language: this.properties.language || 'auto',
         isDarkTheme: this._isDarkTheme,
         context: this.context
       }
@@ -76,6 +79,15 @@ export default class ItManagementHubWebPart extends BaseClientSideWebPart<IItMan
               groupFields: [
                 PropertyPaneTextField('description', {
                   label: strings.DescriptionFieldLabel
+                }),
+                PropertyPaneDropdown('language', {
+                  label: 'Language / Idioma',
+                  selectedKey: this.properties.language || 'auto',
+                  options: [
+                    { key: 'auto', text: 'Auto (SharePoint language)' },
+                    { key: 'es', text: 'Español' },
+                    { key: 'en', text: 'English' }
+                  ]
                 })
               ]
             }

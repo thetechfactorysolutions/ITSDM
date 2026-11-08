@@ -1,155 +1,176 @@
 import * as React from 'react';
-import { useMemo, useState } from 'react';
-import { CommandBar, DetailsList, Dropdown, IColumn, IDropdownOption, MessageBar, MessageBarType, Panel, PanelType, Pivot, PivotItem, PrimaryButton, SelectionMode, Stack, Text, TextField } from '@fluentui/react';
+import { Dropdown, IColumn, Pivot, PivotItem, TextField } from '@fluentui/react';
+import { AppConfig } from '../../config/AppConfig';
+import { csvDate, csvEnum, enumValues } from '../../entities/csvHelpers';
+import { buildActionPayload } from '../../entities/payloads';
+import { TranslateFn, useT } from '../../i18n/I18n';
 import { ActionItem, ActionPriority, ActionStatus } from '../../models';
 import { isActionDueToday, isActionDueWithinDays, isOverdueAction } from '../../rules/businessRules';
 import { dayKeyToSharePoint } from '../../rules/dates';
 import { generateBusinessId } from '../../rules/ids';
-import { hasErrors, validateAction } from '../../rules/validation';
+import { applyActionStatusEffects, getAllowedActionStatuses } from '../../rules/transitions';
+import { validateAction } from '../../rules/validation';
 import DateField from '../shared/DateField';
+import EntityScreen, { IFormContext } from '../shared/EntityScreen';
+import { FormRow } from '../shared/FormGrid';
 import { useHubData } from '../shared/HubData';
+import LinkField from '../shared/LinkField';
+import { toOptions } from '../shared/options';
 import UserField from '../shared/UserField';
 
-const statusOptions: IDropdownOption[] = [
-  { key: ActionStatus.OPEN, text: ActionStatus.OPEN },
-  { key: ActionStatus.IN_PROGRESS, text: ActionStatus.IN_PROGRESS },
-  { key: ActionStatus.BLOCKED, text: ActionStatus.BLOCKED },
-  { key: ActionStatus.DONE, text: ActionStatus.DONE },
-  { key: ActionStatus.CANCELLED, text: ActionStatus.CANCELLED }
+const STATUSES = enumValues(ActionStatus);
+const PRIORITIES = enumValues(ActionPriority);
+
+const makeColumns = (t: TranslateFn): IColumn[] => [
+  { key: 'actionId', name: t('field.actionId'), fieldName: 'actionId', minWidth: 130 },
+  { key: 'title', name: t('field.title'), fieldName: 'title', minWidth: 180 },
+  { key: 'status', name: t('field.status'), fieldName: 'status', minWidth: 110 },
+  { key: 'priority', name: t('field.priority'), minWidth: 90, onRender: (a: ActionItem) => t(`priority.${a.priority}`) },
+  { key: 'ownerUpn', name: t('field.owner'), fieldName: 'ownerUpn', minWidth: 160 },
+  { key: 'dueDate', name: t('field.dueDate'), fieldName: 'dueDate', minWidth: 100 }
 ];
-const priorityOptions: IDropdownOption[] = [
-  { key: ActionPriority.LOW, text: ActionPriority.LOW },
-  { key: ActionPriority.MEDIUM, text: ActionPriority.MEDIUM },
-  { key: ActionPriority.HIGH, text: ActionPriority.HIGH },
-  { key: ActionPriority.CRITICAL, text: ActionPriority.CRITICAL }
+const sortAccessors = {
+  actionId: (a: ActionItem) => a.actionId,
+  title: (a: ActionItem) => a.title,
+  status: (a: ActionItem) => a.status,
+  priority: (a: ActionItem) => PRIORITIES.indexOf(a.priority),
+  ownerUpn: (a: ActionItem) => a.ownerUpn,
+  dueDate: (a: ActionItem) => a.dueDate
+};
+const searchFields = [(a: ActionItem) => a.title, (a: ActionItem) => a.description, (a: ActionItem) => a.actionId, (a: ActionItem) => a.ownerUpn];
+
+const csvColumns = [
+  { header: 'Title', value: (a: ActionItem) => a.title },
+  { header: 'ActionId', value: (a: ActionItem) => a.actionId },
+  { header: 'InitiativeId', value: (a: ActionItem) => a.initiativeId },
+  { header: 'ProjectId', value: (a: ActionItem) => a.projectId },
+  { header: 'Description', value: (a: ActionItem) => a.description },
+  { header: 'Status', value: (a: ActionItem) => a.status },
+  { header: 'Priority', value: (a: ActionItem) => a.priority },
+  { header: 'OwnerUPN', value: (a: ActionItem) => a.ownerUpn },
+  { header: 'DueDate', value: (a: ActionItem) => a.dueDate },
+  { header: 'CompletedDate', value: (a: ActionItem) => a.completedDate }
 ];
 
-const buildPayload = (action: ActionItem): Record<string, unknown> => ({
-  Title: action.title.trim(),
-  ActionId: action.actionId,
-  InitiativeId: action.initiativeId,
-  ProjectId: action.projectId,
-  Description: action.description,
-  Status: action.status,
-  Priority: action.priority,
-  OwnerUPN: action.ownerUpn,
-  DueDate: dayKeyToSharePoint(action.dueDate),
-  CompletedDate: dayKeyToSharePoint(action.completedDate),
-  PlannerTaskId: action.plannerTaskId
-});
+type DueFilter = 'all' | 'overdue' | 'today' | 'week';
 
 const Actions: React.FC = () => {
-  const { service, userEmail, actions: state } = useHubData();
+  const t = useT();
+  const { service, userEmail, actions: state, initiatives, projects } = useHubData();
+  const columns = React.useMemo(() => makeColumns(t), [t]);
+  const [dueFilter, setDueFilter] = React.useState<DueFilter>('all');
 
-  const newAction = (): ActionItem => ({
-    actionId: generateBusinessId('ACT'),
-    initiativeId: '',
-    projectId: '',
-    title: '',
-    description: '',
-    status: ActionStatus.OPEN,
-    priority: ActionPriority.MEDIUM,
-    ownerUpn: userEmail,
-    dueDate: '',
-    completedDate: '',
-    plannerTaskId: ''
-  });
-
-  const [selectedId, setSelectedId] = useState<number | undefined>();
-  const selected: ActionItem | undefined = useMemo(
-    () => state.items.filter(item => item.id === selectedId)[0],
-    [state.items, selectedId]
-  );
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [submitted, setSubmitted] = useState<boolean>(false);
-  const [form, setForm] = useState<ActionItem>(newAction);
-
-  // Field errors appear after the first save attempt and then update as the user types.
-  const errors = submitted ? validateAction(form) : {};
-
-  const columns: IColumn[] = useMemo(() => [
-    { key: 'actionId', name: 'Action ID', fieldName: 'actionId', minWidth: 90 },
-    { key: 'title', name: 'Title', fieldName: 'title', minWidth: 160 },
-    { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100 },
-    { key: 'priority', name: 'Priority', fieldName: 'priority', minWidth: 100 },
-    { key: 'ownerUpn', name: 'Owner', fieldName: 'ownerUpn', minWidth: 180 },
-    { key: 'dueDate', name: 'Due', fieldName: 'dueDate', minWidth: 100 }
-  ], []);
+  const initiativeOptions = React.useMemo(() => initiatives.items.map(i => ({ id: i.initiativeId, title: i.title })), [initiatives.items]);
+  const projectOptions = React.useMemo(() => projects.items.map(p => ({ id: p.projectId, title: p.title })), [projects.items]);
 
   const now = new Date();
-  const overdue = state.items.filter(item => isOverdueAction(item, now));
-  const today = state.items.filter(item => isActionDueToday(item, now));
-  const thisWeek = state.items.filter(item => isActionDueWithinDays(item, 7, now));
-
-  const openCreate = (): void => {
-    setSelectedId(undefined);
-    setSubmitted(false);
-    setForm(newAction());
-    setIsOpen(true);
+  const counts = {
+    overdue: state.items.filter(a => isOverdueAction(a, now)).length,
+    today: state.items.filter(a => isActionDueToday(a, now)).length,
+    week: state.items.filter(a => isActionDueWithinDays(a, 7, now)).length
   };
 
-  const openEdit = (item: ActionItem): void => {
-    setSelectedId(item.id);
-    setSubmitted(false);
-    setForm(item);
-    setIsOpen(true);
-  };
-
-  const save = async (): Promise<void> => {
-    setSubmitted(true);
-    if (hasErrors(validateAction(form))) {
-      return;
+  // The due-date tabs narrow the list before the common search and filters are applied.
+  const dueItems = React.useMemo(() => {
+    const at = new Date();
+    switch (dueFilter) {
+      case 'overdue': return state.items.filter(a => isOverdueAction(a, at));
+      case 'today': return state.items.filter(a => isActionDueToday(a, at));
+      case 'week': return state.items.filter(a => isActionDueWithinDays(a, 7, at));
+      default: return state.items;
     }
+  }, [state.items, dueFilter]);
+  const dueState = { ...state, items: dueItems };
 
-    // On failure the hook rethrows, so the panel stays open and shows the error.
-    if (selected?.id) {
-      await state.update(selected.id, buildPayload(form));
-    } else {
-      await state.create(buildPayload(form));
-    }
+  const newItem = React.useCallback((): ActionItem => ({
+    actionId: generateBusinessId('ACT'), initiativeId: '', projectId: '', title: '', description: '', status: ActionStatus.OPEN,
+    priority: ActionPriority.MEDIUM, ownerUpn: userEmail, dueDate: '', completedDate: '', plannerTaskId: ''
+  }), [userEmail]);
 
-    setIsOpen(false);
+  const csvFromRow = React.useCallback((row: Record<string, string>): ActionItem => ({
+    actionId: row.ActionId || generateBusinessId('ACT'),
+    initiativeId: row.InitiativeId ?? '',
+    projectId: row.ProjectId ?? '',
+    title: row.Title ?? '',
+    description: row.Description ?? '',
+    status: csvEnum(row.Status, STATUSES, ActionStatus.OPEN),
+    priority: csvEnum(row.Priority, PRIORITIES, ActionPriority.MEDIUM),
+    ownerUpn: row.OwnerUPN || userEmail,
+    dueDate: csvDate(row.DueDate),
+    completedDate: csvDate(row.CompletedDate),
+    plannerTaskId: ''
+  }), [userEmail]);
+
+  const checkBeforeSave = (form: ActionItem, original: ActionItem | undefined): string | undefined => {
+    const base = original ? original.status : ActionStatus.OPEN;
+    return getAllowedActionStatuses(base).indexOf(form.status) === -1
+      ? t('common.invalidTransition', { from: t(`status.${base}`), to: t(`status.${form.status}`) })
+      : undefined;
   };
+
+  const renderForm = ({ form, setForm, errors, original, isEdit, service: svc }: IFormContext<ActionItem>): React.ReactNode => {
+    const base = original ? original.status : ActionStatus.OPEN;
+    return (
+      <>
+        <TextField label={t('field.actionId')} value={form.actionId} readOnly={isEdit} onChange={(_, v) => setForm(p => ({ ...p, actionId: v ?? '' }))} />
+        <Dropdown label={t('field.status')} selectedKey={form.status} options={toOptions(getAllowedActionStatuses(base), t)}
+          onChange={(_, o) => setForm(p => ({ ...p, status: (o?.key as ActionStatus) ?? base }))} />
+        <FormRow full><TextField label={t('field.title')} required value={form.title} errorMessage={errors.title && t(errors.title)} onChange={(_, v) => setForm(p => ({ ...p, title: v ?? '' }))} /></FormRow>
+        <FormRow full><TextField label={t('field.description')} multiline rows={3} value={form.description} onChange={(_, v) => setForm(p => ({ ...p, description: v ?? '' }))} /></FormRow>
+        <LinkField label={t('field.initiative')} value={form.initiativeId} options={initiativeOptions} onChange={id => setForm(p => ({ ...p, initiativeId: id }))} />
+        <LinkField label={t('field.project')} value={form.projectId} options={projectOptions} onChange={id => setForm(p => ({ ...p, projectId: id }))} />
+        <Dropdown label={t('field.priority')} selectedKey={form.priority} options={toOptions(PRIORITIES, t, 'priority')} onChange={(_, o) => setForm(p => ({ ...p, priority: (o?.key as ActionPriority) ?? ActionPriority.MEDIUM }))} />
+        <UserField label={t('field.owner')} required service={svc} value={form.ownerUpn} errorMessage={errors.ownerUpn && t(errors.ownerUpn)} onChange={e => setForm(p => ({ ...p, ownerUpn: e }))} />
+        <DateField label={t('field.dueDate')} value={form.dueDate} errorMessage={errors.dueDate && t(errors.dueDate)} onChange={v => setForm(p => ({ ...p, dueDate: v }))} />
+        <DateField label={t('field.completedDate')} value={form.completedDate} errorMessage={errors.completedDate && t(errors.completedDate)} onChange={v => setForm(p => ({ ...p, completedDate: v }))} />
+      </>
+    );
+  };
+
+  const pivot = (
+    <Pivot
+      headersOnly
+      selectedKey={dueFilter}
+      onLinkClick={item => setDueFilter((item?.props.itemKey as DueFilter) ?? 'all')}
+      aria-label={t('actions.dueFilter')}
+    >
+      <PivotItem itemKey="all" headerText={`${t('actions.all')} (${state.items.length})`} />
+      <PivotItem itemKey="overdue" headerText={`${t('actions.overdue')} (${counts.overdue})`} />
+      <PivotItem itemKey="today" headerText={`${t('actions.today')} (${counts.today})`} />
+      <PivotItem itemKey="week" headerText={`${t('actions.week')} (${counts.week})`} />
+    </Pivot>
+  );
 
   return (
-    <Stack tokens={{ childrenGap: 12 }}>
-      <Text variant="xLarge" as="h2">Actions</Text>
-      <CommandBar items={[{ key: 'new', text: 'New Action', onClick: openCreate }, { key: 'refresh', text: 'Refresh', onClick: () => { state.reload().catch(() => undefined); } }]} />
-      {state.error && <MessageBar messageBarType={MessageBarType.error}>{state.error}</MessageBar>}
-      {state.loading && <MessageBar>Loading actions...</MessageBar>}
-      <Pivot>
-        <PivotItem headerText={`Overdue (${overdue.length})`}>
-          <DetailsList items={overdue} columns={columns} selectionMode={SelectionMode.single} onItemInvoked={openEdit} />
-        </PivotItem>
-        <PivotItem headerText={`Today (${today.length})`}>
-          <DetailsList items={today} columns={columns} selectionMode={SelectionMode.single} onItemInvoked={openEdit} />
-        </PivotItem>
-        <PivotItem headerText={`This week (${thisWeek.length})`}>
-          <DetailsList items={thisWeek} columns={columns} selectionMode={SelectionMode.single} onItemInvoked={openEdit} />
-        </PivotItem>
-        <PivotItem headerText={`All (${state.items.length})`}>
-          <DetailsList items={state.items} columns={columns} selectionMode={SelectionMode.single} onItemInvoked={openEdit} />
-        </PivotItem>
-      </Pivot>
-      {selected && <Text>Detail: {selected.title} ({selected.status})</Text>}
-      <Panel isOpen={isOpen} onDismiss={() => setIsOpen(false)} type={PanelType.medium} headerText={selected ? 'Edit Action' : 'Create Action'}>
-        <Stack tokens={{ childrenGap: 8 }}>
-          {state.error && <MessageBar messageBarType={MessageBarType.error}>{state.error}</MessageBar>}
-          <TextField label="Action ID" value={form.actionId} readOnly={!!selected} onChange={(_, value) => setForm(prev => ({ ...prev, actionId: value ?? '' }))} />
-          <TextField label="Title" value={form.title} required errorMessage={errors.title} onChange={(_, value) => setForm(prev => ({ ...prev, title: value ?? '' }))} />
-          <TextField label="Description" multiline value={form.description} onChange={(_, value) => setForm(prev => ({ ...prev, description: value ?? '' }))} />
-          <TextField label="Initiative ID" value={form.initiativeId} onChange={(_, value) => setForm(prev => ({ ...prev, initiativeId: value ?? '' }))} />
-          <TextField label="Project ID" value={form.projectId} onChange={(_, value) => setForm(prev => ({ ...prev, projectId: value ?? '' }))} />
-          <Dropdown label="Status" selectedKey={form.status} options={statusOptions} onChange={(_, option) => setForm(prev => ({ ...prev, status: (option?.key as ActionStatus) ?? ActionStatus.OPEN }))} />
-          <Dropdown label="Priority" selectedKey={form.priority} options={priorityOptions} onChange={(_, option) => setForm(prev => ({ ...prev, priority: (option?.key as ActionPriority) ?? ActionPriority.MEDIUM }))} />
-          <UserField label="Owner" required service={service} value={form.ownerUpn} errorMessage={errors.ownerUpn} onChange={email => setForm(prev => ({ ...prev, ownerUpn: email }))} />
-          <DateField label="Due Date" value={form.dueDate} errorMessage={errors.dueDate} onChange={value => setForm(prev => ({ ...prev, dueDate: value }))} />
-          <DateField label="Completed Date" value={form.completedDate} errorMessage={errors.completedDate} onChange={value => setForm(prev => ({ ...prev, completedDate: value }))} />
-          <TextField label="Planner Task ID" value={form.plannerTaskId} onChange={(_, value) => setForm(prev => ({ ...prev, plannerTaskId: value ?? '' }))} />
-          <PrimaryButton text="Save" onClick={() => { save().catch(() => undefined); }} />
-        </Stack>
-      </Panel>
-    </Stack>
+    <EntityScreen<ActionItem>
+      textKey="actions"
+      listName={AppConfig.sharePoint.listNames.actions}
+      state={dueState}
+      service={service}
+      statuses={STATUSES}
+      getStatus={a => a.status}
+      getTitle={a => a.title}
+      columns={columns}
+      sortAccessors={sortAccessors}
+      searchFields={searchFields}
+      newItem={newItem}
+      validate={validateAction}
+      buildPayload={buildActionPayload}
+      prepareForSave={(form, original) => applyActionStatusEffects(form, original ? original.status : undefined)}
+      checkBeforeSave={checkBeforeSave}
+      renderForm={renderForm}
+      quickStatuses={a => getAllowedActionStatuses(a.status)}
+      quickPayload={(item, status) => {
+        const updated = applyActionStatusEffects({ ...item, status: status as ActionStatus }, item.status);
+        return { Status: status, CompletedDate: dayKeyToSharePoint(updated.completedDate) };
+      }}
+      archiveStatus={ActionStatus.CANCELLED}
+      canArchive={a => getAllowedActionStatuses(a.status).indexOf(ActionStatus.CANCELLED) > -1 && a.status !== ActionStatus.CANCELLED}
+      csvFileName="actions.csv"
+      csvColumns={csvColumns}
+      csvFromRow={csvFromRow}
+      extraContent={pivot}
+    />
   );
 };
 

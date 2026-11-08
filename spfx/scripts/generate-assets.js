@@ -89,6 +89,28 @@ const LISTS = [
       if (s === 'DONE') row.CompletedDate = day(d + 1);
       return row;
     })
+  },
+  {
+    title: 'IT_21_Meetings', file: 'schema_meetings.xml', description: 'Meetings imported from a transcript, with what was created from them',
+    fields: [T('MeetingId'), D('MeetingDate'), N('Summary'), N('Attendees'), N('Transcript'), N('ImportedItems')],
+    rows: (day) => [
+      ['Weekly IT sync', 'MEET-DEMO-001', -3, 'Laptop refresh wave 1 and the telephony rollout were reviewed.', 'ana@example.com; luis@example.com']
+    ].map(([t, id, d, summary, attendees]) => ({
+      Title: t, MeetingId: id, MeetingDate: day(d), Summary: summary, Attendees: attendees,
+      ImportedItems: 'Sample meeting: its notes below are linked to it.'
+    }))
+  },
+  {
+    title: 'IT_22_Notes', file: 'schema_notes.xml', description: 'Decisions, risks, information and follow-ups',
+    fields: [T('NoteId'), N('Body'), C('Category', ['DECISION', 'RISK', 'INFO', 'FOLLOW_UP']), C('Status', ['ACTIVE', 'ARCHIVED']),
+      T('MeetingId'), T('InitiativeId'), T('ProjectId')],
+    rows: () => [
+      ['Budget approved for wave 1', 'NOTE-DEMO-001', 'Finance confirmed the budget for the first laptop wave.', 'DECISION', 'PROJ-DEMO-001'],
+      ['Telephony vendor may delay delivery', 'NOTE-DEMO-002', 'The vendor warned of a possible two-week delay.', 'RISK', 'PROJ-DEMO-002'],
+      ['Share the new service catalogue with the team', 'NOTE-DEMO-003', 'Pending: send it before the next sync.', 'FOLLOW_UP', '']
+    ].map(([t, id, body, category, project]) => ({
+      Title: t, NoteId: id, Body: body, Category: category, Status: 'ACTIVE', MeetingId: 'MEET-DEMO-001', ProjectId: project
+    }))
   }
 ];
 

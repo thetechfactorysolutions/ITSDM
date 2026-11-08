@@ -1,7 +1,7 @@
-import { ActionItem, Idea, Initiative, Project } from '../models';
+import { ActionItem, Idea, Initiative, Meeting, Note, Project } from '../models';
 import { isValidDayKey } from './dates';
 
-/** Error message per field name; a missing key means the field is valid. */
+/** Translation key of the error per field name (e.g. validation.titleRequired); a missing key means the field is valid. */
 export type ValidationErrors = Record<string, string | undefined>;
 
 // SharePoint's built-in Title column accepts at most 255 characters.
@@ -15,36 +15,36 @@ export const hasErrors = (errors: ValidationErrors): boolean => {
 const validateTitle = (errors: ValidationErrors, title: string): void => {
   const trimmed = title.trim();
   if (trimmed.length === 0) {
-    errors.title = 'Title is required.';
+    errors.title = 'validation.titleRequired';
   } else if (trimmed.length > MAX_TITLE_LENGTH) {
-    errors.title = `Title cannot be longer than ${MAX_TITLE_LENGTH} characters.`;
+    errors.title = 'validation.titleTooLong';
   }
 };
 
 const validateOwner = (errors: ValidationErrors, owner: string): void => {
   if (owner.trim().length === 0) {
-    errors.ownerUpn = 'Owner is required.';
+    errors.ownerUpn = 'validation.ownerRequired';
   } else if (!EMAIL_PATTERN.test(owner.trim())) {
-    errors.ownerUpn = 'Owner must be a valid user (email).';
+    errors.ownerUpn = 'validation.ownerInvalid';
   }
 };
 
 /** An empty date is allowed; a filled one must be a real YYYY-MM-DD day. */
 const validateOptionalDate = (errors: ValidationErrors, field: string, value: string | undefined): void => {
   if (value && !isValidDayKey(value)) {
-    errors[field] = 'Enter a valid date (YYYY-MM-DD).';
+    errors[field] = 'validation.dateInvalid';
   }
 };
 
-const validateNonNegative = (errors: ValidationErrors, field: string, label: string, value: number | undefined): void => {
+const validateNonNegative = (errors: ValidationErrors, field: string, value: number | undefined): void => {
   if (value === undefined) {
     return;
   }
 
   if (!isFinite(value)) {
-    errors[field] = `${label} must be a number.`;
+    errors[field] = 'validation.mustBeNumber';
   } else if (value < 0) {
-    errors[field] = `${label} cannot be negative.`;
+    errors[field] = 'validation.cannotBeNegative';
   }
 };
 
@@ -53,9 +53,9 @@ export const validateIdea = (idea: Idea): ValidationErrors => {
   validateTitle(errors, idea.title);
   validateOwner(errors, idea.ownerUpn);
   if (idea.sponsorUpn && !EMAIL_PATTERN.test(idea.sponsorUpn.trim())) {
-    errors.sponsorUpn = 'Sponsor must be a valid user (email).';
+    errors.sponsorUpn = 'validation.sponsorInvalid';
   }
-  validateNonNegative(errors, 'estimatedValue', 'Estimated value', idea.estimatedValue);
+  validateNonNegative(errors, 'estimatedValue', idea.estimatedValue);
   validateOptionalDate(errors, 'targetDate', idea.targetDate);
   return errors;
 };
@@ -65,7 +65,7 @@ export const validateInitiative = (initiative: Initiative): ValidationErrors => 
   validateTitle(errors, initiative.title);
   validateOwner(errors, initiative.ownerUpn);
   if (!isFinite(initiative.progressPct) || initiative.progressPct < 0 || initiative.progressPct > 100) {
-    errors.progressPct = 'Progress must be between 0 and 100.';
+    errors.progressPct = 'validation.progressRange';
   }
   validateOptionalDate(errors, 'targetDate', initiative.targetDate);
   return errors;
@@ -75,12 +75,12 @@ export const validateProject = (project: Project): ValidationErrors => {
   const errors: ValidationErrors = {};
   validateTitle(errors, project.title);
   validateOwner(errors, project.ownerUpn);
-  validateNonNegative(errors, 'budgetAmount', 'Budget', project.budgetAmount);
-  validateNonNegative(errors, 'forecastAmount', 'Forecast', project.forecastAmount);
+  validateNonNegative(errors, 'budgetAmount', project.budgetAmount);
+  validateNonNegative(errors, 'forecastAmount', project.forecastAmount);
   validateOptionalDate(errors, 'startDate', project.startDate);
   validateOptionalDate(errors, 'endDate', project.endDate);
   if (!errors.startDate && !errors.endDate && project.startDate && project.endDate && project.endDate < project.startDate) {
-    errors.endDate = 'End date cannot be before the start date.';
+    errors.endDate = 'validation.endBeforeStart';
   }
   return errors;
 };
@@ -91,5 +91,18 @@ export const validateAction = (action: ActionItem): ValidationErrors => {
   validateOwner(errors, action.ownerUpn);
   validateOptionalDate(errors, 'dueDate', action.dueDate);
   validateOptionalDate(errors, 'completedDate', action.completedDate);
+  return errors;
+};
+
+export const validateNote = (note: Note): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, note.title);
+  return errors;
+};
+
+export const validateMeeting = (meeting: Meeting): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, meeting.title);
+  validateOptionalDate(errors, 'meetingDate', meeting.meetingDate);
   return errors;
 };

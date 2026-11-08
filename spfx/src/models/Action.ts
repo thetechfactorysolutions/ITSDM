@@ -28,4 +28,5 @@ export interface ActionItem {
   plannerTaskId?: string;
   created?: string;
   modified?: string;
+  editor?: string;
 }

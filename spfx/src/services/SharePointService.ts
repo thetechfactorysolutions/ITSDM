@@ -114,6 +114,15 @@ export class SharePointService {
     }
   }
 
+  /** Turns on version history for a list so changes can be traced. Needs permission to manage the list. */
+  public async enableVersioning(listName: string): Promise<void> {
+    try {
+      await this._sp.web.lists.getByTitle(listName).update({ EnableVersioning: true });
+    } catch (error) {
+      throw this._toServiceError('Failed to enable version history', listName, error);
+    }
+  }
+
   /** Searches tenant users by name or email, the same lookup the SharePoint people picker uses. */
   public async searchUsers(query: string, maxResults: number = 10): Promise<IUserSuggestion[]> {
     const text = query.trim();

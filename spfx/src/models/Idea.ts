@@ -25,4 +25,5 @@ export interface Idea {
   convertedInitiativeId?: string;
   created?: string;
   modified?: string;
+  editor?: string;
 }

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { IPersonaProps, Label, NormalPeoplePicker, Text } from '@fluentui/react';
+import { useT } from '../../i18n/I18n';
 import { SharePointService } from '../../services/SharePointService';
 
 export interface IUserFieldProps {
@@ -16,6 +17,7 @@ const toPersona = (email: string): IPersonaProps => ({ text: email, secondaryTex
 
 /** Single-user picker backed by the SharePoint people search. Stores the user's email. */
 const UserField: React.FC<IUserFieldProps> = ({ label, value, onChange, service, required, errorMessage }) => {
+  const t = useT();
   const [searchError, setSearchError] = React.useState<string | undefined>();
 
   const resolveSuggestions = async (filter: string): Promise<IPersonaProps[]> => {
@@ -24,7 +26,7 @@ const UserField: React.FC<IUserFieldProps> = ({ label, value, onChange, service,
       setSearchError(undefined);
       return users.map(user => ({ text: user.displayName, secondaryText: user.email, id: user.email }));
     } catch (err) {
-      setSearchError(err instanceof Error ? err.message : 'User search failed.');
+      setSearchError(err instanceof Error ? err.message : t('common.unknownError'));
       return [];
     }
   };
@@ -41,7 +43,7 @@ const UserField: React.FC<IUserFieldProps> = ({ label, value, onChange, service,
         selectedItems={selectedItems}
         onResolveSuggestions={resolveSuggestions}
         onChange={items => onChange(items && items.length > 0 ? (items[0].secondaryText ?? items[0].text ?? '') : '')}
-        inputProps={{ 'aria-label': label, placeholder: 'Search by name or email' }}
+        inputProps={{ 'aria-label': label, placeholder: t('field.userSearchPlaceholder') }}
       />
       {shownError && <Text variant="small" styles={{ root: { color: '#a4262c' } }}>{shownError}</Text>}
     </div>

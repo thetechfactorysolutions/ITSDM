@@ -1,5 +1,5 @@
 /*
- * Creates the SharePoint lists used by the IT Management Hub (and optional sample data)
+ * Creates the SharePoint lists used by the IT Management Hub (and sample data for the first four; the Meetings and Notes lists are created empty)
  * using the SharePoint REST API with the signed-in user's session.
  *
  * Use it when PowerShell/PnP cannot sign in (for example no Entra app registration is available):
@@ -119,7 +119,10 @@
       T('OwnerUPN'), D('StartDate'), D('EndDate'), NUM('BudgetAmount'), NUM('ForecastAmount'), C('RiskLevel', level), T('PlannerPlanId')],
     IT_04_Actions: [T('ActionId'), T('InitiativeId'), T('ProjectId'), N('Description'),
       C('Status', ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED']), C('Priority', level),
-      T('OwnerUPN'), D('DueDate'), D('CompletedDate'), T('PlannerTaskId')]
+      T('OwnerUPN'), D('DueDate'), D('CompletedDate'), T('PlannerTaskId')],
+    IT_21_Meetings: [T('MeetingId'), D('MeetingDate'), N('Summary'), N('Attendees'), N('Transcript'), N('ImportedItems')],
+    IT_22_Notes: [T('NoteId'), N('Body'), C('Category', ['DECISION', 'RISK', 'INFO', 'FOLLOW_UP']), C('Status', ['ACTIVE', 'ARCHIVED']),
+      T('MeetingId'), T('InitiativeId'), T('ProjectId')]
   };
 
   for (const [title, fields] of Object.entries(defs)) await ensureList(title, fields);

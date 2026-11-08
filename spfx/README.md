@@ -1,13 +1,12 @@
 # IT Management Hub (`itsdm`)
 
-Web part de SharePoint Framework (SPFx 1.23.2, React 17, Fluent UI 8) para que un responsable de TI gestione su portfolio. Funciona en páginas de SharePoint, a pantalla completa y en Teams.
+Web part de SharePoint Framework (SPFx 1.23.2, React 17, Fluent UI 8) para que un responsable de TI gestione su portfolio. Funciona en páginas de SharePoint, en una **sección de ancho completo** y en Teams, en español e inglés.
 
-Flujo de negocio: **Idea → Iniciativa → Proyecto → Acción**, con un **Dashboard** que resume lo vencido y lo que está en riesgo.
+Flujo de negocio: **Idea → Iniciativa → Proyecto → Acción**, con **Notas** y **Reuniones**, un **Panel** que resume lo vencido y lo que está en riesgo, y la **importación del resultado de una IA** sobre la transcripción de una reunión (ver `../docs/IMPORTAR_REUNIONES.md`).
 
 ## Requisitos
 
 - **Node 22** (`>=22.14.0 <23`). SPFx 1.23 no arranca con Node 18 ni con Node 24. La versión fijada está en `.nvmrc`.
-- Una web de SharePoint con las listas descritas más abajo.
 
 ```bash
 nvm use 22.14.0
@@ -19,66 +18,50 @@ npm install
 | Comando | Qué hace |
 | --- | --- |
 | `npx gulp serve` | Servidor local para el workbench de SharePoint |
-| `npx gulp bundle --ship` | Compila y empaqueta en `dist/` (producción) |
-| `npm run package` | Genera los activos de SharePoint (listas), compila y crea `sharepoint/solution/itsdm.sppkg` |
-| `npx gulp package-solution --ship` | Solo empaqueta (usa antes `npm run assets` y `bundle --ship`) |
-| `npm test` | Lint + compilación + tests (reglas, validación, IDs y hook de listas) |
+| `npm run package` | Genera las listas, compila y crea `sharepoint/solution/itsdm.sppkg` |
+| `npm run assets` | Solo regenera los XML de las listas (`sharepoint/assets`) |
+| `npm test` | Lint + compilación + 9 grupos de tests (reglas, validación, ids, importación, idiomas, hook y pantallas) |
 
-Despliegue: `npm run package` → subir `sharepoint/solution/itsdm.sppkg` al catálogo de aplicaciones → **añadir la app al sitio** (Contenido del sitio → Nuevo → Aplicación). Al añadirla, SharePoint crea las 4 listas con sus columnas y unos datos de ejemplo.
+Despliegue: `npm run package` → subir `sharepoint/solution/itsdm.sppkg` al catálogo de aplicaciones → **añadir la app al sitio** (Contenido del sitio → Nuevo → Aplicación). Al añadirla, SharePoint crea las listas con sus columnas y unos datos de ejemplo. Después, en la página, la web part se puede poner en una sección de ancho completo.
 
-> Las listas solo se crean al **añadir la app al sitio**. Si actualizas una versión ya instalada y faltan listas, quita la app del sitio y vuelve a añadirla. Los datos de ejemplo tienen IDs `…-DEMO-…` y un responsable de ejemplo (`demo.owner@example.com`); bórralos o edítalos cuando quieras.
+> Las listas solo se crean al **añadir la app al sitio**. Si actualizas una versión ya instalada y faltan listas, quita la app del sitio y vuelve a añadirla, o usa los scripts de `scripts/`. Los datos de ejemplo tienen IDs `…-DEMO-…` y un responsable de ejemplo (`demo.owner@example.com`); bórralos o edítalos cuando quieras.
 
 ## Estructura
 
 ```
 src/
-  models/          Tipos y enums de Idea, Initiative, Project, ActionItem
+  models/          Tipos y enums (Idea, Initiative, Project, ActionItem, Meeting, Note)
   rules/           Lógica pura y testeable
-    businessRules  Vencimientos, riesgo por desviación, transiciones de idea
-    validation     Validación de formularios
-    dates          Fechas como días (YYYY-MM-DD), sin saltos de zona horaria
-    ids            Generador de IDs de negocio (IDEA-20261108-K3F9QZ)
+    businessRules, transitions   Vencimientos, riesgo, cambios de estado permitidos
+    validation                   Validación de formularios
+    dates, ids, csv, tableView   Fechas sin saltos de zona horaria, ids, CSV, búsqueda/filtro/orden
+    transcriptImport/Commit, importPrompt   Importación desde una reunión
+  entities/        Payloads y columnas de cada lista
   services/        SharePointService (PnPjs) + andamiaje de Graph, Planner y Power Automate
-  hooks/           useListItems: carga, creación, edición y borrado de una lista
+  hooks/           useListItems
+  i18n/            Diccionarios en inglés y español
   components/
-    shared/        HubData (datos compartidos), DateField, UserField, KpiTile, mappers
-    Dashboard, Ideas, Initiatives, Projects, Actions
+    shared/        EntityScreen (pantalla genérica de lista), HubData, campos, gráficos
+    Dashboard, Ideas, Initiatives, Projects, Actions, Notes, Import, Help
   config/AppConfig Nombres de las listas de SharePoint
-tests/             Tests de reglas, validación, IDs y del hook
+scripts/
+  generate-assets.js          Definición única de las listas → XML del paquete
+  Provision-ItsdmLists.ps1    Alternativa: crear las listas con PnP (requiere ClientId)
+  provision-lists.browser.js  Alternativa: pegar en la consola del navegador
+tests/             Reglas, validación, ids, importación, idiomas, hook, pantallas
 ```
-
-Las listas se cargan una vez para todo el web part (`HubData`) y las pestañas comparten ese estado.
 
 ## Listas de SharePoint
 
-Se crean solas al añadir la app (ver Despliegue). Su definición única está en `scripts/generate-assets.js`, que genera `sharepoint/assets/*.xml`. Alternativas si hiciera falta crearlas a mano: `scripts/Provision-ItsdmLists.ps1` (PnP, requiere ClientId de Entra ID) o `scripts/provision-lists.browser.js` (pegar en la consola del navegador).
-
-Los nombres están en `src/config/AppConfig.ts`. La app lee las listas por **título**. Hoy se usan 4 de las 20 definidas; el resto está reservado para fases futuras.
-
-> Este esquema se ha deducido del código (`mappers.ts` y los `buildPayload` de cada pestaña), no de una lista real. Los tipos de columna son los que el código espera; revísalos al crear las listas.
-
-Columnas comunes a las cuatro: `Title` (texto), `Description` (texto multilínea), `Status` (texto o elección), `OwnerUPN` (texto con el email del responsable).
-
-| Lista | Columnas propias |
-| --- | --- |
-| `IT_01_Ideas` | `IdeaId` (texto), `SponsorUPN` (texto), `EstimatedValue` (número), `TargetDate` (fecha), `Tags` (texto, separado por comas), `ConvertedInitiativeId` (texto) |
-| `IT_02_Initiatives` | `InitiativeId` (texto), `ProgressPct` (número 0–100), `TargetDate` (fecha), `SourceIdeaId` (texto), `PlannerPlanId` (texto) |
-| `IT_03_Projects` | `ProjectId` (texto), `InitiativeId` (texto), `StartDate` y `EndDate` (fecha), `BudgetAmount` y `ForecastAmount` (número), `RiskLevel` (texto o elección), `PlannerPlanId` (texto) |
-| `IT_04_Actions` | `ActionId` (texto), `InitiativeId` y `ProjectId` (texto), `Priority` (texto o elección), `DueDate` y `CompletedDate` (fecha), `PlannerTaskId` (texto) |
-
-Valores esperados de `Status`:
-
-- **Ideas:** NEW, DISCOVERY, VALIDATED, PLANNED, IN_PROGRESS, PILOT, ROLLOUT, COMPLETED, REJECTED, CANCELLED
-- **Iniciativas:** DRAFT, ACTIVE, BLOCKED, ON_HOLD, COMPLETED, CANCELLED
-- **Proyectos:** PLANNING, ACTIVE, AT_RISK, BLOCKED, ON_HOLD, COMPLETED, CANCELLED
-- **Acciones:** OPEN, IN_PROGRESS, BLOCKED, DONE, CANCELLED. `Priority`: LOW, MEDIUM, HIGH, CRITICAL
+Se crean solas al añadir la app. Su definición está en `scripts/generate-assets.js` y el esquema documentado en `../docs/SHAREPOINT_SCHEMA.md`: `IT_01_Ideas`, `IT_02_Initiatives`, `IT_03_Projects`, `IT_04_Actions`, `IT_21_Meetings` e `IT_22_Notes`. Los nombres están en `src/config/AppConfig.ts`.
 
 ## Reglas de negocio
 
-- **Acción vencida:** la fecha límite es anterior a hoy y no está DONE ni CANCELLED. Una acción que vence hoy no está vencida.
-- **Proyecto en riesgo:** el forecast supera el presupuesto en más de un 10 %, o su estado es AT_RISK.
-- **Transiciones de idea:** solo se permiten los pasos definidos en `businessRules.ts` (por ejemplo NEW → DISCOVERY, no NEW → VALIDATED).
-- **Conversión a iniciativa:** solo una idea VALIDATED. Si falla la actualización de la idea, la iniciativa creada se elimina.
+- **Acción vencida:** la fecha límite es anterior a hoy y no está Hecha ni Cancelada. Una acción que vence hoy no está vencida.
+- **Proyecto en riesgo:** la previsión supera el presupuesto en más de un 10 %, o su estado es En riesgo.
+- **Estados:** solo se ofrecen los cambios permitidos (por ejemplo una idea no pasa de Nueva a Validada). Lo completado y lo cancelado se puede reabrir, salvo las ideas.
+- **Archivar** marca como cancelado (las notas, como archivadas) y oculta; **borrar** elimina definitivamente tras confirmar.
+- **Conversión de idea a iniciativa:** solo una idea Validada. Si falla la actualización de la idea, la iniciativa creada se elimina.
 
 ## Fechas
 
@@ -86,6 +69,4 @@ Las columnas de fecha se leen como el día local en que caen y se escriben a med
 
 ## Pendiente
 
-- Integración real con Graph, Planner y Power Automate (hoy son andamiaje).
-- Textos localizados (la interfaz está en inglés fijo).
-- Las 16 listas restantes de `AppConfig` no tienen interfaz.
+Ver `../docs/ROADMAP.md`: Planner, Power Automate y Graph; roles y aprobaciones propios; las 16 listas restantes; migración automática de esquemas.

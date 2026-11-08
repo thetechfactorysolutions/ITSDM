@@ -19,6 +19,8 @@ export interface ISharePointListMap {
   knowledgeBase: string;
   reviews: string;
   lessonsLearned: string;
+  meetings: string;
+  notes: string;
 }
 
 export interface IAppConfig {
@@ -53,7 +55,9 @@ export const AppConfig: IAppConfig = {
       trainingPlans: 'IT_17_TrainingPlans',
       knowledgeBase: 'IT_18_KnowledgeBase',
       reviews: 'IT_19_Reviews',
-      lessonsLearned: 'IT_20_LessonsLearned'
+      lessonsLearned: 'IT_20_LessonsLearned',
+      meetings: 'IT_21_Meetings',
+      notes: 'IT_22_Notes'
     }
   }
 };

@@ -49,11 +49,11 @@ const testWriteValueKeepsTheDay = (): void => {
 };
 
 const testTitleAndOwnerRequired = (): void => {
-  assert.equal(validateIdea(idea({ title: '   ' })).title, 'Title is required.');
+  assert.equal(validateIdea(idea({ title: '   ' })).title, 'validation.titleRequired');
   assert.equal(hasErrors(validateIdea(idea())), false);
-  assert.match(validateIdea(idea({ title: 'x'.repeat(256) })).title ?? '', /255/);
-  assert.equal(validateInitiative(initiative({ ownerUpn: '' })).ownerUpn, 'Owner is required.');
-  assert.match(validateProject(project({ ownerUpn: 'not-an-email' })).ownerUpn ?? '', /valid user/);
+  assert.equal(validateIdea(idea({ title: 'x'.repeat(256) })).title, 'validation.titleTooLong');
+  assert.equal(validateInitiative(initiative({ ownerUpn: '' })).ownerUpn, 'validation.ownerRequired');
+  assert.equal(validateProject(project({ ownerUpn: 'not-an-email' })).ownerUpn, 'validation.ownerInvalid');
   assert.equal(hasErrors(validateAction(action())), false);
 };
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { DatePicker, DayOfWeek, defaultDatePickerStrings } from '@fluentui/react';
+import { useT } from '../../i18n/I18n';
 import { fromDayKey, isValidDayKey, toDayKey } from '../../rules/dates';
 
 export interface IDateFieldProps {
@@ -12,6 +13,7 @@ export interface IDateFieldProps {
 
 /** Calendar date input that reads and writes YYYY-MM-DD day keys, with typing allowed. */
 const DateField: React.FC<IDateFieldProps> = ({ label, value, onChange, errorMessage }) => {
+  const t = useT();
   // Text typed by the user that is not a valid date yet: keep showing it instead of erasing it.
   const [draft, setDraft] = React.useState<string | undefined>();
 
@@ -34,7 +36,7 @@ const DateField: React.FC<IDateFieldProps> = ({ label, value, onChange, errorMes
         onChange(date ? toDayKey(date) : '');
       }}
       textField={{
-        errorMessage: errorMessage ?? (draft ? 'Enter a valid date (YYYY-MM-DD).' : undefined)
+        errorMessage: errorMessage ?? (draft ? t('validation.dateInvalid') : undefined)
       }}
     />
   );

@@ -1,0 +1,368 @@
+import * as React from 'react';
+import {
+  CommandBar, DefaultButton, DetailsList, DetailsListLayoutMode, Dropdown, IColumn, ICommandBarItemProps, IDropdownOption, MessageBar,
+  MessageBarType, Panel, PanelType, PrimaryButton, SearchBox, Selection, SelectionMode, Stack, Text, Toggle
+} from '@fluentui/react';
+import { useT } from '../../i18n/I18n';
+import { IListHookState } from '../../hooks/useListItems';
+import { SharePointService } from '../../services/SharePointService';
+import { ICsvColumn, toCsv } from '../../rules/csv';
+import { applyView, DEFAULT_VIEW, ITableView } from '../../rules/tableView';
+import { hasErrors, ValidationErrors } from '../../rules/validation';
+import { downloadTextFile } from '../../utils/download';
+import ConfirmDialog from './ConfirmDialog';
+import CsvImportPanel from './CsvImportPanel';
+import { FormGrid } from './FormGrid';
+
+export interface IEntityBase {
+  id?: number;
+  modified?: string;
+  editor?: string;
+}
+
+type Accessor<T> = (item: T) => string | number | undefined;
+
+export interface IFormContext<T> {
+  form: T;
+  setForm: (update: (previous: T) => T) => void;
+  errors: ValidationErrors;
+  original: T | undefined;
+  isEdit: boolean;
+  service: SharePointService;
+}
+
+export interface IEntityScreenProps<T extends IEntityBase> {
+  /** Translation key prefix for the screen texts, e.g. "ideas" -> ideas.title, ideas.new, ideas.empty. */
+  textKey: string;
+  state: IListHookState<T>;
+  service: SharePointService;
+  statuses: string[];
+  getStatus: (item: T) => string;
+  getTitle: (item: T) => string;
+  columns: IColumn[];
+  sortAccessors: Record<string, Accessor<T>>;
+  searchFields: Array<Accessor<T>>;
+  newItem: () => T;
+  validate: (item: T) => ValidationErrors;
+  buildPayload: (item: T) => Record<string, unknown>;
+  /** Applies side effects of a change before saving (e.g. completion date). */
+  prepareForSave?: (form: T, original: T | undefined) => T;
+  /** Returns an error message to block the save, or undefined. */
+  checkBeforeSave?: (form: T, original: T | undefined) => string | undefined;
+  renderForm: (context: IFormContext<T>) => React.ReactNode;
+  renderDetail?: (item: T) => React.ReactNode;
+  /** Statuses the item may be changed to from the table, including its current one. Enables the inline status picker. */
+  quickStatuses?: (item: T) => string[];
+  /** Fields to write when the status is changed from the table. */
+  quickPayload?: (item: T, status: string) => Record<string, unknown>;
+  /** Status used by "Archive"; the command is disabled when the item cannot move there. */
+  archiveStatus: string;
+  canArchive: (item: T) => boolean;
+  csvFileName: string;
+  csvColumns: Array<ICsvColumn<T>>;
+  csvFromRow: (row: Record<string, string>) => T;
+  extraCommands?: (selected: T | undefined) => ICommandBarItemProps[];
+  extraContent?: React.ReactNode;
+  listName: string;
+}
+
+function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): React.ReactElement {
+  const t = useT();
+  const { textKey, state, service, statuses, getStatus, columns, sortAccessors, searchFields } = props;
+
+  const [view, setView] = React.useState<ITableView>(DEFAULT_VIEW);
+  const [selectedId, setSelectedId] = React.useState<number | undefined>();
+  const [isFormOpen, setIsFormOpen] = React.useState<boolean>(false);
+  const [isDetailOpen, setIsDetailOpen] = React.useState<boolean>(false);
+  const [isCsvOpen, setIsCsvOpen] = React.useState<boolean>(false);
+  const [confirm, setConfirm] = React.useState<'delete' | 'archive' | undefined>();
+  const [submitted, setSubmitted] = React.useState<boolean>(false);
+  const [localError, setLocalError] = React.useState<string | undefined>();
+  const [form, setFormState] = React.useState<T>(props.newItem);
+
+  const selectionRef = React.useRef<Selection>();
+  if (!selectionRef.current) {
+    selectionRef.current = new Selection({
+      getKey: item => String((item as T).id),
+      onSelectionChanged: () => {
+        const chosen = (selectionRef.current as Selection).getSelection() as T[];
+        setSelectedId(chosen.length > 0 ? chosen[0].id : undefined);
+      }
+    });
+  }
+
+  const selected: T | undefined = React.useMemo(
+    () => state.items.filter(item => item.id === selectedId)[0],
+    [state.items, selectedId]
+  );
+
+  const visible = React.useMemo(
+    () => applyView(state.items, view, getStatus, searchFields, sortAccessors),
+    [state.items, view, getStatus, searchFields, sortAccessors]
+  );
+
+  const errors: ValidationErrors = submitted ? props.validate(form) : {};
+  const shownError = localError || state.error;
+  const setForm = (update: (previous: T) => T): void => setFormState(update);
+
+  const statusFilterOptions: IDropdownOption[] = [{ key: '', text: t('common.allStatuses') }]
+    .concat(statuses.map(status => ({ key: status, text: t(`status.${status}`) })));
+
+  // ----- actions -----
+  const openCreate = (): void => {
+    setSelectedId(undefined);
+    selectionRef.current?.setAllSelected(false);
+    setSubmitted(false);
+    setLocalError(undefined);
+    setFormState(props.newItem());
+    setIsFormOpen(true);
+  };
+
+  const openEdit = (item: T | undefined): void => {
+    if (!item) {
+      return;
+    }
+    setSelectedId(item.id);
+    setSubmitted(false);
+    setLocalError(undefined);
+    setFormState(item);
+    setIsFormOpen(true);
+  };
+
+  const save = async (): Promise<void> => {
+    setLocalError(undefined);
+    setSubmitted(true);
+
+    if (hasErrors(props.validate(form))) {
+      return;
+    }
+
+    const problem = props.checkBeforeSave ? props.checkBeforeSave(form, selected) : undefined;
+    if (problem) {
+      setLocalError(problem);
+      return;
+    }
+
+    const toSave = props.prepareForSave ? props.prepareForSave(form, selected) : form;
+
+    // On failure the hook rethrows, so the panel stays open and shows the error.
+    if (selected && selected.id) {
+      await state.update(selected.id, props.buildPayload(toSave));
+    } else {
+      await state.create(props.buildPayload(toSave));
+    }
+    setIsFormOpen(false);
+  };
+
+  const runConfirmed = async (): Promise<void> => {
+    const action = confirm;
+    setConfirm(undefined);
+    if (!selected || !selected.id || !action) {
+      return;
+    }
+
+    setLocalError(undefined);
+    try {
+      if (action === 'delete') {
+        await state.remove(selected.id);
+        setSelectedId(undefined);
+      } else {
+        await state.update(selected.id, { Status: props.archiveStatus });
+      }
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : t('common.unknownError'));
+    }
+  };
+
+  const changeStatus = (item: T, status: string): void => {
+    if (!item.id) {
+      return;
+    }
+    setLocalError(undefined);
+    const payload = props.quickPayload ? props.quickPayload(item, status) : { Status: status };
+    state.update(item.id, payload).catch(err => setLocalError(err instanceof Error ? err.message : t('common.unknownError')));
+  };
+
+  const exportCsv = (): void => {
+    downloadTextFile(props.csvFileName, toCsv(visible, props.csvColumns));
+  };
+
+  // ----- columns: sorting, translated status, inline status picker -----
+  const tableColumns: IColumn[] = columns.map(column => {
+    const sortable = !!sortAccessors[column.key];
+    const base: IColumn = {
+      ...column,
+      isResizable: true,
+      isSorted: view.sortKey === column.key,
+      isSortedDescending: view.sortKey === column.key && view.sortDescending,
+      onColumnClick: sortable
+        ? () => setView(prev => ({ ...prev, sortKey: column.key, sortDescending: prev.sortKey === column.key ? !prev.sortDescending : false }))
+        : undefined
+    };
+
+    if (column.key !== 'status') {
+      return base;
+    }
+
+    return {
+      ...base,
+      minWidth: props.quickStatuses ? 150 : column.minWidth,
+      onRender: (item: T) => {
+        const allowed = props.quickStatuses ? props.quickStatuses(item) : [];
+        if (allowed.length <= 1) {
+          return <span>{t(`status.${getStatus(item)}`)}</span>;
+        }
+
+        return (
+          <Dropdown
+            ariaLabel={t('common.changeStatus')}
+            selectedKey={getStatus(item)}
+            options={allowed.map(status => ({ key: status, text: t(`status.${status}`) }))}
+            onChange={(_, option) => option && String(option.key) !== getStatus(item) && changeStatus(item, String(option.key))}
+          />
+        );
+      }
+    };
+  });
+
+  const commandItems: ICommandBarItemProps[] = [
+    { key: 'new', text: t(`${textKey}.new`), iconProps: { iconName: 'Add' }, onClick: openCreate },
+    { key: 'edit', text: t('common.edit'), iconProps: { iconName: 'Edit' }, disabled: !selected, onClick: () => openEdit(selected) }
+  ];
+  if (props.renderDetail) {
+    commandItems.push({ key: 'details', text: t('common.details'), iconProps: { iconName: 'Info' }, disabled: !selected, onClick: () => setIsDetailOpen(true) });
+  }
+  commandItems.push(
+    { key: 'archive', text: t('common.archive'), iconProps: { iconName: 'Archive' }, disabled: !selected || !props.canArchive(selected), onClick: () => setConfirm('archive') },
+    { key: 'delete', text: t('common.delete'), iconProps: { iconName: 'Delete' }, disabled: !selected, onClick: () => setConfirm('delete') }
+  );
+  (props.extraCommands ? props.extraCommands(selected) : []).forEach(item => commandItems.push(item));
+
+  const farItems: ICommandBarItemProps[] = [
+    { key: 'refresh', text: t('common.refresh'), iconProps: { iconName: 'Refresh' }, onClick: () => { state.reload().catch(() => undefined); } },
+    { key: 'export', text: t('common.exportCsv'), iconProps: { iconName: 'Download' }, disabled: visible.length === 0, onClick: exportCsv },
+    { key: 'import', text: t('common.importCsv'), iconProps: { iconName: 'Upload' }, onClick: () => setIsCsvOpen(true) }
+  ];
+
+  const hasAnyItems = state.items.length > 0;
+
+  return (
+    <Stack tokens={{ childrenGap: 12 }}>
+      <Text variant="xLarge" as="h2">{t(`${textKey}.title`)}</Text>
+
+      <CommandBar items={commandItems} farItems={farItems} ariaLabel={t(`${textKey}.title`)} />
+
+      <Stack horizontal wrap verticalAlign="end" tokens={{ childrenGap: 12 }}>
+        <Stack.Item grow styles={{ root: { minWidth: 220, maxWidth: 420 } }}>
+          <SearchBox
+            placeholder={t('common.search')}
+            ariaLabel={t('common.search')}
+            value={view.search}
+            onChange={(_, value) => setView(prev => ({ ...prev, search: value ?? '' }))}
+            onClear={() => setView(prev => ({ ...prev, search: '' }))}
+          />
+        </Stack.Item>
+        {statuses.length > 0 && (
+          <Dropdown
+            ariaLabel={t('common.filterByStatus')}
+            selectedKey={view.status}
+            options={statusFilterOptions}
+            styles={{ root: { minWidth: 180 } }}
+            onChange={(_, option) => setView(prev => ({ ...prev, status: option ? String(option.key) : '' }))}
+          />
+        )}
+        {statuses.length > 0 && (
+          <Toggle
+            label={t('common.showClosed')}
+            inlineLabel
+            checked={view.showClosed}
+            onChange={(_, checked) => setView(prev => ({ ...prev, showClosed: !!checked }))}
+          />
+        )}
+      </Stack>
+
+      <div aria-live="polite">
+        {shownError && <MessageBar messageBarType={MessageBarType.error} onDismiss={() => setLocalError(undefined)}>{shownError}</MessageBar>}
+        {state.loading && <MessageBar>{t('common.loading')}</MessageBar>}
+      </div>
+
+      {props.extraContent}
+
+      {!state.loading && !hasAnyItems && !state.error && <Text>{t(`${textKey}.empty`)}</Text>}
+      {hasAnyItems && visible.length === 0 && <Text>{t('common.noResults')}</Text>}
+
+      {visible.length > 0 && (
+        <div style={{ overflowX: 'auto' }}>
+          <DetailsList
+            items={visible}
+            columns={tableColumns}
+            selection={selectionRef.current}
+            selectionMode={SelectionMode.single}
+            setKey="entity"
+            layoutMode={DetailsListLayoutMode.justified}
+            onItemInvoked={item => openEdit(item as T)}
+            ariaLabelForGrid={t(`${textKey}.title`)}
+          />
+        </div>
+      )}
+
+      <Panel
+        isOpen={isFormOpen}
+        onDismiss={() => setIsFormOpen(false)}
+        type={PanelType.large}
+        closeButtonAriaLabel={t('common.close')}
+        headerText={selected ? t(`${textKey}.edit`) : t(`${textKey}.create`)}
+      >
+        <Stack tokens={{ childrenGap: 12 }}>
+          {shownError && <MessageBar messageBarType={MessageBarType.error}>{shownError}</MessageBar>}
+          <FormGrid>
+            {props.renderForm({ form, setForm, errors, original: selected, isEdit: !!selected, service })}
+          </FormGrid>
+          {selected && (selected.modified || selected.editor) && (
+            <Text variant="small">{t('common.lastModified', { date: (selected.modified ?? '').slice(0, 10), user: selected.editor || '—' })}</Text>
+          )}
+          <Stack horizontal tokens={{ childrenGap: 8 }}>
+            <PrimaryButton text={t('common.save')} onClick={() => { save().catch(() => undefined); }} />
+            <DefaultButton text={t('common.cancel')} onClick={() => setIsFormOpen(false)} />
+          </Stack>
+        </Stack>
+      </Panel>
+
+      {props.renderDetail && (
+        <Panel
+          isOpen={isDetailOpen && !!selected}
+          onDismiss={() => setIsDetailOpen(false)}
+          type={PanelType.medium}
+          closeButtonAriaLabel={t('common.close')}
+          headerText={selected ? props.getTitle(selected) : ''}
+        >
+          {selected && props.renderDetail(selected)}
+        </Panel>
+      )}
+
+      <CsvImportPanel<T>
+        isOpen={isCsvOpen}
+        onDismiss={() => setIsCsvOpen(false)}
+        headers={props.csvColumns.map(column => column.header)}
+        fromRow={props.csvFromRow}
+        validate={props.validate}
+        buildPayload={props.buildPayload}
+        createItem={payload => service.createItem(props.listName, payload)}
+        onFinished={() => { state.reload().catch(() => undefined); }}
+      />
+
+      <ConfirmDialog
+        isOpen={confirm !== undefined}
+        title={confirm === 'delete' ? t('confirm.deleteTitle') : t('confirm.archiveTitle')}
+        message={confirm === 'delete'
+          ? t('confirm.deleteMessage', { name: selected ? props.getTitle(selected) : '' })
+          : t('confirm.archiveMessage', { name: selected ? props.getTitle(selected) : '' })}
+        confirmText={confirm === 'delete' ? t('common.delete') : t('common.archive')}
+        onConfirm={() => { runConfirmed().catch(() => undefined); }}
+        onCancel={() => setConfirm(undefined)}
+      />
+    </Stack>
+  );
+}
+
+export default EntityScreen;

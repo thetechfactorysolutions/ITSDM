@@ -1,147 +1,167 @@
 import * as React from 'react';
-import { useMemo, useState } from 'react';
-import { CommandBar, DetailsList, Dropdown, IColumn, IDropdownOption, MessageBar, MessageBarType, Panel, PanelType, PrimaryButton, SelectionMode, Stack, Text, TextField } from '@fluentui/react';
+import { Dropdown, IColumn, Stack, TextField } from '@fluentui/react';
+import { AppConfig } from '../../config/AppConfig';
+import { csvDate, csvEnum, csvNumber, enumValues } from '../../entities/csvHelpers';
+import { buildProjectPayload } from '../../entities/payloads';
+import { TranslateFn, useT } from '../../i18n/I18n';
 import { Project, ProjectRiskLevel, ProjectStatus } from '../../models';
 import { isProjectAtRiskByVariance } from '../../rules/businessRules';
-import { dayKeyToSharePoint } from '../../rules/dates';
 import { generateBusinessId } from '../../rules/ids';
-import { hasErrors, validateProject } from '../../rules/validation';
+import { getAllowedProjectStatuses } from '../../rules/transitions';
+import { validateProject } from '../../rules/validation';
 import DateField from '../shared/DateField';
+import { DetailFields, RelatedList } from '../shared/DetailSection';
+import EntityScreen, { IFormContext } from '../shared/EntityScreen';
+import { FormRow } from '../shared/FormGrid';
 import { useHubData } from '../shared/HubData';
+import LinkField from '../shared/LinkField';
+import { toOptions } from '../shared/options';
 import UserField from '../shared/UserField';
 
-const statusOptions: IDropdownOption[] = [
-  { key: ProjectStatus.PLANNING, text: ProjectStatus.PLANNING },
-  { key: ProjectStatus.ACTIVE, text: ProjectStatus.ACTIVE },
-  { key: ProjectStatus.AT_RISK, text: ProjectStatus.AT_RISK },
-  { key: ProjectStatus.BLOCKED, text: ProjectStatus.BLOCKED },
-  { key: ProjectStatus.ON_HOLD, text: ProjectStatus.ON_HOLD },
-  { key: ProjectStatus.COMPLETED, text: ProjectStatus.COMPLETED },
-  { key: ProjectStatus.CANCELLED, text: ProjectStatus.CANCELLED }
-];
-const riskOptions: IDropdownOption[] = [
-  { key: ProjectRiskLevel.LOW, text: ProjectRiskLevel.LOW },
-  { key: ProjectRiskLevel.MEDIUM, text: ProjectRiskLevel.MEDIUM },
-  { key: ProjectRiskLevel.HIGH, text: ProjectRiskLevel.HIGH },
-  { key: ProjectRiskLevel.CRITICAL, text: ProjectRiskLevel.CRITICAL }
-];
+const STATUSES = enumValues(ProjectStatus);
+const RISKS = enumValues(ProjectRiskLevel);
 
-const buildPayload = (project: Project): Record<string, unknown> => ({
-  Title: project.title.trim(),
-  ProjectId: project.projectId,
-  InitiativeId: project.initiativeId,
-  Description: project.description,
-  Status: project.status,
-  OwnerUPN: project.ownerUpn,
-  StartDate: dayKeyToSharePoint(project.startDate),
-  EndDate: dayKeyToSharePoint(project.endDate),
-  BudgetAmount: project.budgetAmount,
-  ForecastAmount: project.forecastAmount,
-  RiskLevel: project.riskLevel,
-  PlannerPlanId: project.plannerPlanId
-});
+const makeColumns = (t: TranslateFn): IColumn[] => [
+  { key: 'projectId', name: t('field.projectId'), fieldName: 'projectId', minWidth: 130 },
+  { key: 'title', name: t('field.title'), fieldName: 'title', minWidth: 180 },
+  { key: 'status', name: t('field.status'), fieldName: 'status', minWidth: 110 },
+  { key: 'budgetAmount', name: t('field.budget'), minWidth: 90, onRender: (p: Project) => p.budgetAmount.toFixed(2) },
+  { key: 'forecastAmount', name: t('field.forecast'), minWidth: 90, onRender: (p: Project) => p.forecastAmount.toFixed(2) },
+  { key: 'riskLevel', name: t('field.risk'), minWidth: 90, onRender: (p: Project) => t(`risk.${p.riskLevel}`) },
+  { key: 'endDate', name: t('field.endDate'), fieldName: 'endDate', minWidth: 100 }
+];
+const sortAccessors = {
+  projectId: (p: Project) => p.projectId,
+  title: (p: Project) => p.title,
+  status: (p: Project) => p.status,
+  budgetAmount: (p: Project) => p.budgetAmount,
+  forecastAmount: (p: Project) => p.forecastAmount,
+  riskLevel: (p: Project) => RISKS.indexOf(p.riskLevel),
+  endDate: (p: Project) => p.endDate
+};
+const searchFields = [(p: Project) => p.title, (p: Project) => p.description, (p: Project) => p.projectId, (p: Project) => p.ownerUpn];
+
+const csvColumns = [
+  { header: 'Title', value: (p: Project) => p.title },
+  { header: 'ProjectId', value: (p: Project) => p.projectId },
+  { header: 'InitiativeId', value: (p: Project) => p.initiativeId },
+  { header: 'Description', value: (p: Project) => p.description },
+  { header: 'Status', value: (p: Project) => p.status },
+  { header: 'OwnerUPN', value: (p: Project) => p.ownerUpn },
+  { header: 'StartDate', value: (p: Project) => p.startDate },
+  { header: 'EndDate', value: (p: Project) => p.endDate },
+  { header: 'BudgetAmount', value: (p: Project) => p.budgetAmount },
+  { header: 'ForecastAmount', value: (p: Project) => p.forecastAmount },
+  { header: 'RiskLevel', value: (p: Project) => p.riskLevel }
+];
 
 const Projects: React.FC = () => {
-  const { service, userEmail, projects: state } = useHubData();
+  const t = useT();
+  const { service, userEmail, projects: state, initiatives, actions, notes } = useHubData();
+  const columns = React.useMemo(() => makeColumns(t), [t]);
 
-  const newProject = (): Project => ({
-    projectId: generateBusinessId('PROJ'),
-    initiativeId: '',
-    title: '',
-    description: '',
-    status: ProjectStatus.PLANNING,
-    ownerUpn: userEmail,
-    startDate: '',
-    endDate: '',
-    budgetAmount: 0,
-    forecastAmount: 0,
-    riskLevel: ProjectRiskLevel.LOW,
+  const initiativeOptions = React.useMemo(() => initiatives.items.map(i => ({ id: i.initiativeId, title: i.title })), [initiatives.items]);
+
+  const newItem = React.useCallback((): Project => ({
+    projectId: generateBusinessId('PROJ'), initiativeId: '', title: '', description: '', status: ProjectStatus.PLANNING, ownerUpn: userEmail,
+    startDate: '', endDate: '', budgetAmount: 0, forecastAmount: 0, riskLevel: ProjectRiskLevel.LOW, plannerPlanId: ''
+  }), [userEmail]);
+
+  const csvFromRow = React.useCallback((row: Record<string, string>): Project => ({
+    projectId: row.ProjectId || generateBusinessId('PROJ'),
+    initiativeId: row.InitiativeId ?? '',
+    title: row.Title ?? '',
+    description: row.Description ?? '',
+    status: csvEnum(row.Status, STATUSES, ProjectStatus.PLANNING),
+    ownerUpn: row.OwnerUPN || userEmail,
+    startDate: csvDate(row.StartDate),
+    endDate: csvDate(row.EndDate),
+    budgetAmount: csvNumber(row.BudgetAmount),
+    forecastAmount: csvNumber(row.ForecastAmount),
+    riskLevel: csvEnum(row.RiskLevel, RISKS, ProjectRiskLevel.LOW),
     plannerPlanId: ''
-  });
+  }), [userEmail]);
 
-  const [selectedId, setSelectedId] = useState<number | undefined>();
-  const selected: Project | undefined = useMemo(
-    () => state.items.filter(item => item.id === selectedId)[0],
-    [state.items, selectedId]
-  );
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [submitted, setSubmitted] = useState<boolean>(false);
-  const [form, setForm] = useState<Project>(newProject);
-
-  // Field errors appear after the first save attempt and then update as the user types.
-  const errors = submitted ? validateProject(form) : {};
-
-  const columns: IColumn[] = useMemo(() => [
-    { key: 'projectId', name: 'Project ID', fieldName: 'projectId', minWidth: 90 },
-    { key: 'title', name: 'Title', fieldName: 'title', minWidth: 160 },
-    { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100 },
-    { key: 'budgetAmount', name: 'Budget', minWidth: 90, onRender: (item: Project) => item.budgetAmount.toFixed(2) },
-    { key: 'forecastAmount', name: 'Forecast', minWidth: 90, onRender: (item: Project) => item.forecastAmount.toFixed(2) },
-    { key: 'riskLevel', name: 'Risk', fieldName: 'riskLevel', minWidth: 80 }
-  ], []);
-
-  const openCreate = (): void => {
-    setSelectedId(undefined);
-    setSubmitted(false);
-    setForm(newProject());
-    setIsOpen(true);
+  const checkBeforeSave = (form: Project, original: Project | undefined): string | undefined => {
+    const base = original ? original.status : ProjectStatus.PLANNING;
+    return getAllowedProjectStatuses(base).indexOf(form.status) === -1
+      ? t('common.invalidTransition', { from: t(`status.${base}`), to: t(`status.${form.status}`) })
+      : undefined;
   };
 
-  const openEdit = (item: Project): void => {
-    setSelectedId(item.id);
-    setSubmitted(false);
-    setForm(item);
-    setIsOpen(true);
+  const renderForm = ({ form, setForm, errors, original, isEdit, service: svc }: IFormContext<Project>): React.ReactNode => {
+    const base = original ? original.status : ProjectStatus.PLANNING;
+    return (
+      <>
+        <TextField label={t('field.projectId')} value={form.projectId} readOnly={isEdit} onChange={(_, v) => setForm(p => ({ ...p, projectId: v ?? '' }))} />
+        <Dropdown label={t('field.status')} selectedKey={form.status} options={toOptions(getAllowedProjectStatuses(base), t)}
+          onChange={(_, o) => setForm(p => ({ ...p, status: (o?.key as ProjectStatus) ?? base }))} />
+        <FormRow full><TextField label={t('field.title')} required value={form.title} errorMessage={errors.title && t(errors.title)} onChange={(_, v) => setForm(p => ({ ...p, title: v ?? '' }))} /></FormRow>
+        <FormRow full><TextField label={t('field.description')} multiline rows={4} value={form.description} onChange={(_, v) => setForm(p => ({ ...p, description: v ?? '' }))} /></FormRow>
+        <LinkField label={t('field.initiative')} value={form.initiativeId} options={initiativeOptions} onChange={id => setForm(p => ({ ...p, initiativeId: id }))} />
+        <UserField label={t('field.owner')} required service={svc} value={form.ownerUpn} errorMessage={errors.ownerUpn && t(errors.ownerUpn)} onChange={e => setForm(p => ({ ...p, ownerUpn: e }))} />
+        <DateField label={t('field.startDate')} value={form.startDate} errorMessage={errors.startDate && t(errors.startDate)} onChange={v => setForm(p => ({ ...p, startDate: v }))} />
+        <DateField label={t('field.endDate')} value={form.endDate} errorMessage={errors.endDate && t(errors.endDate)} onChange={v => setForm(p => ({ ...p, endDate: v }))} />
+        <TextField label={t('field.budget')} type="number" min={0} value={String(form.budgetAmount)} errorMessage={errors.budgetAmount && t(errors.budgetAmount)} onChange={(_, v) => setForm(p => ({ ...p, budgetAmount: Number(v ?? 0) }))} />
+        <TextField label={t('field.forecast')} type="number" min={0} value={String(form.forecastAmount)} errorMessage={errors.forecastAmount && t(errors.forecastAmount)} onChange={(_, v) => setForm(p => ({ ...p, forecastAmount: Number(v ?? 0) }))} />
+        <Dropdown label={t('field.risk')} selectedKey={form.riskLevel} options={toOptions(RISKS, t, 'risk')} onChange={(_, o) => setForm(p => ({ ...p, riskLevel: (o?.key as ProjectRiskLevel) ?? ProjectRiskLevel.LOW }))} />
+      </>
+    );
   };
 
-  const save = async (): Promise<void> => {
-    setSubmitted(true);
-    if (hasErrors(validateProject(form))) {
-      return;
-    }
+  const renderDetail = (project: Project): React.ReactNode => {
+    const myActions = actions.items.filter(a => a.projectId === project.projectId);
+    const myNotes = notes.items.filter(n => n.projectId === project.projectId);
+    const initiative = initiatives.items.filter(i => i.initiativeId === project.initiativeId)[0];
+    const variance = project.budgetAmount > 0 ? Math.round(((project.forecastAmount - project.budgetAmount) / project.budgetAmount) * 100) : 0;
 
-    // On failure the hook rethrows, so the panel stays open and shows the error.
-    if (selected?.id) {
-      await state.update(selected.id, buildPayload(form));
-    } else {
-      await state.create(buildPayload(form));
-    }
-
-    setIsOpen(false);
+    return (
+      <Stack tokens={{ childrenGap: 16 }}>
+        <DetailFields rows={[
+          { label: t('field.projectId'), value: project.projectId },
+          { label: t('field.status'), value: t(`status.${project.status}`) },
+          { label: t('field.description'), value: project.description },
+          { label: t('field.initiative'), value: initiative ? `${initiative.title} (${initiative.initiativeId})` : project.initiativeId },
+          { label: t('field.owner'), value: project.ownerUpn },
+          { label: t('field.startDate'), value: project.startDate },
+          { label: t('field.endDate'), value: project.endDate },
+          { label: t('field.budget'), value: project.budgetAmount.toFixed(2) },
+          { label: t('field.forecast'), value: `${project.forecastAmount.toFixed(2)} (${variance > 0 ? '+' : ''}${variance}%)` },
+          { label: t('field.risk'), value: t(`risk.${project.riskLevel}`) },
+          { label: t('projects.atRisk'), value: isProjectAtRiskByVariance(project) ? t('common.yes') : t('common.no') },
+          { label: t('common.modifiedBy'), value: `${(project.modified ?? '').slice(0, 10)} ${project.editor ?? ''}`.trim() }
+        ]} />
+        <RelatedList title={t('nav.actions')} items={myActions.map(a => ({ key: a.actionId, title: a.title, meta: t(`status.${a.status}`) }))} />
+        <RelatedList title={t('nav.notes')} items={myNotes.map(n => ({ key: n.noteId, title: n.title, meta: t(`category.${n.category}`) }))} />
+      </Stack>
+    );
   };
 
   return (
-    <Stack tokens={{ childrenGap: 12 }}>
-      <Text variant="xLarge" as="h2">Projects</Text>
-      <CommandBar items={[{ key: 'new', text: 'New Project', onClick: openCreate }, { key: 'refresh', text: 'Refresh', onClick: () => { state.reload().catch(() => undefined); } }]} />
-      {state.error && <MessageBar messageBarType={MessageBarType.error}>{state.error}</MessageBar>}
-      {state.loading && <MessageBar>Loading projects...</MessageBar>}
-      <DetailsList items={state.items} columns={columns} selectionMode={SelectionMode.single} onItemInvoked={openEdit} />
-      {selected && (
-        <Text>
-          Detail: {selected.title} | Budget {selected.budgetAmount.toFixed(2)} | Forecast {selected.forecastAmount.toFixed(2)} |
-          {isProjectAtRiskByVariance(selected) ? ' At Risk' : ' Within Threshold'}
-        </Text>
-      )}
-      <Panel isOpen={isOpen} onDismiss={() => setIsOpen(false)} type={PanelType.medium} headerText={selected ? 'Edit Project' : 'Create Project'}>
-        <Stack tokens={{ childrenGap: 8 }}>
-          {state.error && <MessageBar messageBarType={MessageBarType.error}>{state.error}</MessageBar>}
-          <TextField label="Project ID" value={form.projectId} readOnly={!!selected} onChange={(_, value) => setForm(prev => ({ ...prev, projectId: value ?? '' }))} />
-          <TextField label="Title" value={form.title} required errorMessage={errors.title} onChange={(_, value) => setForm(prev => ({ ...prev, title: value ?? '' }))} />
-          <TextField label="Description" multiline value={form.description} onChange={(_, value) => setForm(prev => ({ ...prev, description: value ?? '' }))} />
-          <TextField label="Initiative ID" value={form.initiativeId} onChange={(_, value) => setForm(prev => ({ ...prev, initiativeId: value ?? '' }))} />
-          <Dropdown label="Status" selectedKey={form.status} options={statusOptions} onChange={(_, option) => setForm(prev => ({ ...prev, status: (option?.key as ProjectStatus) ?? ProjectStatus.PLANNING }))} />
-          <UserField label="Owner" required service={service} value={form.ownerUpn} errorMessage={errors.ownerUpn} onChange={email => setForm(prev => ({ ...prev, ownerUpn: email }))} />
-          <DateField label="Start Date" value={form.startDate} errorMessage={errors.startDate} onChange={value => setForm(prev => ({ ...prev, startDate: value }))} />
-          <DateField label="End Date" value={form.endDate} errorMessage={errors.endDate} onChange={value => setForm(prev => ({ ...prev, endDate: value }))} />
-          <TextField label="Budget" type="number" min={0} value={String(form.budgetAmount)} errorMessage={errors.budgetAmount} onChange={(_, value) => setForm(prev => ({ ...prev, budgetAmount: Number(value ?? 0) }))} />
-          <TextField label="Forecast" type="number" min={0} value={String(form.forecastAmount)} errorMessage={errors.forecastAmount} onChange={(_, value) => setForm(prev => ({ ...prev, forecastAmount: Number(value ?? 0) }))} />
-          <Dropdown label="Risk Level" selectedKey={form.riskLevel} options={riskOptions} onChange={(_, option) => setForm(prev => ({ ...prev, riskLevel: (option?.key as ProjectRiskLevel) ?? ProjectRiskLevel.LOW }))} />
-          <TextField label="Planner Plan ID" value={form.plannerPlanId} onChange={(_, value) => setForm(prev => ({ ...prev, plannerPlanId: value ?? '' }))} />
-          <PrimaryButton text="Save" onClick={() => { save().catch(() => undefined); }} />
-        </Stack>
-      </Panel>
-    </Stack>
+    <EntityScreen<Project>
+      textKey="projects"
+      listName={AppConfig.sharePoint.listNames.projects}
+      state={state}
+      service={service}
+      statuses={STATUSES}
+      getStatus={p => p.status}
+      getTitle={p => p.title}
+      columns={columns}
+      sortAccessors={sortAccessors}
+      searchFields={searchFields}
+      newItem={newItem}
+      validate={validateProject}
+      buildPayload={buildProjectPayload}
+      checkBeforeSave={checkBeforeSave}
+      renderForm={renderForm}
+      renderDetail={renderDetail}
+      quickStatuses={p => getAllowedProjectStatuses(p.status)}
+      archiveStatus={ProjectStatus.CANCELLED}
+      canArchive={p => getAllowedProjectStatuses(p.status).indexOf(ProjectStatus.CANCELLED) > -1 && p.status !== ProjectStatus.CANCELLED}
+      csvFileName="projects.csv"
+      csvColumns={csvColumns}
+      csvFromRow={csvFromRow}
+    />
   );
 };
 

@@ -20,4 +20,5 @@ export interface Initiative {
   plannerPlanId?: string;
   created?: string;
   modified?: string;
+  editor?: string;
 }

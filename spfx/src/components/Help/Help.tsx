@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { Link, Stack, Text } from '@fluentui/react';
+import { DefaultButton, Link, MessageBar, MessageBarType, Stack, Text } from '@fluentui/react';
 import { AppConfig } from '../../config/AppConfig';
+import { useT } from '../../i18n/I18n';
+import { useHubData } from '../shared/HubData';
 
 const Section: React.FC<{ title: string; children?: React.ReactNode }> = ({ title, children }) => (
   <Stack tokens={{ childrenGap: 4 }}>
@@ -9,62 +11,79 @@ const Section: React.FC<{ title: string; children?: React.ReactNode }> = ({ titl
   </Stack>
 );
 
+const VERSIONED_LISTS: Array<keyof typeof AppConfig.sharePoint.listNames> = ['ideas', 'initiatives', 'projects', 'actions', 'meetings', 'notes'];
+
 const Help: React.FC = () => {
+  const t = useT();
+  const { service } = useHubData();
   const lists = AppConfig.sharePoint.listNames;
+  const [versioning, setVersioning] = React.useState<Array<{ list: string; error?: string }> | undefined>();
+  const [busy, setBusy] = React.useState<boolean>(false);
+
+  const enableHistory = async (): Promise<void> => {
+    setBusy(true);
+    const outcome: Array<{ list: string; error?: string }> = [];
+    for (const key of VERSIONED_LISTS) {
+      const name = lists[key];
+      try {
+        await service.enableVersioning(name);
+        outcome.push({ list: name });
+      } catch (err) {
+        outcome.push({ list: name, error: err instanceof Error ? err.message : t('common.unknownError') });
+      }
+    }
+    setVersioning(outcome);
+    setBusy(false);
+  };
 
   return (
     <Stack tokens={{ childrenGap: 16 }}>
-      <Text variant="xLarge" as="h2">How the IT Management Hub works</Text>
+      <Text variant="xLarge" as="h2">{t('help.title')}</Text>
 
-      <Section title="The idea">
-        <Text>
-          The hub follows one flow: an <b>Idea</b> is validated and converted into an <b>Initiative</b>, which is delivered through
-          <b> Projects</b>, and every follow-up is tracked as an <b>Action</b>. The Dashboard summarises what needs attention.
+      <Section title={t('help.flowTitle')}><Text>{t('help.flow')}</Text></Section>
+      <Section title={t('help.dashboardTitle')}>
+        <Text>{t('help.dashboard1')}</Text>
+        <Text>{t('help.dashboard2')}</Text>
+        <Text>{t('help.dashboard3')}</Text>
+      </Section>
+      <Section title={t('help.tablesTitle')}>
+        <Text>{t('help.tables1')}</Text>
+        <Text>{t('help.tables2')}</Text>
+        <Text>{t('help.tables3')}</Text>
+      </Section>
+      <Section title={t('help.ideasTitle')}>
+        <Text>{t('help.ideas1')}</Text>
+        <Text>{t('help.ideas2')}</Text>
+      </Section>
+      <Section title={t('help.importTitle')}>
+        <Text>{t('help.import1')}</Text>
+        <Text>{t('help.import2')}</Text>
+        <Text>{t('help.import3')}</Text>
+      </Section>
+      <Section title={t('help.notesTitle')}><Text>{t('help.notes1')}</Text></Section>
+      <Section title={t('help.formsTitle')}>
+        <Text>{t('help.forms1')}</Text>
+        <Text>{t('help.forms2')}</Text>
+      </Section>
+      <Section title={t('help.dataTitle')}>
+        <Text>{t('help.data1')}</Text>
+        <Text>{lists.ideas} · {lists.initiatives} · {lists.projects} · {lists.actions} · {lists.notes} · {lists.meetings}</Text>
+        <Text>{t('help.data2')}{' '}
+          <Link href="https://github.com/thetechfactorysolutions/ITSDM" target="_blank" rel="noopener noreferrer">GitHub</Link>
         </Text>
       </Section>
-
-      <Section title="Dashboard">
-        <Text>Counters for active ideas, initiatives and projects, open and overdue actions, and projects at risk.</Text>
-        <Text>
-          <b>Overdue</b>: the due date is before today (an action due today is not overdue yet).
-          <b> At risk</b>: the forecast exceeds the budget by more than 10%, or the project status is AT_RISK.
-        </Text>
-        <Text><b>My Actions</b> counts open actions where you are the owner: overdue, due today and due in the next 7 days.</Text>
+      <Section title={t('help.historyTitle')}>
+        <Text>{t('help.history1')}</Text>
+        <Stack horizontal><DefaultButton text={t('help.historyButton')} disabled={busy} onClick={() => { enableHistory().catch(() => undefined); }} /></Stack>
+        <div aria-live="polite">
+          {versioning && versioning.map(row => (
+            <MessageBar key={row.list} messageBarType={row.error ? MessageBarType.error : MessageBarType.success}>
+              {row.list}: {row.error ? row.error : t('help.historyEnabled')}
+            </MessageBar>
+          ))}
+        </div>
       </Section>
-
-      <Section title="Ideas">
-        <Text>Click <b>New Idea</b> to capture one. Double-click a row (or select it and press Edit) to change it.</Text>
-        <Text>
-          Status moves forward one step at a time: NEW → DISCOVERY → VALIDATED → PLANNED → IN_PROGRESS → PILOT → ROLLOUT → COMPLETED.
-          An idea can also be REJECTED (before it is planned) or CANCELLED. The Status list only offers the steps that are allowed.
-        </Text>
-        <Text>
-          Select a <b>VALIDATED</b> idea and click <b>Convert to Initiative</b>: a DRAFT initiative is created from it and the idea moves to PLANNED.
-          If the conversion fails halfway, the initiative is removed again so nothing is left half done.
-        </Text>
-      </Section>
-
-      <Section title="Initiatives, Projects and Actions">
-        <Text>Use <b>New …</b> to create and double-click a row to edit. Initiatives track progress (0–100%), projects track budget against forecast and risk level, and actions have an owner, priority and due date.</Text>
-        <Text>The Actions tab is split into Overdue, Today, This week and All.</Text>
-      </Section>
-
-      <Section title="Forms">
-        <Text>Title and Owner are required. Pick the owner by typing a name or email. Dates can be typed as YYYY-MM-DD or picked from the calendar.</Text>
-        <Text>If something is wrong, the field shows a message after you press Save. If SharePoint rejects the save, the error appears at the top of the panel and nothing is lost.</Text>
-        <Text>IDs (such as IDEA-20261108-K3F9QZ) are generated automatically and cannot be edited afterwards.</Text>
-      </Section>
-
-      <Section title="Where the data lives">
-        <Text>Everything is stored in SharePoint lists on this site, so you can also filter, export or set permissions on them directly:</Text>
-        <Text>{lists.ideas} · {lists.initiatives} · {lists.projects} · {lists.actions}</Text>
-        <Text>
-          The lists and some sample items are created automatically when the app is added to the site. If a tab says a list does not exist,
-          remove the app from the site (Site contents → the app → Remove) and add it again. Sample items have IDs such as IDEA-DEMO-001 and an example owner;
-          delete them from the lists whenever you like.{' '}
-          <Link href="https://github.com/thetechfactorysolutions/ITSDM" target="_blank" rel="noopener noreferrer">Project on GitHub</Link>
-        </Text>
-      </Section>
+      <Section title={t('help.languageTitle')}><Text>{t('help.language1')}</Text></Section>
     </Stack>
   );
 };

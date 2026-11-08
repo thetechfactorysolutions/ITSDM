@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: spfx
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: spfx/.nvmrc
+          cache: npm
+          cache-dependency-path: spfx/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint, compile and test
+        run: npm test
+
+      - name: Package the solution
+        run: npm run package
+
+      - name: Keep the .sppkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: itsdm-sppkg
+          path: spfx/sharepoint/solution/itsdm.sppkg
+          if-no-files-found: error

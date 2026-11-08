@@ -7,41 +7,47 @@ import { HubDataProvider } from '../../../components/shared/HubData';
 import Dashboard from '../../../components/Dashboard/Dashboard';
 import Help from '../../../components/Help/Help';
 import Ideas from '../../../components/Ideas/Ideas';
+import Import from '../../../components/Import/Import';
 import Initiatives from '../../../components/Initiatives/Initiatives';
 import Actions from '../../../components/Actions/Actions';
+import Notes from '../../../components/Notes/Notes';
 import Projects from '../../../components/Projects/Projects';
+import { I18nProvider, resolveLanguage, useT } from '../../../i18n/I18n';
 
-const ItManagementHub: React.FC<IItManagementHubProps> = ({ description, context }) => {
+/** Tabs, translated. Separate from the root so it can read the language set by the provider. */
+const Tabs: React.FC<{ description: string }> = ({ description }) => {
+  const t = useT();
+
   return (
-    <section className={styles.itManagementHub}>
-      <Stack tokens={{ childrenGap: 12 }}>
-        <Text variant="xxLarge">{AppConfig.appName}</Text>
-        <Text variant="large">{AppConfig.tagline}</Text>
-        {description && <Text>{description}</Text>}
+    <Stack tokens={{ childrenGap: 12 }}>
+      <Text variant="xxLarge" as="h1">{AppConfig.appName}</Text>
+      <Text variant="large">{t('app.tagline')}</Text>
+      {description && <Text>{description}</Text>}
 
+      <Pivot overflowBehavior="menu" overflowAriaLabel={t('nav.more')} aria-label={AppConfig.appName}>
+        <PivotItem headerText={t('nav.dashboard')}><Dashboard /></PivotItem>
+        <PivotItem headerText={t('nav.ideas')}><Ideas /></PivotItem>
+        <PivotItem headerText={t('nav.initiatives')}><Initiatives /></PivotItem>
+        <PivotItem headerText={t('nav.projects')}><Projects /></PivotItem>
+        <PivotItem headerText={t('nav.actions')}><Actions /></PivotItem>
+        <PivotItem headerText={t('nav.notes')}><Notes /></PivotItem>
+        <PivotItem headerText={t('nav.import')}><Import /></PivotItem>
+        <PivotItem headerText={t('nav.help')}><Help /></PivotItem>
+      </Pivot>
+    </Stack>
+  );
+};
+
+const ItManagementHub: React.FC<IItManagementHubProps> = ({ description, context, language }) => {
+  const resolved = resolveLanguage(language, context.pageContext.cultureInfo.currentUICultureName);
+
+  return (
+    <section className={styles.itManagementHub} lang={resolved}>
+      <I18nProvider language={resolved}>
         <HubDataProvider context={context}>
-          <Pivot>
-            <PivotItem headerText="Dashboard">
-              <Dashboard />
-            </PivotItem>
-            <PivotItem headerText="Ideas">
-              <Ideas />
-            </PivotItem>
-            <PivotItem headerText="Initiatives">
-              <Initiatives />
-            </PivotItem>
-            <PivotItem headerText="Actions">
-              <Actions />
-            </PivotItem>
-            <PivotItem headerText="Projects">
-              <Projects />
-            </PivotItem>
-            <PivotItem headerText="Help">
-              <Help />
-            </PivotItem>
-          </Pivot>
+          <Tabs description={description} />
         </HubDataProvider>
-      </Stack>
+      </I18nProvider>
     </section>
   );
 };

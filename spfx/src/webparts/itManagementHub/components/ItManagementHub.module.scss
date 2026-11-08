@@ -1,6 +1,25 @@
 .itManagementHub {
-  overflow: hidden;
+  // Fills whatever it is placed in, including a full-width section, and never forces a horizontal
+  // scrollbar on the page: wide tables scroll inside their own container instead.
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
   padding: 1rem;
   color: "[theme:bodyText, default: #323130]";
   color: var(--bodyText);
+
+  // A full-width section has no page margins of its own, so give the content some air on big screens.
+  @media (min-width: 1024px) {
+    padding: 1.25rem 2rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
 }

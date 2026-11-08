@@ -31,4 +31,5 @@ export interface Project {
   plannerPlanId?: string;
   created?: string;
   modified?: string;
+  editor?: string;
 }

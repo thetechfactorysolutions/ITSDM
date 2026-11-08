@@ -1,181 +1,145 @@
 import * as React from 'react';
-import { useMemo, useState } from 'react';
-import {
-  CommandBar,
-  DefaultButton,
-  DetailsList,
-  Dialog,
-  DialogFooter,
-  DialogType,
-  Dropdown,
-  IColumn,
-  IDropdownOption,
-  MessageBar,
-  MessageBarType,
-  Panel,
-  PanelType,
-  PrimaryButton,
-  SelectionMode,
-  Stack,
-  Text,
-  TextField
-} from '@fluentui/react';
-import { Idea, IdeaStatus, InitiativeStatus } from '../../models';
+import { DefaultButton, Dialog, DialogFooter, DialogType, Dropdown, IColumn, MessageBar, MessageBarType, PrimaryButton, TextField } from '@fluentui/react';
 import { AppConfig } from '../../config/AppConfig';
+import { csvDate, csvEnum, csvNumber, enumValues } from '../../entities/csvHelpers';
+import { buildIdeaPayload } from '../../entities/payloads';
+import { TranslateFn, useT } from '../../i18n/I18n';
+import { Idea, IdeaStatus, InitiativeStatus } from '../../models';
 import { canConvertIdeaToInitiative, getAllowedIdeaStatuses } from '../../rules/businessRules';
 import { dayKeyToSharePoint } from '../../rules/dates';
 import { generateBusinessId } from '../../rules/ids';
-import { hasErrors, validateIdea } from '../../rules/validation';
+import { validateIdea } from '../../rules/validation';
 import DateField from '../shared/DateField';
+import { DetailFields } from '../shared/DetailSection';
+import EntityScreen, { IFormContext } from '../shared/EntityScreen';
+import { FormRow } from '../shared/FormGrid';
 import { useHubData } from '../shared/HubData';
+import { toOptions } from '../shared/options';
 import UserField from '../shared/UserField';
 
-const statusOptions: IDropdownOption[] = [
-  { key: IdeaStatus.NEW, text: IdeaStatus.NEW },
-  { key: IdeaStatus.DISCOVERY, text: IdeaStatus.DISCOVERY },
-  { key: IdeaStatus.VALIDATED, text: IdeaStatus.VALIDATED },
-  { key: IdeaStatus.PLANNED, text: IdeaStatus.PLANNED },
-  { key: IdeaStatus.IN_PROGRESS, text: IdeaStatus.IN_PROGRESS },
-  { key: IdeaStatus.PILOT, text: IdeaStatus.PILOT },
-  { key: IdeaStatus.ROLLOUT, text: IdeaStatus.ROLLOUT },
-  { key: IdeaStatus.COMPLETED, text: IdeaStatus.COMPLETED },
-  { key: IdeaStatus.REJECTED, text: IdeaStatus.REJECTED },
-  { key: IdeaStatus.CANCELLED, text: IdeaStatus.CANCELLED }
+const STATUSES = enumValues(IdeaStatus);
+
+const makeColumns = (t: TranslateFn): IColumn[] => [
+  { key: 'ideaId', name: t('field.ideaId'), fieldName: 'ideaId', minWidth: 120 },
+  { key: 'title', name: t('field.title'), fieldName: 'title', minWidth: 180 },
+  { key: 'status', name: t('field.status'), fieldName: 'status', minWidth: 110 },
+  { key: 'ownerUpn', name: t('field.owner'), fieldName: 'ownerUpn', minWidth: 160 },
+  { key: 'targetDate', name: t('field.targetDate'), fieldName: 'targetDate', minWidth: 100 }
+];
+const sortAccessors = {
+  ideaId: (i: Idea) => i.ideaId,
+  title: (i: Idea) => i.title,
+  status: (i: Idea) => i.status,
+  ownerUpn: (i: Idea) => i.ownerUpn,
+  targetDate: (i: Idea) => i.targetDate
+};
+const searchFields = [(i: Idea) => i.title, (i: Idea) => i.description, (i: Idea) => i.ideaId, (i: Idea) => i.ownerUpn, (i: Idea) => i.tags.join(' ')];
+
+const csvColumns = [
+  { header: 'Title', value: (i: Idea) => i.title },
+  { header: 'IdeaId', value: (i: Idea) => i.ideaId },
+  { header: 'Description', value: (i: Idea) => i.description },
+  { header: 'Status', value: (i: Idea) => i.status },
+  { header: 'OwnerUPN', value: (i: Idea) => i.ownerUpn },
+  { header: 'SponsorUPN', value: (i: Idea) => i.sponsorUpn },
+  { header: 'EstimatedValue', value: (i: Idea) => i.estimatedValue },
+  { header: 'TargetDate', value: (i: Idea) => i.targetDate },
+  { header: 'Tags', value: (i: Idea) => i.tags.join(';') }
 ];
 
-const buildIdeaPayload = (idea: Idea): Record<string, unknown> => ({
-  Title: idea.title.trim(),
-  IdeaId: idea.ideaId,
-  Description: idea.description,
-  Status: idea.status,
-  OwnerUPN: idea.ownerUpn,
-  SponsorUPN: idea.sponsorUpn,
-  EstimatedValue: idea.estimatedValue,
-  TargetDate: dayKeyToSharePoint(idea.targetDate),
-  Tags: idea.tags.join(','),
-  ConvertedInitiativeId: idea.convertedInitiativeId
-});
-
 const Ideas: React.FC = () => {
-  const { service, userEmail, ideas: ideasState, initiatives: initiativesState } = useHubData();
+  const t = useT();
+  const { service, userEmail, ideas: state, initiatives } = useHubData();
+  const columns = React.useMemo(() => makeColumns(t), [t]);
+  const [convertId, setConvertId] = React.useState<number | undefined>();
+  const [conversionError, setConversionError] = React.useState<string | undefined>();
 
-  const newIdea = (): Idea => ({
-    ideaId: generateBusinessId('IDEA'),
-    title: '',
-    description: '',
-    status: IdeaStatus.NEW,
-    ownerUpn: userEmail,
-    sponsorUpn: '',
-    estimatedValue: 0,
-    targetDate: '',
-    tags: []
-  });
+  const newItem = React.useCallback((): Idea => ({
+    ideaId: generateBusinessId('IDEA'), title: '', description: '', status: IdeaStatus.NEW, ownerUpn: userEmail,
+    sponsorUpn: '', estimatedValue: 0, targetDate: '', tags: []
+  }), [userEmail]);
 
-  // Keep only the id and derive the idea from the loaded list, so the detail view and the
-  // transition rules always see the saved status instead of a stale copy.
-  const [selectedId, setSelectedId] = useState<number | undefined>();
-  const selected: Idea | undefined = useMemo(
-    () => ideasState.items.filter(item => item.id === selectedId)[0],
-    [ideasState.items, selectedId]
+  const csvFromRow = React.useCallback((row: Record<string, string>): Idea => ({
+    ideaId: row.IdeaId || generateBusinessId('IDEA'),
+    title: row.Title ?? '',
+    description: row.Description ?? '',
+    status: csvEnum(row.Status, STATUSES, IdeaStatus.NEW),
+    ownerUpn: row.OwnerUPN || userEmail,
+    sponsorUpn: row.SponsorUPN ?? '',
+    estimatedValue: csvNumber(row.EstimatedValue),
+    targetDate: csvDate(row.TargetDate),
+    tags: (row.Tags ?? '').split(/[;,]/).map(tag => tag.trim()).filter(Boolean)
+  }), [userEmail]);
+
+  const checkBeforeSave = (form: Idea, original: Idea | undefined): string | undefined => {
+    const base = original ? original.status : IdeaStatus.NEW;
+    return getAllowedIdeaStatuses(base).indexOf(form.status) === -1
+      ? t('ideas.invalidTransition', { from: t(`status.${base}`), to: t(`status.${form.status}`) })
+      : undefined;
+  };
+
+  const renderForm = ({ form, setForm, errors, original, isEdit, service: svc }: IFormContext<Idea>): React.ReactNode => {
+    const base = original ? original.status : IdeaStatus.NEW;
+    return (
+      <>
+        <TextField label={t('field.ideaId')} value={form.ideaId} readOnly={isEdit} onChange={(_, v) => setForm(p => ({ ...p, ideaId: v ?? '' }))} />
+        <Dropdown label={t('field.status')} selectedKey={form.status} options={toOptions(getAllowedIdeaStatuses(base), t)}
+          onChange={(_, o) => setForm(p => ({ ...p, status: (o?.key as IdeaStatus) ?? base }))} />
+        <FormRow full><TextField label={t('field.title')} required value={form.title} errorMessage={errors.title && t(errors.title)} onChange={(_, v) => setForm(p => ({ ...p, title: v ?? '' }))} /></FormRow>
+        <FormRow full><TextField label={t('field.description')} multiline rows={4} value={form.description} onChange={(_, v) => setForm(p => ({ ...p, description: v ?? '' }))} /></FormRow>
+        <UserField label={t('field.owner')} required service={svc} value={form.ownerUpn} errorMessage={errors.ownerUpn && t(errors.ownerUpn)} onChange={e => setForm(p => ({ ...p, ownerUpn: e }))} />
+        <UserField label={t('field.sponsor')} service={svc} value={form.sponsorUpn} errorMessage={errors.sponsorUpn && t(errors.sponsorUpn)} onChange={e => setForm(p => ({ ...p, sponsorUpn: e }))} />
+        <TextField label={t('field.estimatedValue')} type="number" min={0} value={String(form.estimatedValue ?? 0)} errorMessage={errors.estimatedValue && t(errors.estimatedValue)} onChange={(_, v) => setForm(p => ({ ...p, estimatedValue: Number(v ?? 0) }))} />
+        <DateField label={t('field.targetDate')} value={form.targetDate} errorMessage={errors.targetDate && t(errors.targetDate)} onChange={v => setForm(p => ({ ...p, targetDate: v }))} />
+        {/* Uncontrolled on purpose: rebuilding the text from the tag list on every keystroke would swallow the comma being typed. */}
+        <FormRow full><TextField key={form.ideaId} label={t('field.tags')} defaultValue={form.tags.join(', ')} onChange={(_, v) => setForm(p => ({ ...p, tags: (v ?? '').split(',').map(tag => tag.trim()).filter(Boolean) }))} /></FormRow>
+      </>
+    );
+  };
+
+  const renderDetail = (idea: Idea): React.ReactNode => (
+    <DetailFields rows={[
+      { label: t('field.ideaId'), value: idea.ideaId },
+      { label: t('field.status'), value: t(`status.${idea.status}`) },
+      { label: t('field.description'), value: idea.description },
+      { label: t('field.owner'), value: idea.ownerUpn },
+      { label: t('field.sponsor'), value: idea.sponsorUpn },
+      { label: t('field.estimatedValue'), value: idea.estimatedValue },
+      { label: t('field.targetDate'), value: idea.targetDate },
+      { label: t('field.tags'), value: idea.tags.join(', ') },
+      { label: t('field.convertedInitiative'), value: idea.convertedInitiativeId },
+      { label: t('common.modifiedBy'), value: `${(idea.modified ?? '').slice(0, 10)} ${idea.editor ?? ''}`.trim() }
+    ]} />
   );
-  const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
-  const [isConvertDialogOpen, setIsConvertDialogOpen] = useState<boolean>(false);
-  const [actionError, setActionError] = useState<string | undefined>();
-  const [submitted, setSubmitted] = useState<boolean>(false);
-  const [form, setForm] = useState<Idea>(newIdea);
 
-  // Field errors appear after the first save attempt and then update as the user types.
-  const errors = submitted ? validateIdea(form) : {};
-
-  // Status changes are validated against the saved status, not the in-progress form value,
-  // so several invalid steps cannot be chained inside one edit session.
-  const baseStatus = selected ? selected.status : IdeaStatus.NEW;
-  const allowedStatusOptions: IDropdownOption[] = useMemo(() => {
-    const allowed = getAllowedIdeaStatuses(baseStatus);
-    return statusOptions.filter(option => allowed.indexOf(option.key as IdeaStatus) > -1);
-  }, [baseStatus]);
-
-  const columns: IColumn[] = useMemo(() => [
-    { key: 'ideaId', name: 'Idea ID', fieldName: 'ideaId', minWidth: 100 },
-    { key: 'title', name: 'Title', fieldName: 'title', minWidth: 160 },
-    { key: 'status', name: 'Status', fieldName: 'status', minWidth: 120 },
-    { key: 'ownerUpn', name: 'Owner', fieldName: 'ownerUpn', minWidth: 180 },
-    { key: 'targetDate', name: 'Target', fieldName: 'targetDate', minWidth: 100 }
-  ], []);
-
-  const openCreate = (): void => {
-    setSelectedId(undefined);
-    setActionError(undefined);
-    setSubmitted(false);
-    setForm(newIdea());
-    setIsPanelOpen(true);
-  };
-
-  const openEdit = (idea: Idea): void => {
-    setSelectedId(idea.id);
-    setActionError(undefined);
-    setSubmitted(false);
-    setForm(idea);
-    setIsPanelOpen(true);
-  };
-
-  const save = async (): Promise<void> => {
-    setActionError(undefined);
-    setSubmitted(true);
-
-    if (hasErrors(validateIdea(form))) {
-      return;
-    }
-
-    if (getAllowedIdeaStatuses(baseStatus).indexOf(form.status) === -1) {
-      setActionError(`An idea in status ${baseStatus} cannot move to ${form.status}.`);
-      return;
-    }
-
-    // On failure the hook rethrows, so the panel stays open and shows the error.
-    if (selected?.id) {
-      await ideasState.update(selected.id, buildIdeaPayload(form));
-    } else {
-      await ideasState.create(buildIdeaPayload(form));
-    }
-    setIsPanelOpen(false);
-  };
+  const convertTarget = state.items.filter(item => item.id === convertId)[0];
 
   const convertToInitiative = async (): Promise<void> => {
-    if (!selected || !selected.id || !canConvertIdeaToInitiative(selected.status, true)) {
+    const idea = convertTarget;
+    setConvertId(undefined);
+    if (!idea || !idea.id || !canConvertIdeaToInitiative(idea.status, true)) {
       return;
     }
 
-    setActionError(undefined);
+    setConversionError(undefined);
     const initiativeId = generateBusinessId('INIT');
-
     let createdItemId: number | undefined;
+
     try {
       const created = await service.createItem<{ Id?: number }>(AppConfig.sharePoint.listNames.initiatives, {
-        Title: selected.title,
-        InitiativeId: initiativeId,
-        Description: selected.description,
-        Status: InitiativeStatus.DRAFT,
-        OwnerUPN: selected.ownerUpn,
-        ProgressPct: 0,
-        TargetDate: dayKeyToSharePoint(selected.targetDate),
-        SourceIdeaId: selected.ideaId
+        Title: idea.title, InitiativeId: initiativeId, Description: idea.description, Status: InitiativeStatus.DRAFT,
+        OwnerUPN: idea.ownerUpn, ProgressPct: 0, TargetDate: dayKeyToSharePoint(idea.targetDate), SourceIdeaId: idea.ideaId
       });
       createdItemId = created.Id;
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : 'The initiative could not be created.');
-      setIsConvertDialogOpen(false);
+      setConversionError(err instanceof Error ? err.message : t('common.unknownError'));
       return;
     }
 
     try {
-      await ideasState.update(selected.id, {
-        Status: IdeaStatus.PLANNED,
-        ConvertedInitiativeId: initiativeId
-      });
+      await state.update(idea.id, { Status: IdeaStatus.PLANNED, ConvertedInitiativeId: initiativeId });
     } catch (err) {
-      const reason = err instanceof Error ? err.message : 'Unknown error';
-      // Undo the first step so the idea and the initiative list stay consistent.
+      const reason = err instanceof Error ? err.message : t('common.unknownError');
       let rolledBack = false;
       if (createdItemId !== undefined) {
         try {
@@ -185,86 +149,56 @@ const Ideas: React.FC = () => {
           rolledBack = false;
         }
       }
-
-      setActionError(rolledBack
-        ? `The idea could not be updated, so the conversion was cancelled and nothing was created. You can try again. ${reason}`
-        : `Initiative ${initiativeId} was created, but the idea could not be updated and the initiative could not be removed. Delete that initiative manually before converting again. ${reason}`);
+      setConversionError(rolledBack
+        ? t('ideas.convertRolledBack', { reason })
+        : t('ideas.convertOrphan', { id: initiativeId, reason }));
     }
 
-    // The Initiatives tab shares this data, so refresh it to match what is really stored.
-    initiativesState.reload().catch(() => undefined);
-    setIsConvertDialogOpen(false);
+    initiatives.reload().catch(() => undefined);
   };
 
-  const commandBarItems = [
-    { key: 'new', text: 'New Idea', onClick: openCreate },
-    { key: 'refresh', text: 'Refresh', onClick: () => { ideasState.reload().catch(() => undefined); } }
-  ];
-
-  const shownError = actionError || ideasState.error;
-
   return (
-    <Stack tokens={{ childrenGap: 12 }}>
-      <Text variant="xLarge" as="h2">Ideas</Text>
-      <CommandBar items={commandBarItems} />
-      {shownError && <MessageBar messageBarType={MessageBarType.error}>{shownError}</MessageBar>}
-      {ideasState.loading && <MessageBar>Loading ideas...</MessageBar>}
-      <DetailsList
-        items={ideasState.items}
-        columns={columns}
-        selectionMode={SelectionMode.single}
-        onItemInvoked={openEdit}
-      />
-
-      {selected && (
-        <Stack>
-          <Text variant="large" as="h3">Detail</Text>
-          <Text>{selected.title} ({selected.status})</Text>
-          <Text>{selected.description || 'No description'}</Text>
-          <Stack horizontal tokens={{ childrenGap: 8 }}>
-            <DefaultButton text="Edit" onClick={() => openEdit(selected)} />
-            <PrimaryButton
-              text="Convert to Initiative"
-              disabled={!canConvertIdeaToInitiative(selected.status, true)}
-              onClick={() => setIsConvertDialogOpen(true)}
-            />
-          </Stack>
-        </Stack>
-      )}
-
-      <Panel
-        isOpen={isPanelOpen}
-        onDismiss={() => setIsPanelOpen(false)}
-        type={PanelType.medium}
-        headerText={selected ? 'Edit Idea' : 'Create Idea'}
-      >
-        <Stack tokens={{ childrenGap: 8 }}>
-          {shownError && <MessageBar messageBarType={MessageBarType.error}>{shownError}</MessageBar>}
-          <TextField label="Idea ID" value={form.ideaId} readOnly={!!selected} onChange={(_, value) => setForm(prev => ({ ...prev, ideaId: value ?? '' }))} />
-          <TextField label="Title" value={form.title} required errorMessage={errors.title} onChange={(_, value) => setForm(prev => ({ ...prev, title: value ?? '' }))} />
-          <TextField label="Description" multiline value={form.description} onChange={(_, value) => setForm(prev => ({ ...prev, description: value ?? '' }))} />
-          <Dropdown
-            label="Status"
-            selectedKey={form.status}
-            options={allowedStatusOptions}
-            onChange={(_, option) => setForm(prev => ({ ...prev, status: (option?.key as IdeaStatus) ?? baseStatus }))}
-          />
-          <UserField label="Owner" required service={service} value={form.ownerUpn} errorMessage={errors.ownerUpn} onChange={email => setForm(prev => ({ ...prev, ownerUpn: email }))} />
-          <UserField label="Sponsor" service={service} value={form.sponsorUpn} errorMessage={errors.sponsorUpn} onChange={email => setForm(prev => ({ ...prev, sponsorUpn: email }))} />
-          <TextField label="Estimated Value" type="number" min={0} value={String(form.estimatedValue ?? 0)} errorMessage={errors.estimatedValue} onChange={(_, value) => setForm(prev => ({ ...prev, estimatedValue: Number(value ?? 0) }))} />
-          <DateField label="Target Date" value={form.targetDate} errorMessage={errors.targetDate} onChange={value => setForm(prev => ({ ...prev, targetDate: value }))} />
-          <TextField label="Tags (comma-separated)" value={form.tags.join(',')} onChange={(_, value) => setForm(prev => ({ ...prev, tags: (value ?? '').split(',').map(tag => tag.trim()).filter(Boolean) }))} />
-          <PrimaryButton text="Save" onClick={() => { save().catch(() => undefined); }} />
-        </Stack>
-      </Panel>
-
-      <Dialog hidden={!isConvertDialogOpen} onDismiss={() => setIsConvertDialogOpen(false)} dialogContentProps={{ type: DialogType.normal, title: 'Convert to Initiative', subText: 'Do you want to convert this validated idea into an initiative?' }}>
-        <DialogFooter>
-          <PrimaryButton text="Confirm conversion" onClick={() => { convertToInitiative().catch(() => undefined); }} />
-          <DefaultButton text="Cancel" onClick={() => setIsConvertDialogOpen(false)} />
-        </DialogFooter>
-      </Dialog>
-    </Stack>
+    <>
+    <EntityScreen<Idea>
+      textKey="ideas"
+      listName={AppConfig.sharePoint.listNames.ideas}
+      state={state}
+      service={service}
+      statuses={STATUSES}
+      getStatus={i => i.status}
+      getTitle={i => i.title}
+      columns={columns}
+      sortAccessors={sortAccessors}
+      searchFields={searchFields}
+      newItem={newItem}
+      validate={validateIdea}
+      buildPayload={buildIdeaPayload}
+      checkBeforeSave={checkBeforeSave}
+      renderForm={renderForm}
+      renderDetail={renderDetail}
+      archiveStatus={IdeaStatus.CANCELLED}
+      canArchive={i => getAllowedIdeaStatuses(i.status).indexOf(IdeaStatus.CANCELLED) > -1 && i.status !== IdeaStatus.CANCELLED}
+      csvFileName="ideas.csv"
+      csvColumns={csvColumns}
+      csvFromRow={csvFromRow}
+      extraCommands={selected => [{
+        key: 'convert', text: t('ideas.convert'), iconProps: { iconName: 'Forward' },
+        disabled: !selected || !canConvertIdeaToInitiative(selected.status, true),
+        onClick: () => setConvertId(selected ? selected.id : undefined)
+      }]}
+      extraContent={conversionError ? <MessageBar messageBarType={MessageBarType.error} onDismiss={() => setConversionError(undefined)}>{conversionError}</MessageBar> : undefined}
+    />
+    <Dialog
+      hidden={!convertTarget}
+      onDismiss={() => setConvertId(undefined)}
+      dialogContentProps={{ type: DialogType.normal, title: t('ideas.convertTitle'), subText: t('ideas.convertMessage', { name: convertTarget ? convertTarget.title : '' }) }}
+    >
+      <DialogFooter>
+        <PrimaryButton text={t('ideas.convertConfirm')} onClick={() => { convertToInitiative().catch(() => undefined); }} />
+        <DefaultButton text={t('common.cancel')} onClick={() => setConvertId(undefined)} />
+      </DialogFooter>
+    </Dialog>
+    </>
   );
 };
 
