@@ -10,7 +10,7 @@
     "clean": "gulp clean",
     "assets": "node scripts/generate-assets.js",
     "package": "npm run assets && gulp bundle --ship && gulp package-solution --ship",
-    "test": "gulp test && tsx tests/businessRules.test.ts && tsx tests/validation.test.ts && tsx tests/ids.test.ts && tsx tests/round2Rules.test.ts && tsx tests/transcriptImport.test.ts && tsx tests/i18n.test.ts && tsx tests/useListItems.test.tsx && tsx tests/importScreen.test.tsx && tsx tests/entityScreen.test.tsx"
+    "test": "gulp test && tsx tests/businessRules.test.ts && tsx tests/validation.test.ts && tsx tests/ids.test.ts && tsx tests/round2Rules.test.ts && tsx tests/transcriptImport.test.ts && tsx tests/i18n.test.ts && tsx tests/approvals.test.ts && tsx tests/useListItems.test.tsx && tsx tests/importScreen.test.tsx && tsx tests/entityScreen.test.tsx && tsx tests/approvalScreen.test.tsx"
   },
   "main": "lib/index.js",
   "dependencies": {

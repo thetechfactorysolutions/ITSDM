@@ -1,3 +1,5 @@
+import { IApprovalState } from './Approval';
+
 export enum ActionStatus {
   OPEN = 'OPEN',
   IN_PROGRESS = 'IN_PROGRESS',
@@ -29,4 +31,5 @@ export interface ActionItem {
   created?: string;
   modified?: string;
   editor?: string;
+  approval?: IApprovalState;
 }

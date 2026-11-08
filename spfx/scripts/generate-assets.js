@@ -114,6 +114,25 @@ const LISTS = [
   }
 ];
 
+// ---------- approvals: the same seven columns on the four main lists ----------
+// Mirrors src/rules/approvals.ts: one active approval per item.
+const APPROVAL_FIELDS = [
+  T('ApprovalRule'), C('ApprovalStatus', ['NONE', 'PENDING', 'APPROVED', 'REJECTED']), T('Approver'),
+  D('ApprovalRequestedOn'), D('ApprovalDecidedOn'), T('ApprovalDecidedBy'), N('ApprovalComment')
+];
+const WITH_APPROVALS = ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions'];
+for (const list of LISTS) {
+  if (WITH_APPROVALS.indexOf(list.title) > -1) {
+    list.fields = list.fields.concat(APPROVAL_FIELDS);
+  }
+}
+// One sample project waits for approval, so the flow can be seen right after installing.
+const projectsList = LISTS.filter((l) => l.title === 'IT_03_Projects')[0];
+const projectRows = projectsList.rows;
+projectsList.rows = (day) => projectRows(day).map((row) => (row.ProjectId === 'PROJ-DEMO-002'
+  ? Object.assign({}, row, { ApprovalRule: 'project.overBudget', ApprovalStatus: 'PENDING', Approver: SAMPLE_OWNER, ApprovalRequestedOn: day(-1) })
+  : row));
+
 // ---------- helpers ----------
 const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 

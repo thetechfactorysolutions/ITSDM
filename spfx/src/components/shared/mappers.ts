@@ -1,5 +1,5 @@
 import {
-  ActionItem, ActionPriority, ActionStatus, Idea, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
+  ActionItem, ActionPriority, ActionStatus, ApprovalStatus, IApprovalState, Idea, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
   Project, ProjectRiskLevel, ProjectStatus
 } from '../../models';
 import { dayKeyFromValue } from '../../rules/dates';
@@ -42,6 +42,16 @@ const readEnum = <T extends string>(item: Record<string, unknown>, key: string, 
 
 const enumValues = <T extends string>(e: Record<string, T>): T[] => Object.keys(e).map(k => e[k]);
 
+const readApproval = (item: Record<string, unknown>): IApprovalState => ({
+  ruleId: readString(item, 'ApprovalRule'),
+  status: readEnum(item, 'ApprovalStatus', enumValues(ApprovalStatus), ApprovalStatus.NONE),
+  approver: readString(item, 'Approver'),
+  requestedOn: readDate(item, 'ApprovalRequestedOn'),
+  decidedOn: readDate(item, 'ApprovalDecidedOn'),
+  decidedBy: readString(item, 'ApprovalDecidedBy'),
+  comment: readString(item, 'ApprovalComment')
+});
+
 export const mapIdea = (item: Record<string, unknown>): Idea => ({
   id: readId(item),
   ideaId: readString(item, 'IdeaId'),
@@ -56,7 +66,8 @@ export const mapIdea = (item: Record<string, unknown>): Idea => ({
   convertedInitiativeId: readString(item, 'ConvertedInitiativeId'),
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
-  editor: readExpandedTitle(item, 'Editor')
+  editor: readExpandedTitle(item, 'Editor'),
+  approval: readApproval(item)
 });
 
 export const mapInitiative = (item: Record<string, unknown>): Initiative => ({
@@ -72,7 +83,8 @@ export const mapInitiative = (item: Record<string, unknown>): Initiative => ({
   plannerPlanId: readString(item, 'PlannerPlanId'),
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
-  editor: readExpandedTitle(item, 'Editor')
+  editor: readExpandedTitle(item, 'Editor'),
+  approval: readApproval(item)
 });
 
 export const mapProject = (item: Record<string, unknown>): Project => ({
@@ -91,7 +103,8 @@ export const mapProject = (item: Record<string, unknown>): Project => ({
   plannerPlanId: readString(item, 'PlannerPlanId'),
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
-  editor: readExpandedTitle(item, 'Editor')
+  editor: readExpandedTitle(item, 'Editor'),
+  approval: readApproval(item)
 });
 
 export const mapAction = (item: Record<string, unknown>): ActionItem => ({
@@ -109,7 +122,8 @@ export const mapAction = (item: Record<string, unknown>): ActionItem => ({
   plannerTaskId: readString(item, 'PlannerTaskId'),
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
-  editor: readExpandedTitle(item, 'Editor')
+  editor: readExpandedTitle(item, 'Editor'),
+  approval: readApproval(item)
 });
 
 export const mapMeeting = (item: Record<string, unknown>): Meeting => ({

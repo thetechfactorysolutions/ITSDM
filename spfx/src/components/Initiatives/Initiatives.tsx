@@ -10,7 +10,7 @@ import { getAllowedInitiativeStatuses } from '../../rules/transitions';
 import { validateInitiative } from '../../rules/validation';
 import DateField from '../shared/DateField';
 import { DetailFields, RelatedList } from '../shared/DetailSection';
-import EntityScreen, { IFormContext } from '../shared/EntityScreen';
+import EntityScreen, { IApprovalConfig, IFormContext } from '../shared/EntityScreen';
 import { FormRow } from '../shared/FormGrid';
 import { useHubData } from '../shared/HubData';
 import LinkField from '../shared/LinkField';
@@ -18,6 +18,13 @@ import { toOptions } from '../shared/options';
 import UserField from '../shared/UserField';
 
 const STATUSES = enumValues(InitiativeStatus);
+
+/** Connects this screen to the approval rules in src/rules/approvals.ts. */
+const approvalConfig: IApprovalConfig<Initiative> = {
+  entity: 'initiatives',
+  getBusinessId: item => item.initiativeId,
+  proposeStatus: (item, status) => ({ ...item, status: status as InitiativeStatus })
+};
 
 const makeColumns = (t: TranslateFn): IColumn[] => [
   { key: 'initiativeId', name: t('field.initiativeId'), fieldName: 'initiativeId', minWidth: 130 },
@@ -138,6 +145,7 @@ const Initiatives: React.FC = () => {
       buildPayload={buildInitiativePayload}
       checkBeforeSave={checkBeforeSave}
       renderForm={renderForm}
+      approval={approvalConfig}
       renderDetail={renderDetail}
       quickStatuses={i => getAllowedInitiativeStatuses(i.status)}
       archiveStatus={InitiativeStatus.CANCELLED}

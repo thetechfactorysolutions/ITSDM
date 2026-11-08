@@ -20,7 +20,7 @@ npm install
 | `npx gulp serve` | Servidor local para el workbench de SharePoint |
 | `npm run package` | Genera las listas, compila y crea `sharepoint/solution/itsdm.sppkg` |
 | `npm run assets` | Solo regenera los XML de las listas (`sharepoint/assets`) |
-| `npm test` | Lint + compilación + 9 grupos de tests (reglas, validación, ids, importación, idiomas, hook y pantallas) |
+| `npm test` | Lint + compilación + 11 grupos de tests (reglas, validación, ids, importación, idiomas, hook y pantallas) |
 
 Despliegue: `npm run package` → subir `sharepoint/solution/itsdm.sppkg` al catálogo de aplicaciones → **añadir la app al sitio** (Contenido del sitio → Nuevo → Aplicación). Al añadirla, SharePoint crea las listas con sus columnas y unos datos de ejemplo. Después, en la página, la web part se puede poner en una sección de ancho completo.
 
@@ -36,6 +36,7 @@ src/
     validation                   Validación de formularios
     dates, ids, csv, tableView   Fechas sin saltos de zona horaria, ids, CSV, búsqueda/filtro/orden
     transcriptImport/Commit, importPrompt   Importación desde una reunión
+    approvals, approvalMessage   Reglas de aprobación (datos) y mensajes de solicitud
   entities/        Payloads y columnas de cada lista
   services/        SharePointService (PnPjs) + andamiaje de Graph, Planner y Power Automate
   hooks/           useListItems

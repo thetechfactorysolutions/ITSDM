@@ -4,6 +4,8 @@ Created automatically when the app is added to a site (`scripts/generate-assets.
 
 ## Lists in use
 
+IT_01 to IT_04 also have the seven approval columns: ApprovalRule (Text), ApprovalStatus (Choice: NONE, PENDING, APPROVED, REJECTED), Approver (Text), ApprovalRequestedOn (Date), ApprovalDecidedOn (Date), ApprovalDecidedBy (Text), ApprovalComment (Multiple lines).
+
 ### IT_01_Ideas
 Title, IdeaId (Text), Description (Multiple lines), Status (Choice: NEW, DISCOVERY, VALIDATED, PLANNED, IN_PROGRESS, PILOT, ROLLOUT, COMPLETED, REJECTED, CANCELLED), OwnerUPN (Text), SponsorUPN (Text), EstimatedValue (Number), TargetDate (Date), Tags (Multiple lines), ConvertedInitiativeId (Text)
 

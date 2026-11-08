@@ -11,7 +11,7 @@ import { getAllowedProjectStatuses } from '../../rules/transitions';
 import { validateProject } from '../../rules/validation';
 import DateField from '../shared/DateField';
 import { DetailFields, RelatedList } from '../shared/DetailSection';
-import EntityScreen, { IFormContext } from '../shared/EntityScreen';
+import EntityScreen, { IApprovalConfig, IFormContext } from '../shared/EntityScreen';
 import { FormRow } from '../shared/FormGrid';
 import { useHubData } from '../shared/HubData';
 import LinkField from '../shared/LinkField';
@@ -19,6 +19,13 @@ import { toOptions } from '../shared/options';
 import UserField from '../shared/UserField';
 
 const STATUSES = enumValues(ProjectStatus);
+
+/** Connects this screen to the approval rules in src/rules/approvals.ts. */
+const approvalConfig: IApprovalConfig<Project> = {
+  entity: 'projects',
+  getBusinessId: item => item.projectId,
+  proposeStatus: (item, status) => ({ ...item, status: status as ProjectStatus })
+};
 const RISKS = enumValues(ProjectRiskLevel);
 
 const makeColumns = (t: TranslateFn): IColumn[] => [
@@ -154,6 +161,7 @@ const Projects: React.FC = () => {
       buildPayload={buildProjectPayload}
       checkBeforeSave={checkBeforeSave}
       renderForm={renderForm}
+      approval={approvalConfig}
       renderDetail={renderDetail}
       quickStatuses={p => getAllowedProjectStatuses(p.status)}
       archiveStatus={ProjectStatus.CANCELLED}

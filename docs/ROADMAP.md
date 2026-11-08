@@ -27,10 +27,13 @@ ServiceNow and broader enterprise integrations.
 ## Ronda 2 (en curso, 2026-11-08)
 Diseño en `docs/superpowers/specs/2026-11-08-ronda-2-diseno.md`: vínculos con selector, borrar/archivar, filtros, CSV, notas y reuniones, importación del resultado de una IA sobre transcripciones, ancho completo, español/inglés, gráficos y calidad.
 
+## Hecho tras la ronda 2
+- **Aprobaciones** con reglas como datos, solicitud por email o Teams, decisión registrada y lista en el Panel (`docs/APROBACIONES.md`, diseño en `docs/superpowers/specs/2026-11-08-aprobaciones-diseno.md`).
+
 ## Aplazado tras la ronda 2 (pendiente de retomar)
 Quedó fuera a propósito. Para retomarlo, pedir "retoma el roadmap".
 - **Integraciones:** Planner (crear plan/tarea al activar iniciativas y proyectos), Power Automate (avisos de acciones vencidas y proyectos en riesgo, resumen semanal) y Microsoft Graph (perfil, foto, calendario). Necesitan permisos y flujos del tenant.
-- **Roles y aprobaciones propios:** validación de ideas, cambios de presupuesto. Hoy se usan los permisos de SharePoint.
+- **Roles propios dentro de la aplicación.** Hoy mandan los permisos de SharePoint. (Las **aprobaciones** ya están hechas: ver `docs/APROBACIONES.md`. Quedan fuera los flujos de varios aprobadores y el envío automático de avisos, que dependen de Power Automate.)
 - **Las 16 listas sin interfaz** (`IT_05` a `IT_20`): KPIs, presupuestos, CAPEX/OPEX, proveedores, contratos, riesgos, decisiones, incidentes, interacciones, cambios, habilidades, formación, conocimiento, revisiones y lecciones aprendidas.
 - **Migración de esquemas:** cambiar columnas de listas ya creadas sin borrarlas.
 - **Responsable como columna de persona** de SharePoint (hoy es el email en texto) y **columnas de búsqueda** reales entre listas.

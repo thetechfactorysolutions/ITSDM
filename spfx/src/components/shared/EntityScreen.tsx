@@ -3,21 +3,35 @@ import {
   CommandBar, DefaultButton, DetailsList, DetailsListLayoutMode, Dropdown, IColumn, ICommandBarItemProps, IDropdownOption, MessageBar,
   MessageBarType, Panel, PanelType, PrimaryButton, SearchBox, Selection, SelectionMode, Stack, Text, Toggle
 } from '@fluentui/react';
+import { buildApprovalPayload } from '../../entities/payloads';
 import { useT } from '../../i18n/I18n';
 import { IListHookState } from '../../hooks/useListItems';
+import { ApprovalStatus, IApprovalState } from '../../models';
 import { SharePointService } from '../../services/SharePointService';
+import { ApprovalEntity, decideApproval, EMPTY_APPROVAL, evaluateAnyChange, getApproval, IGateResult, requestApproval } from '../../rules/approvals';
 import { ICsvColumn, toCsv } from '../../rules/csv';
 import { applyView, DEFAULT_VIEW, ITableView } from '../../rules/tableView';
 import { hasErrors, ValidationErrors } from '../../rules/validation';
 import { downloadTextFile } from '../../utils/download';
+import ApprovalSection from './ApprovalSection';
 import ConfirmDialog from './ConfirmDialog';
 import CsvImportPanel from './CsvImportPanel';
 import { FormGrid } from './FormGrid';
+import { useHubData } from './HubData';
 
 export interface IEntityBase {
   id?: number;
   modified?: string;
   editor?: string;
+  approval?: IApprovalState;
+}
+
+/** Connects a screen to the approval rules (src/rules/approvals.ts). Leave it out for items that have none. */
+export interface IApprovalConfig<T> {
+  entity: ApprovalEntity;
+  getBusinessId: (item: T) => string;
+  /** The item as it would be after changing only its status. */
+  proposeStatus: (item: T, status: string) => T;
 }
 
 type Accessor<T> = (item: T) => string | number | undefined;
@@ -63,11 +77,13 @@ export interface IEntityScreenProps<T extends IEntityBase> {
   csvFromRow: (row: Record<string, string>) => T;
   extraCommands?: (selected: T | undefined) => ICommandBarItemProps[];
   extraContent?: React.ReactNode;
+  approval?: IApprovalConfig<T>;
   listName: string;
 }
 
 function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): React.ReactElement {
   const t = useT();
+  const { userEmail } = useHubData();
   const { textKey, state, service, statuses, getStatus, columns, sortAccessors, searchFields } = props;
 
   const [view, setView] = React.useState<ITableView>(DEFAULT_VIEW);
@@ -79,6 +95,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   const [submitted, setSubmitted] = React.useState<boolean>(false);
   const [localError, setLocalError] = React.useState<string | undefined>();
   const [form, setFormState] = React.useState<T>(props.newItem);
+  const [gate, setGate] = React.useState<IGateResult | undefined>();
 
   const selectionRef = React.useRef<Selection>();
   if (!selectionRef.current) {
@@ -114,6 +131,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     selectionRef.current?.setAllSelected(false);
     setSubmitted(false);
     setLocalError(undefined);
+    setGate(undefined);
     setFormState(props.newItem());
     setIsFormOpen(true);
   };
@@ -125,6 +143,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     setSelectedId(item.id);
     setSubmitted(false);
     setLocalError(undefined);
+    setGate(undefined);
     setFormState(item);
     setIsFormOpen(true);
   };
@@ -143,7 +162,22 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
       return;
     }
 
-    const toSave = props.prepareForSave ? props.prepareForSave(form, selected) : form;
+    let toSave = props.prepareForSave ? props.prepareForSave(form, selected) : form;
+
+    if (props.approval) {
+      // The approval stored on the item is the truth: the copy in the form can be out of date.
+      toSave = { ...toSave, approval: getApproval(selected) };
+      const result = evaluateAnyChange(props.approval.entity, selected, toSave);
+      if (result.blockedBy.length > 0) {
+        setGate(result);
+        return;
+      }
+      setGate(undefined);
+      // An approval is used up by the change it was given for.
+      if (result.consumesApproval) {
+        toSave = { ...toSave, approval: EMPTY_APPROVAL };
+      }
+    }
 
     // On failure the hook rethrows, so the panel stays open and shows the error.
     if (selected && selected.id) {
@@ -152,6 +186,18 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
       await state.create(props.buildPayload(toSave));
     }
     setIsFormOpen(false);
+  };
+
+  /** Rule that blocks moving an item to a status from the table or the Archive command, if any. */
+  const blockingRuleFor = (item: T, status: string): { titleKey: string; consumes: boolean } | undefined => {
+    if (!props.approval) {
+      return undefined;
+    }
+    const result = evaluateAnyChange(props.approval.entity, item, props.approval.proposeStatus(item, status));
+    if (result.blockedBy.length > 0) {
+      return { titleKey: result.blockedBy[0].titleKey, consumes: false };
+    }
+    return result.consumesApproval ? { titleKey: '', consumes: true } : undefined;
   };
 
   const runConfirmed = async (): Promise<void> => {
@@ -167,7 +213,12 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
         await state.remove(selected.id);
         setSelectedId(undefined);
       } else {
-        await state.update(selected.id, { Status: props.archiveStatus });
+        const blocked = blockingRuleFor(selected, props.archiveStatus);
+        if (blocked && !blocked.consumes) {
+          setLocalError(t('approval.quickBlocked', { rule: t(blocked.titleKey) }));
+          return;
+        }
+        await state.update(selected.id, { Status: props.archiveStatus, ...(blocked ? buildApprovalPayload(EMPTY_APPROVAL) : {}) });
       }
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : t('common.unknownError'));
@@ -179,7 +230,14 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
       return;
     }
     setLocalError(undefined);
-    const payload = props.quickPayload ? props.quickPayload(item, status) : { Status: status };
+    const blocked = blockingRuleFor(item, status);
+    if (blocked && !blocked.consumes) {
+      setLocalError(t('approval.quickBlocked', { rule: t(blocked.titleKey) }));
+      return;
+    }
+    const base = props.quickPayload ? props.quickPayload(item, status) : { Status: status };
+    // The approval given for this change is used up by it.
+    const payload = blocked ? { ...base, ...buildApprovalPayload(EMPTY_APPROVAL) } : base;
     state.update(item.id, payload).catch(err => setLocalError(err instanceof Error ? err.message : t('common.unknownError')));
   };
 
@@ -187,8 +245,43 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     downloadTextFile(props.csvFileName, toCsv(visible, props.csvColumns));
   };
 
+  // ----- approvals: request and decision are saved on their own, apart from the rest of the form -----
+  const requestApprovalFor = async (ruleId: string, approver: string): Promise<void> => {
+    if (!selected || !selected.id) {
+      return;
+    }
+    await state.update(selected.id, buildApprovalPayload(requestApproval(ruleId, approver)));
+  };
+
+  const decideApprovalFor = async (status: ApprovalStatus.APPROVED | ApprovalStatus.REJECTED, comment: string): Promise<void> => {
+    if (!selected || !selected.id) {
+      return;
+    }
+    await state.update(selected.id, buildApprovalPayload(decideApproval(getApproval(selected), status, userEmail, comment)));
+    setGate(undefined);
+  };
+
+  // CSV rows follow the same rules: a row in a status that needs approval is not imported.
+  const csvValidate = React.useCallback((item: T): ValidationErrors => {
+    const found = props.validate(item);
+    if (props.approval && evaluateAnyChange(props.approval.entity, undefined, item).blockedBy.length > 0) {
+      return { ...found, status: 'validation.needsApproval' };
+    }
+    return found;
+  }, [props.validate, props.approval]);
+
   // ----- columns: sorting, translated status, inline status picker -----
-  const tableColumns: IColumn[] = columns.map(column => {
+  const withApprovalColumn: IColumn[] = props.approval
+    ? columns.concat([{
+      key: 'approval', name: t('approval.column'), minWidth: 110,
+      onRender: (item: T) => {
+        const status = getApproval(item).status;
+        return status === ApprovalStatus.NONE ? null : <span>{t(`approval.status.${status}`)}</span>;
+      }
+    }])
+    : columns;
+
+  const tableColumns: IColumn[] = withApprovalColumn.map(column => {
     const sortable = !!sortAccessors[column.key];
     const base: IColumn = {
       ...column,
@@ -318,6 +411,22 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
           <FormGrid>
             {props.renderForm({ form, setForm, errors, original: selected, isEdit: !!selected, service })}
           </FormGrid>
+          {props.approval && selected && (
+            <ApprovalSection
+              entity={props.approval.entity}
+              title={props.getTitle(selected)}
+              businessId={props.approval.getBusinessId(selected)}
+              approval={getApproval(selected)}
+              gate={gate}
+              service={service}
+              userEmail={userEmail}
+              onRequest={requestApprovalFor}
+              onDecide={decideApprovalFor}
+            />
+          )}
+          {props.approval && !selected && gate && gate.needsExistingItem && (
+            <MessageBar messageBarType={MessageBarType.warning}>{t('approval.createFirst', { rule: t(gate.blockedBy[0].titleKey) })}</MessageBar>
+          )}
           {selected && (selected.modified || selected.editor) && (
             <Text variant="small">{t('common.lastModified', { date: (selected.modified ?? '').slice(0, 10), user: selected.editor || '—' })}</Text>
           )}
@@ -345,7 +454,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
         onDismiss={() => setIsCsvOpen(false)}
         headers={props.csvColumns.map(column => column.header)}
         fromRow={props.csvFromRow}
-        validate={props.validate}
+        validate={csvValidate}
         buildPayload={props.buildPayload}
         createItem={payload => service.createItem(props.listName, payload)}
         onFinished={() => { state.reload().catch(() => undefined); }}

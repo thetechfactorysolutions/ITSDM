@@ -1,3 +1,5 @@
+import { IApprovalState } from './Approval';
+
 export enum InitiativeStatus {
   DRAFT = 'DRAFT',
   ACTIVE = 'ACTIVE',
@@ -21,4 +23,5 @@ export interface Initiative {
   created?: string;
   modified?: string;
   editor?: string;
+  approval?: IApprovalState;
 }

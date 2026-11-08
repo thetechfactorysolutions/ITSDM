@@ -60,6 +60,11 @@ const Help: React.FC = () => {
         <Text>{t('help.import2')}</Text>
         <Text>{t('help.import3')}</Text>
       </Section>
+      <Section title={t('help.approvalsTitle')}>
+        <Text>{t('help.approvals1')}</Text>
+        <Text>{t('help.approvals2')}</Text>
+        <Text>{t('help.approvals3')}</Text>
+      </Section>
       <Section title={t('help.notesTitle')}><Text>{t('help.notes1')}</Text></Section>
       <Section title={t('help.formsTitle')}>
         <Text>{t('help.forms1')}</Text>

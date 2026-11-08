@@ -1,3 +1,5 @@
+import { IApprovalState } from './Approval';
+
 export enum IdeaStatus {
   NEW = 'NEW',
   DISCOVERY = 'DISCOVERY',
@@ -26,4 +28,5 @@ export interface Idea {
   created?: string;
   modified?: string;
   editor?: string;
+  approval?: IApprovalState;
 }

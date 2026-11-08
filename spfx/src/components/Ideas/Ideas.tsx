@@ -11,13 +11,20 @@ import { generateBusinessId } from '../../rules/ids';
 import { validateIdea } from '../../rules/validation';
 import DateField from '../shared/DateField';
 import { DetailFields } from '../shared/DetailSection';
-import EntityScreen, { IFormContext } from '../shared/EntityScreen';
+import EntityScreen, { IApprovalConfig, IFormContext } from '../shared/EntityScreen';
 import { FormRow } from '../shared/FormGrid';
 import { useHubData } from '../shared/HubData';
 import { toOptions } from '../shared/options';
 import UserField from '../shared/UserField';
 
 const STATUSES = enumValues(IdeaStatus);
+
+/** Connects this screen to the approval rules in src/rules/approvals.ts. */
+const approvalConfig: IApprovalConfig<Idea> = {
+  entity: 'ideas',
+  getBusinessId: item => item.ideaId,
+  proposeStatus: (item, status) => ({ ...item, status: status as IdeaStatus })
+};
 
 const makeColumns = (t: TranslateFn): IColumn[] => [
   { key: 'ideaId', name: t('field.ideaId'), fieldName: 'ideaId', minWidth: 120 },
@@ -175,6 +182,7 @@ const Ideas: React.FC = () => {
       buildPayload={buildIdeaPayload}
       checkBeforeSave={checkBeforeSave}
       renderForm={renderForm}
+      approval={approvalConfig}
       renderDetail={renderDetail}
       archiveStatus={IdeaStatus.CANCELLED}
       canArchive={i => getAllowedIdeaStatuses(i.status).indexOf(IdeaStatus.CANCELLED) > -1 && i.status !== IdeaStatus.CANCELLED}

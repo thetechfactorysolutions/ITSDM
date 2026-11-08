@@ -125,6 +125,11 @@
       T('MeetingId'), T('InitiativeId'), T('ProjectId')]
   };
 
+  // Same seven approval columns on the four main lists (see src/rules/approvals.ts).
+  const approvalFields = [T('ApprovalRule'), C('ApprovalStatus', ['NONE', 'PENDING', 'APPROVED', 'REJECTED']), T('Approver'),
+    D('ApprovalRequestedOn'), D('ApprovalDecidedOn'), T('ApprovalDecidedBy'), N('ApprovalComment')];
+  ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions'].forEach((name) => { defs[name] = defs[name].concat(approvalFields); });
+
   for (const [title, fields] of Object.entries(defs)) await ensureList(title, fields);
 
   if (!SAMPLE_DATA) { log('Structure created. Sample data skipped.'); return 'done'; }

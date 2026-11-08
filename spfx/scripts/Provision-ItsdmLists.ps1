@@ -156,6 +156,18 @@ $notes = @(
   @{ Name = 'MeetingId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }
 )
 
+# Same seven approval columns on the four main lists (see src/rules/approvals.ts).
+$approval = @(
+  @{ Name = 'ApprovalRule'; Type = 'Text' },
+  @{ Name = 'ApprovalStatus'; Type = 'Choice'; Choices = 'NONE', 'PENDING', 'APPROVED', 'REJECTED' },
+  @{ Name = 'Approver'; Type = 'Text' }, @{ Name = 'ApprovalRequestedOn'; Type = 'Date' }, @{ Name = 'ApprovalDecidedOn'; Type = 'Date' },
+  @{ Name = 'ApprovalDecidedBy'; Type = 'Text' }, @{ Name = 'ApprovalComment'; Type = 'Note' }
+)
+$ideas += $approval
+$initiatives += $approval
+$projects += $approval
+$actions += $approval
+
 # ---------- create structure ----------
 Write-Host 'Creating lists and columns...' -ForegroundColor Cyan
 Initialize-ItsdmList -Title 'IT_01_Ideas'       -Fields $ideas

@@ -21,6 +21,9 @@
 - When an action becomes DONE its completion date is filled with today (if empty); reopening clears it.
 - **Archive** = move to CANCELLED (notes: ARCHIVED). Closed items are hidden unless "Show closed" is on.
 
+## Approvals
+Ideas, initiatives, projects and actions carry one active approval (`ApprovalRule`, `ApprovalStatus` NONE/PENDING/APPROVED/REJECTED, `Approver`, `ApprovalRequestedOn`, `ApprovalDecidedOn`, `ApprovalDecidedBy`, `ApprovalComment`). Which changes need one is defined as data in `src/rules/approvals.ts`; see `APROBACIONES.md`.
+
 ## Derived values
 - Overdue: due day before today and not DONE/CANCELLED (an action due today is not overdue).
 - Project at risk: forecast above budget by more than 10%, or status AT_RISK.

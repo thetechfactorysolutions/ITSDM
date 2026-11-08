@@ -11,7 +11,7 @@ import { generateBusinessId } from '../../rules/ids';
 import { applyActionStatusEffects, getAllowedActionStatuses } from '../../rules/transitions';
 import { validateAction } from '../../rules/validation';
 import DateField from '../shared/DateField';
-import EntityScreen, { IFormContext } from '../shared/EntityScreen';
+import EntityScreen, { IApprovalConfig, IFormContext } from '../shared/EntityScreen';
 import { FormRow } from '../shared/FormGrid';
 import { useHubData } from '../shared/HubData';
 import LinkField from '../shared/LinkField';
@@ -19,6 +19,13 @@ import { toOptions } from '../shared/options';
 import UserField from '../shared/UserField';
 
 const STATUSES = enumValues(ActionStatus);
+
+/** Connects this screen to the approval rules in src/rules/approvals.ts. */
+const approvalConfig: IApprovalConfig<ActionItem> = {
+  entity: 'actions',
+  getBusinessId: item => item.actionId,
+  proposeStatus: (item, status) => ({ ...item, status: status as ActionStatus })
+};
 const PRIORITIES = enumValues(ActionPriority);
 
 const makeColumns = (t: TranslateFn): IColumn[] => [
@@ -159,6 +166,7 @@ const Actions: React.FC = () => {
       prepareForSave={(form, original) => applyActionStatusEffects(form, original ? original.status : undefined)}
       checkBeforeSave={checkBeforeSave}
       renderForm={renderForm}
+      approval={approvalConfig}
       quickStatuses={a => getAllowedActionStatuses(a.status)}
       quickPayload={(item, status) => {
         const updated = applyActionStatusEffects({ ...item, status: status as ActionStatus }, item.status);

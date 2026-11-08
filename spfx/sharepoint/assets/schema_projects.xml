@@ -21,6 +21,13 @@
       <Field Type="Number" ID="{a507e941-d3ba-cc34-ba8a-f33087885727}" Name="ForecastAmount" StaticName="ForecastAmount" DisplayName="ForecastAmount"  />
       <Field Type="Choice" ID="{0ce0fe4c-ced1-3173-6002-1f910ea578ce}" Name="RiskLevel" StaticName="RiskLevel" DisplayName="RiskLevel" Format="Dropdown"><Default>LOW</Default><CHOICES><CHOICE>LOW</CHOICE><CHOICE>MEDIUM</CHOICE><CHOICE>HIGH</CHOICE><CHOICE>CRITICAL</CHOICE></CHOICES></Field>
       <Field Type="Text" ID="{d0202bfe-a6d8-f0ab-2f86-f69c3ab61aec}" Name="PlannerPlanId" StaticName="PlannerPlanId" DisplayName="PlannerPlanId" MaxLength="255" />
+      <Field Type="Text" ID="{2053d23d-c1bc-1d0f-0b0a-55560ca00428}" Name="ApprovalRule" StaticName="ApprovalRule" DisplayName="ApprovalRule" MaxLength="255" />
+      <Field Type="Choice" ID="{6269e7d2-40e5-63b5-a758-8c94553f1291}" Name="ApprovalStatus" StaticName="ApprovalStatus" DisplayName="ApprovalStatus" Format="Dropdown"><Default>NONE</Default><CHOICES><CHOICE>NONE</CHOICE><CHOICE>PENDING</CHOICE><CHOICE>APPROVED</CHOICE><CHOICE>REJECTED</CHOICE></CHOICES></Field>
+      <Field Type="Text" ID="{4ed02784-4a55-b2d8-e26e-65e4960259cc}" Name="Approver" StaticName="Approver" DisplayName="Approver" MaxLength="255" />
+      <Field Type="DateTime" ID="{f86299b6-c10e-3e1b-c28f-8a240f5fb5e8}" Name="ApprovalRequestedOn" StaticName="ApprovalRequestedOn" DisplayName="ApprovalRequestedOn" Format="DateOnly" />
+      <Field Type="DateTime" ID="{6d0b982d-2712-6d09-0863-7a05bff990af}" Name="ApprovalDecidedOn" StaticName="ApprovalDecidedOn" DisplayName="ApprovalDecidedOn" Format="DateOnly" />
+      <Field Type="Text" ID="{11cb9185-1c5f-1edf-6de2-d910a1201cb6}" Name="ApprovalDecidedBy" StaticName="ApprovalDecidedBy" DisplayName="ApprovalDecidedBy" MaxLength="255" />
+      <Field Type="Note" ID="{ade317ca-6ddb-fe17-28b6-a36d78e06dc3}" Name="ApprovalComment" StaticName="ApprovalComment" DisplayName="ApprovalComment" NumLines="6" RichText="FALSE" Sortable="FALSE" />
     </Fields>
     <Views>
       <View BaseViewID="0" Type="HTML" MobileView="TRUE" TabularView="FALSE">
@@ -42,7 +49,7 @@
         <JSLink>clienttemplates.js</JSLink>
         <RowLimit Paged="TRUE">30</RowLimit>
         <ViewFields>
-          <FieldRef Name="LinkTitle" /><FieldRef Name="ProjectId" /><FieldRef Name="InitiativeId" /><FieldRef Name="Description" /><FieldRef Name="Status" /><FieldRef Name="OwnerUPN" /><FieldRef Name="StartDate" /><FieldRef Name="EndDate" /><FieldRef Name="BudgetAmount" /><FieldRef Name="ForecastAmount" /><FieldRef Name="RiskLevel" /><FieldRef Name="PlannerPlanId" />
+          <FieldRef Name="LinkTitle" /><FieldRef Name="ProjectId" /><FieldRef Name="InitiativeId" /><FieldRef Name="Description" /><FieldRef Name="Status" /><FieldRef Name="OwnerUPN" /><FieldRef Name="StartDate" /><FieldRef Name="EndDate" /><FieldRef Name="BudgetAmount" /><FieldRef Name="ForecastAmount" /><FieldRef Name="RiskLevel" /><FieldRef Name="PlannerPlanId" /><FieldRef Name="ApprovalRule" /><FieldRef Name="ApprovalStatus" /><FieldRef Name="Approver" /><FieldRef Name="ApprovalRequestedOn" /><FieldRef Name="ApprovalDecidedOn" /><FieldRef Name="ApprovalDecidedBy" /><FieldRef Name="ApprovalComment" />
         </ViewFields>
         <Query>
           <OrderBy>

@@ -29,6 +29,12 @@ export interface IAppConfig {
   sharePoint: {
     listNames: ISharePointListMap;
   };
+  approvals: {
+    /** A project whose forecast exceeds its budget by more than this ratio needs approval. */
+    overBudgetRatio: number;
+    /** A project with at least this budget needs approval to become active. */
+    highBudget: number;
+  };
 }
 
 export const AppConfig: IAppConfig = {
@@ -59,5 +65,9 @@ export const AppConfig: IAppConfig = {
       meetings: 'IT_21_Meetings',
       notes: 'IT_22_Notes'
     }
+  },
+  approvals: {
+    overBudgetRatio: 0.1,
+    highBudget: 100000
   }
 };

@@ -18,6 +18,13 @@
       <Field Type="DateTime" ID="{7e239a60-086f-775e-5fd8-7ae5c2b858e0}" Name="TargetDate" StaticName="TargetDate" DisplayName="TargetDate" Format="DateOnly" />
       <Field Type="Text" ID="{c7e0aee5-4d72-b34d-fa46-375956357230}" Name="SourceIdeaId" StaticName="SourceIdeaId" DisplayName="SourceIdeaId" MaxLength="255" />
       <Field Type="Text" ID="{89f01449-c508-8045-45b9-ee4c699c13e5}" Name="PlannerPlanId" StaticName="PlannerPlanId" DisplayName="PlannerPlanId" MaxLength="255" />
+      <Field Type="Text" ID="{276b19dc-71aa-1291-bcaa-53bfe355dd1b}" Name="ApprovalRule" StaticName="ApprovalRule" DisplayName="ApprovalRule" MaxLength="255" />
+      <Field Type="Choice" ID="{f52c5ef8-4d38-944c-1023-295a4e00f440}" Name="ApprovalStatus" StaticName="ApprovalStatus" DisplayName="ApprovalStatus" Format="Dropdown"><Default>NONE</Default><CHOICES><CHOICE>NONE</CHOICE><CHOICE>PENDING</CHOICE><CHOICE>APPROVED</CHOICE><CHOICE>REJECTED</CHOICE></CHOICES></Field>
+      <Field Type="Text" ID="{80155468-12fe-cd21-79a2-b43862a9b17d}" Name="Approver" StaticName="Approver" DisplayName="Approver" MaxLength="255" />
+      <Field Type="DateTime" ID="{09c48dd8-65b9-72a7-f7e4-f148a377819f}" Name="ApprovalRequestedOn" StaticName="ApprovalRequestedOn" DisplayName="ApprovalRequestedOn" Format="DateOnly" />
+      <Field Type="DateTime" ID="{f0d1cb73-bffd-c7ea-b02c-cba63a8c80a3}" Name="ApprovalDecidedOn" StaticName="ApprovalDecidedOn" DisplayName="ApprovalDecidedOn" Format="DateOnly" />
+      <Field Type="Text" ID="{72409653-e506-e1c3-e99e-3ad91f8ac3e5}" Name="ApprovalDecidedBy" StaticName="ApprovalDecidedBy" DisplayName="ApprovalDecidedBy" MaxLength="255" />
+      <Field Type="Note" ID="{5472db30-431b-25ef-6814-a102138f3529}" Name="ApprovalComment" StaticName="ApprovalComment" DisplayName="ApprovalComment" NumLines="6" RichText="FALSE" Sortable="FALSE" />
     </Fields>
     <Views>
       <View BaseViewID="0" Type="HTML" MobileView="TRUE" TabularView="FALSE">
@@ -39,7 +46,7 @@
         <JSLink>clienttemplates.js</JSLink>
         <RowLimit Paged="TRUE">30</RowLimit>
         <ViewFields>
-          <FieldRef Name="LinkTitle" /><FieldRef Name="InitiativeId" /><FieldRef Name="Description" /><FieldRef Name="Status" /><FieldRef Name="OwnerUPN" /><FieldRef Name="ProgressPct" /><FieldRef Name="TargetDate" /><FieldRef Name="SourceIdeaId" /><FieldRef Name="PlannerPlanId" />
+          <FieldRef Name="LinkTitle" /><FieldRef Name="InitiativeId" /><FieldRef Name="Description" /><FieldRef Name="Status" /><FieldRef Name="OwnerUPN" /><FieldRef Name="ProgressPct" /><FieldRef Name="TargetDate" /><FieldRef Name="SourceIdeaId" /><FieldRef Name="PlannerPlanId" /><FieldRef Name="ApprovalRule" /><FieldRef Name="ApprovalStatus" /><FieldRef Name="Approver" /><FieldRef Name="ApprovalRequestedOn" /><FieldRef Name="ApprovalDecidedOn" /><FieldRef Name="ApprovalDecidedBy" /><FieldRef Name="ApprovalComment" />
         </ViewFields>
         <Query>
           <OrderBy>

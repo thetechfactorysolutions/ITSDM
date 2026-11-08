@@ -1,10 +1,22 @@
-import { ActionItem, Idea, Initiative, Meeting, Note, Project } from '../models';
+import { ActionItem, IApprovalState, Idea, Initiative, Meeting, Note, Project } from '../models';
+import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
 
 /**
  * What is sent to SharePoint when an item is created or updated, shared by the forms, the CSV
  * import and the transcript import so all three write exactly the same shape.
  */
+
+/** The approval columns of an item, as written to SharePoint. */
+export const buildApprovalPayload = (approval: IApprovalState): Record<string, unknown> => ({
+  ApprovalRule: approval.ruleId,
+  ApprovalStatus: approval.status,
+  Approver: approval.approver,
+  ApprovalRequestedOn: dayKeyToSharePoint(approval.requestedOn),
+  ApprovalDecidedOn: dayKeyToSharePoint(approval.decidedOn),
+  ApprovalDecidedBy: approval.decidedBy,
+  ApprovalComment: approval.comment
+});
 
 export const buildIdeaPayload = (idea: Idea): Record<string, unknown> => ({
   Title: idea.title.trim(),
@@ -16,7 +28,8 @@ export const buildIdeaPayload = (idea: Idea): Record<string, unknown> => ({
   EstimatedValue: idea.estimatedValue ?? 0,
   TargetDate: dayKeyToSharePoint(idea.targetDate),
   Tags: idea.tags.join(','),
-  ConvertedInitiativeId: idea.convertedInitiativeId ?? ''
+  ConvertedInitiativeId: idea.convertedInitiativeId ?? '',
+  ...buildApprovalPayload(getApproval(idea))
 });
 
 export const buildInitiativePayload = (initiative: Initiative): Record<string, unknown> => ({
@@ -28,7 +41,8 @@ export const buildInitiativePayload = (initiative: Initiative): Record<string, u
   ProgressPct: initiative.progressPct,
   TargetDate: dayKeyToSharePoint(initiative.targetDate),
   SourceIdeaId: initiative.sourceIdeaId ?? '',
-  PlannerPlanId: initiative.plannerPlanId ?? ''
+  PlannerPlanId: initiative.plannerPlanId ?? '',
+  ...buildApprovalPayload(getApproval(initiative))
 });
 
 export const buildProjectPayload = (project: Project): Record<string, unknown> => ({
@@ -43,7 +57,8 @@ export const buildProjectPayload = (project: Project): Record<string, unknown> =
   BudgetAmount: project.budgetAmount,
   ForecastAmount: project.forecastAmount,
   RiskLevel: project.riskLevel,
-  PlannerPlanId: project.plannerPlanId ?? ''
+  PlannerPlanId: project.plannerPlanId ?? '',
+  ...buildApprovalPayload(getApproval(project))
 });
 
 export const buildActionPayload = (action: ActionItem): Record<string, unknown> => ({
@@ -57,7 +72,8 @@ export const buildActionPayload = (action: ActionItem): Record<string, unknown> 
   OwnerUPN: action.ownerUpn,
   DueDate: dayKeyToSharePoint(action.dueDate),
   CompletedDate: dayKeyToSharePoint(action.completedDate),
-  PlannerTaskId: action.plannerTaskId ?? ''
+  PlannerTaskId: action.plannerTaskId ?? '',
+  ...buildApprovalPayload(getApproval(action))
 });
 
 export const buildMeetingPayload = (meeting: Meeting): Record<string, unknown> => ({
@@ -83,10 +99,10 @@ export const buildNotePayload = (note: Note): Record<string, unknown> => ({
 
 /** Columns requested from each list. Asking only for what the app uses keeps the responses small. */
 export const SELECT = {
-  ideas: ['Id', 'Title', 'IdeaId', 'Description', 'Status', 'OwnerUPN', 'SponsorUPN', 'EstimatedValue', 'TargetDate', 'Tags', 'ConvertedInitiativeId', 'Created', 'Modified', 'Editor/Title'],
-  initiatives: ['Id', 'Title', 'InitiativeId', 'Description', 'Status', 'OwnerUPN', 'ProgressPct', 'TargetDate', 'SourceIdeaId', 'PlannerPlanId', 'Created', 'Modified', 'Editor/Title'],
-  projects: ['Id', 'Title', 'ProjectId', 'InitiativeId', 'Description', 'Status', 'OwnerUPN', 'StartDate', 'EndDate', 'BudgetAmount', 'ForecastAmount', 'RiskLevel', 'PlannerPlanId', 'Created', 'Modified', 'Editor/Title'],
-  actions: ['Id', 'Title', 'ActionId', 'InitiativeId', 'ProjectId', 'Description', 'Status', 'Priority', 'OwnerUPN', 'DueDate', 'CompletedDate', 'PlannerTaskId', 'Created', 'Modified', 'Editor/Title'],
+  ideas: ['Id', 'Title', 'IdeaId', 'Description', 'Status', 'OwnerUPN', 'SponsorUPN', 'EstimatedValue', 'TargetDate', 'Tags', 'ConvertedInitiativeId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
+  initiatives: ['Id', 'Title', 'InitiativeId', 'Description', 'Status', 'OwnerUPN', 'ProgressPct', 'TargetDate', 'SourceIdeaId', 'PlannerPlanId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
+  projects: ['Id', 'Title', 'ProjectId', 'InitiativeId', 'Description', 'Status', 'OwnerUPN', 'StartDate', 'EndDate', 'BudgetAmount', 'ForecastAmount', 'RiskLevel', 'PlannerPlanId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
+  actions: ['Id', 'Title', 'ActionId', 'InitiativeId', 'ProjectId', 'Description', 'Status', 'Priority', 'OwnerUPN', 'DueDate', 'CompletedDate', 'PlannerTaskId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   meetings: ['Id', 'Title', 'MeetingId', 'MeetingDate', 'Summary', 'Attendees', 'Transcript', 'ImportedItems', 'Created', 'Modified', 'Editor/Title'],
   notes: ['Id', 'Title', 'NoteId', 'Body', 'Category', 'Status', 'MeetingId', 'InitiativeId', 'ProjectId', 'Created', 'Modified', 'Editor/Title']
 };
