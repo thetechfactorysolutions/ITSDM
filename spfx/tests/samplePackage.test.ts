@@ -3,9 +3,10 @@ import * as cp from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { mapBudget, mapCapex, mapContract, mapOpex } from '../src/components/shared/mappers';
+import { mapBudget, mapCapex, mapChange, mapContract, mapIncident, mapInteraction, mapKpi, mapOpex } from '../src/components/shared/mappers';
 import { APPROVAL_RULES } from '../src/rules/approvals';
 import { budgetFigures, contractAlert } from '../src/rules/finance';
+import { isFollowUpOverdue, isIncidentOverdue, kpiHealth, kpiTrend } from '../src/rules/operations';
 
 /**
  * Builds the SharePoint package assets into a temporary folder and checks them against the app:
@@ -59,6 +60,7 @@ const byId = (title: string, key: string, id: string): Record<string, string> =>
 const testEveryListAndSample = (): void => {
   const expected = [
     'IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_06_Budgets', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_09_Vendors', 'IT_10_Contracts',
+    'IT_05_KPIs', 'IT_13_Incidents', 'IT_14_Interactions', 'IT_15_ChangeRequests',
     'IT_11_Risks', 'IT_12_Decisions', 'IT_19_Reviews', 'IT_20_LessonsLearned', 'IT_21_Meetings', 'IT_22_Notes'
   ];
   assert.deepEqual(instances.map(i => i.title).sort(), expected.sort(), 'every list is in the package');
@@ -90,7 +92,7 @@ const testEveryListAndSample = (): void => {
 
 const testApprovalColumnsMatchTheRules = (): void => {
   // lists that carry an approval must have the seven columns, and every approval row must name a real rule
-  for (const title of ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts']) {
+  for (const title of ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests']) {
     const instance = instances.filter(i => i.title === title)[0];
     const names = parseSchema(read(instance.schemaFile)).map(f => f.name);
     for (const column of ['ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment']) {
@@ -126,6 +128,23 @@ const testSamplesShowTheirCases = (): void => {
   assert.equal(pending.approval?.status, 'PENDING', 'one expense waits for approval');
   assert.equal(pending.approval?.ruleId, 'capex.commit');
   assert.ok(pending.amount >= 50000, 'and it is large enough to need it');
+
+  const incidents = rowsOf('IT_13_Incidents').map(mapIncident);
+  assert.deepEqual(incidents.filter(i => isIncidentOverdue(i)).map(i => i.incidentId), ['INC-DEMO-001'], 'exactly one incident is past its deadline');
+
+  const kpis = rowsOf('IT_05_KPIs').map(mapKpi);
+  const health = (id: string): string => kpiHealth(kpis.filter(k => k.kpiId === id)[0]);
+  assert.deepEqual(['KPI-DEMO-001', 'KPI-DEMO-002', 'KPI-DEMO-003', 'KPI-DEMO-004'].map(health), ['AT_RISK', 'OFF_TARGET', 'ON_TARGET', 'OFF_TARGET'], 'one KPI of each health');
+  assert.equal(kpiTrend(kpis.filter(k => k.kpiId === 'KPI-DEMO-004')[0]), 'WORSENING');
+  assert.equal(kpiTrend(kpis.filter(k => k.kpiId === 'KPI-DEMO-001')[0]), 'IMPROVING');
+
+  const followUps = rowsOf('IT_14_Interactions').map(mapInteraction).filter(i => isFollowUpOverdue(i));
+  assert.deepEqual(followUps.map(i => i.interactionId), ['INT-DEMO-001'], 'one follow-up is overdue');
+
+  const pendingChange = mapChange(byId('IT_15_ChangeRequests', 'ChangeId', 'CHG-DEMO-001'));
+  assert.equal(pendingChange.approval?.status, 'PENDING', 'a high-risk change waits for approval');
+  assert.equal(pendingChange.approval?.ruleId, 'change.approve');
+  assert.equal(pendingChange.risk, 'HIGH');
 
   const project = byId('IT_03_Projects', 'ProjectId', 'PROJ-DEMO-002');
   assert.equal(project.ApprovalStatus, 'PENDING', 'a project also waits for approval, from the earlier round');

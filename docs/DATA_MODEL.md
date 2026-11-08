@@ -12,6 +12,7 @@
 - **Lesson learned**: what happened and what to do next time
 - **Review**: a periodic look at a project or initiative, with a health (green, amber, red)
 - **Budget**: a yearly amount; the **CAPEX** (investment) and **OPEX** (recurring cost) entries that point at it count against it
+- **Incident**, **Change request**, **Interaction** and **KPI**: how the service is running, what is being changed, who we talk to, and how we measure it
 - **Vendor** and **Contract**: who we buy from, and the agreement, with its end date and renewal notice
 
 ## Relationships
@@ -44,6 +45,14 @@
 - **Contract:** Draft → Active → Expired or Terminated; an Expired one can be renewed (Active again); Terminated is final.
 - **Contract alert:** an Active contract is **due for renewal** when the days left to its end date are within its notice period (90 by default), and **lapsed** when the end date passed but it was never closed.
 - Amounts have no currency (as in projects). Closed statuses (hidden by default) now also include Inactive, Expired and Terminated.
+
+## Service and operations
+- **Incident deadline** = the day it was reported + the days allowed for its severity (Critical 1, High 3, Medium 7, Low 14; `AppConfig.service.slaDays`). An unresolved incident (anything but Resolved or Closed, On hold included) is **overdue** once today is after that day. Days open run to today while open and to the resolution date once resolved.
+- **Incident:** New → In progress ⇄ On hold → Resolved → Closed (a resolved or closed one can be reopened as In progress). Resolving fills the resolution date (today) if empty; reopening clears it.
+- **Change request:** Draft → Submitted → Approved or Rejected → Implemented (final). Implementing fills the implementation date. **Approving a high-risk or emergency change needs an approval** (rule `change.approve`).
+- **Interaction:** Logged, Follow-up pending, Done. A **follow-up is overdue** when the interaction is waiting for one and its follow-up date has passed.
+- **KPI health:** *On target* when the current value meets the target; *At risk* within 10% of it (below it when higher is better, above it when lower is better); *Off target* otherwise. **Trend:** improving, worsening or stable against the previous value, taking the direction into account; no previous value means no trend. Changing the current value on save moves the old one to the previous value and sets the measurement date to today.
+- Closed statuses (hidden by default) now also include Resolved, Implemented and Retired.
 
 ## Approvals
 Ideas, initiatives, projects and actions carry one active approval (`ApprovalRule`, `ApprovalStatus` NONE/PENDING/APPROVED/REJECTED, `Approver`, `ApprovalRequestedOn`, `ApprovalDecidedOn`, `ApprovalDecidedBy`, `ApprovalComment`). Which changes need one is defined as data in `src/rules/approvals.ts`; see `APROBACIONES.md`.

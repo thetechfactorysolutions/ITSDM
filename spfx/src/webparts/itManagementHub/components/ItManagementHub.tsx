@@ -13,6 +13,7 @@ import Import from '../../../components/Import/Import';
 import Initiatives from '../../../components/Initiatives/Initiatives';
 import Actions from '../../../components/Actions/Actions';
 import Notes from '../../../components/Notes/Notes';
+import Operations from '../../../components/Operations/Operations';
 import Projects from '../../../components/Projects/Projects';
 import VendorsTab from '../../../components/Vendors/VendorsTab';
 import { I18nProvider, resolveLanguage, useT } from '../../../i18n/I18n';
@@ -35,6 +36,7 @@ const Tabs: React.FC<{ description: string }> = ({ description }) => {
         <PivotItem headerText={t('nav.actions')}><Actions /></PivotItem>
         <PivotItem headerText={t('nav.finance')}><Finance /></PivotItem>
         <PivotItem headerText={t('nav.vendorsTab')}><VendorsTab /></PivotItem>
+        <PivotItem headerText={t('nav.operations')}><Operations /></PivotItem>
         <PivotItem headerText={t('nav.governance')}><Governance /></PivotItem>
         <PivotItem headerText={t('nav.notes')}><Notes /></PivotItem>
         <PivotItem headerText={t('nav.import')}><Import /></PivotItem>

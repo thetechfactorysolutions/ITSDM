@@ -13,3 +13,7 @@ export * from './Budget';
 export * from './Expense';
 export * from './Vendor';
 export * from './Contract';
+export * from './Incident';
+export * from './ChangeRequest';
+export * from './Interaction';
+export * from './Kpi';

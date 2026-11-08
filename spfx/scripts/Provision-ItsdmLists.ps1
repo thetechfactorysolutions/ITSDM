@@ -156,6 +156,32 @@ $notes = @(
   @{ Name = 'MeetingId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }
 )
 
+$kpis = @(
+  @{ Name = 'KpiId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' }, @{ Name = 'Category'; Type = 'Choice'; Choices = 'SERVICE', 'DELIVERY', 'FINANCE', 'PEOPLE', 'OTHER' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'ACTIVE', 'RETIRED' }, @{ Name = 'Unit'; Type = 'Text' }, @{ Name = 'Direction'; Type = 'Choice'; Choices = 'HIGHER', 'LOWER' },
+  @{ Name = 'Target'; Type = 'Number' }, @{ Name = 'CurrentValue'; Type = 'Number' }, @{ Name = 'PreviousValue'; Type = 'Number' }, @{ Name = 'MeasuredOn'; Type = 'Date' },
+  @{ Name = 'OwnerUPN'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }
+)
+$incidents = @(
+  @{ Name = 'IncidentId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'NEW', 'IN_PROGRESS', 'ON_HOLD', 'RESOLVED', 'CLOSED' }, @{ Name = 'Severity'; Type = 'Choice'; Choices = 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL' },
+  @{ Name = 'Category'; Type = 'Choice'; Choices = 'APPLICATION', 'INFRASTRUCTURE', 'NETWORK', 'SECURITY', 'ACCESS', 'OTHER' },
+  @{ Name = 'ReportedBy'; Type = 'Text' }, @{ Name = 'AssignedTo'; Type = 'Text' }, @{ Name = 'ReportedOn'; Type = 'Date' }, @{ Name = 'ResolvedOn'; Type = 'Date' },
+  @{ Name = 'Resolution'; Type = 'Note' }, @{ Name = 'RootCause'; Type = 'Note' }, @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'VendorId'; Type = 'Text' }
+)
+$interactions = @(
+  @{ Name = 'InteractionId'; Type = 'Text' }, @{ Name = 'InteractionType'; Type = 'Choice'; Choices = 'MEETING', 'CALL', 'EMAIL', 'WORKSHOP', 'OTHER' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'LOGGED', 'FOLLOW_UP', 'DONE' }, @{ Name = 'InteractionDate'; Type = 'Date' },
+  @{ Name = 'ContactName'; Type = 'Text' }, @{ Name = 'ContactEmail'; Type = 'Text' }, @{ Name = 'Organization'; Type = 'Text' }, @{ Name = 'Summary'; Type = 'Note' },
+  @{ Name = 'NextSteps'; Type = 'Note' }, @{ Name = 'FollowUpDate'; Type = 'Date' }, @{ Name = 'OwnerUPN'; Type = 'Text' },
+  @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'VendorId'; Type = 'Text' }, @{ Name = 'MeetingId'; Type = 'Text' }
+)
+$changes = @(
+  @{ Name = 'ChangeId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' }, @{ Name = 'Reason'; Type = 'Note' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'IMPLEMENTED' }, @{ Name = 'ChangeType'; Type = 'Choice'; Choices = 'STANDARD', 'NORMAL', 'EMERGENCY' },
+  @{ Name = 'Risk'; Type = 'Choice'; Choices = 'LOW', 'MEDIUM', 'HIGH' }, @{ Name = 'PlannedDate'; Type = 'Date' }, @{ Name = 'ImplementedDate'; Type = 'Date' },
+  @{ Name = 'BackoutPlan'; Type = 'Note' }, @{ Name = 'OwnerUPN'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }
+)
 $budgets = @(
   @{ Name = 'BudgetId'; Type = 'Text' }, @{ Name = 'FiscalYear'; Type = 'Number' }, @{ Name = 'Description'; Type = 'Note' },
   @{ Name = 'Status'; Type = 'Choice'; Choices = 'DRAFT', 'APPROVED', 'CLOSED' }, @{ Name = 'PlannedAmount'; Type = 'Number' }, @{ Name = 'OwnerUPN'; Type = 'Text' }
@@ -223,6 +249,7 @@ $actions += $approval
 $capex += $approval
 $opex += $approval
 $contracts += $approval
+$changes += $approval
 
 # ---------- create structure ----------
 Write-Host 'Creating lists and columns...' -ForegroundColor Cyan
@@ -230,6 +257,10 @@ Initialize-ItsdmList -Title 'IT_01_Ideas'       -Fields $ideas
 Initialize-ItsdmList -Title 'IT_02_Initiatives' -Fields $initiatives
 Initialize-ItsdmList -Title 'IT_03_Projects'    -Fields $projects
 Initialize-ItsdmList -Title 'IT_04_Actions'     -Fields $actions
+Initialize-ItsdmList -Title 'IT_05_KPIs'        -Fields $kpis
+Initialize-ItsdmList -Title 'IT_13_Incidents'   -Fields $incidents
+Initialize-ItsdmList -Title 'IT_14_Interactions' -Fields $interactions
+Initialize-ItsdmList -Title 'IT_15_ChangeRequests' -Fields $changes
 Initialize-ItsdmList -Title 'IT_06_Budgets'     -Fields $budgets
 Initialize-ItsdmList -Title 'IT_07_CAPEX'       -Fields $capex
 Initialize-ItsdmList -Title 'IT_08_OPEX'        -Fields $opex

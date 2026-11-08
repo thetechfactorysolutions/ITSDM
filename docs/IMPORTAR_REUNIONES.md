@@ -102,7 +102,7 @@ Todos los apartados son opcionales; los que falten o estén vacíos se ignoran.
 
 También reconoce los nombres de campo en español más habituales (`acciones`, `proyectos`, `responsable`, `fechaLimite`, `prioridad`...).
 
-**No se importan** presupuestos, gastos, proveedores, contratos ni revisiones: no son cosas que se mencionen en una reunión, sino registros propios.
+**No se importan** presupuestos, gastos, proveedores, contratos, revisiones, incidentes, cambios, interacciones ni KPIs: no son cosas que se mencionen en una reunión, sino registros propios.
 
 ## Límites conocidos
 

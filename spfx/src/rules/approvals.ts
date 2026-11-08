@@ -1,6 +1,6 @@
 import { AppConfig } from '../config/AppConfig';
 import {
-  ActionItem, ApprovalStatus, CapexItem, Contract, ContractStatus, IApprovalState, Idea, IdeaStatus, Initiative, InitiativeStatus, OpexItem, Project, ProjectStatus
+  ActionItem, ApprovalStatus, CapexItem, ChangeRequest, ChangeStatus, ChangeType, Contract, ContractStatus, IApprovalState, Idea, IdeaStatus, Initiative, InitiativeStatus, OpexItem, Project, ProjectStatus, RiskScale
 } from '../models';
 import { toDayKey } from './dates';
 import { isCommitted, opexAnnualAmount } from './finance';
@@ -14,7 +14,7 @@ import { isCommitted, opexAnnualAmount } from './finance';
  * quick status change, the CSV import and the dashboard all read this list.
  */
 
-export type ApprovalEntity = 'ideas' | 'initiatives' | 'projects' | 'actions' | 'capex' | 'opex' | 'contracts';
+export type ApprovalEntity = 'ideas' | 'initiatives' | 'projects' | 'actions' | 'capex' | 'opex' | 'contracts' | 'changes';
 
 export interface IEntityByApprovalKey {
   ideas: Idea;
@@ -24,6 +24,7 @@ export interface IEntityByApprovalKey {
   capex: CapexItem;
   opex: OpexItem;
   contracts: Contract;
+  changes: ChangeRequest;
 }
 
 export interface IApprovalRule {
@@ -107,6 +108,16 @@ export const APPROVAL_RULES: IApprovalRule[] = [
     enabled: true,
     requires: (current, next) =>
       next.status === ContractStatus.ACTIVE && (!current || current.status !== ContractStatus.ACTIVE) && next.annualValue >= AppConfig.approvals.highSpend
+  }),
+
+  // Change management: a risky or emergency change needs a recorded sign-off before it is approved.
+  rule({
+    id: 'change.approve',
+    entity: 'changes',
+    enabled: true,
+    requires: (current, next) =>
+      next.status === ChangeStatus.APPROVED && (!current || current.status !== ChangeStatus.APPROVED) &&
+      (next.risk === RiskScale.HIGH || next.changeType === ChangeType.EMERGENCY)
   }),
 
   // Off by default: an example of a rule that is switched on by changing `enabled` to true.

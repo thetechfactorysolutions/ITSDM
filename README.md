@@ -8,6 +8,7 @@ ITSDM is a SharePoint Framework (SPFx) web part for IT Service Delivery Manageme
 - **Dashboard:** counters, "My work" with quick close, charts of actions by status and budget vs forecast.
 - **Ideas → Initiatives → Projects → Actions:** create, edit, details, archive, delete, search, filter, sort, export/import CSV, links chosen from a picker, status rules.
 - **Approvals:** rules (defined as data, easy to extend) that block changes such as validating an idea or going over budget until someone approves; the request goes by ready-made email or Teams message (`docs/APROBACIONES.md`).
+- **Operations:** incidents with a deadline by severity, change requests (risky ones need approval), interactions with follow-ups, and KPIs with health and trend.
 - **Finance and vendors:** budgets whose committed amount is calculated from the CAPEX and OPEX linked to them (with warnings near and over the limit), vendors, and contracts with renewal alerts. Large commitments need approval.
 - **Governance:** risks (with a probability x impact score), decisions, lessons learned and reviews, linked to projects, initiatives and meetings.
 - **Notes and Meetings:** decisions, risks, information and follow-ups linked to a meeting, initiative or project.
@@ -15,7 +16,7 @@ ITSDM is a SharePoint Framework (SPFx) web part for IT Service Delivery Manageme
 - **Full-width section** support, **English and Spanish**, keyboard and screen-reader friendly.
 - Lists and sample data are created when the app is added to a site.
 
-Not implemented yet (see `docs/ROADMAP.md`): Planner, Power Automate and Graph integrations, app-level roles, the 7 remaining lists (service and operations; people and knowledge), automatic schema migration.
+Not implemented yet (see `docs/ROADMAP.md`): Planner, Power Automate and Graph integrations, app-level roles, the 3 remaining lists (people and knowledge), automatic schema migration.
 
 ## Architecture
 - SPFx web part host (`spfx/`), React 17 + Fluent UI v8, TypeScript, PnPjs

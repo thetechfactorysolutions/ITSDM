@@ -19,6 +19,21 @@ export const useFinanceLinkOptions = (): IFinanceLinkOptions => {
   return { budgetOptions, vendorOptions, contractOptions, projectOptions };
 };
 
+export interface IOperationsLinkOptions {
+  projectOptions: ILinkOption[];
+  vendorOptions: ILinkOption[];
+  meetingOptions: ILinkOption[];
+}
+
+/** The choices for project, vendor and meeting pickers, used by the operations screens. */
+export const useOperationsLinkOptions = (): IOperationsLinkOptions => {
+  const { projects, vendors, meetings } = useHubData();
+  const projectOptions = React.useMemo(() => projects.items.map(p => ({ id: p.projectId, title: p.title })), [projects.items]);
+  const vendorOptions = React.useMemo(() => vendors.items.map(v => ({ id: v.vendorId, title: v.title })), [vendors.items]);
+  const meetingOptions = React.useMemo(() => meetings.items.map(m => ({ id: m.meetingId, title: m.title })), [meetings.items]);
+  return { projectOptions, vendorOptions, meetingOptions };
+};
+
 export interface ILinkOptions {
   initiativeOptions: ILinkOption[];
   projectOptions: ILinkOption[];

@@ -3,7 +3,7 @@
   "solution": {
     "name": "itsdm-client-side-solution",
     "id": "0c53f3a8-ee89-4924-802e-fc71d0d5f607",
-    "version": "1.5.0.0",
+    "version": "1.6.0.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": false,
     "isDomainIsolated": false,
@@ -30,7 +30,7 @@
         "title": "itsdm Feature",
         "description": "The feature that activates elements of the itsdm solution.",
         "id": "86dd451b-4b27-42d3-9e69-6ed9a130e313",
-        "version": "1.5.0.0",
+        "version": "1.6.0.0",
         "assets": {
           "elementManifests": [
             "elements.xml"
@@ -40,6 +40,7 @@
             "schema_initiatives.xml",
             "schema_projects.xml",
             "schema_actions.xml",
+            "schema_kpis.xml",
             "schema_budgets.xml",
             "schema_capex.xml",
             "schema_opex.xml",
@@ -47,6 +48,9 @@
             "schema_contracts.xml",
             "schema_risks.xml",
             "schema_decisions.xml",
+            "schema_incidents.xml",
+            "schema_interactions.xml",
+            "schema_changes.xml",
             "schema_reviews.xml",
             "schema_lessons.xml",
             "schema_meetings.xml",

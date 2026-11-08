@@ -4,7 +4,7 @@ Created automatically when the app is added to a site (`scripts/generate-assets.
 
 ## Lists in use
 
-IT_01 to IT_04, IT_07, IT_08 and IT_10 also have the seven approval columns: ApprovalRule (Text), ApprovalStatus (Choice: NONE, PENDING, APPROVED, REJECTED), Approver (Text), ApprovalRequestedOn (Date), ApprovalDecidedOn (Date), ApprovalDecidedBy (Text), ApprovalComment (Multiple lines).
+IT_01 to IT_04, IT_07, IT_08, IT_10 and IT_15 also have the seven approval columns: ApprovalRule (Text), ApprovalStatus (Choice: NONE, PENDING, APPROVED, REJECTED), Approver (Text), ApprovalRequestedOn (Date), ApprovalDecidedOn (Date), ApprovalDecidedBy (Text), ApprovalComment (Multiple lines).
 
 ### IT_01_Ideas
 Title, IdeaId (Text), Description (Multiple lines), Status (Choice: NEW, DISCOVERY, VALIDATED, PLANNED, IN_PROGRESS, PILOT, ROLLOUT, COMPLETED, REJECTED, CANCELLED), OwnerUPN (Text), SponsorUPN (Text), EstimatedValue (Number), TargetDate (Date), Tags (Multiple lines), ConvertedInitiativeId (Text)
@@ -17,6 +17,18 @@ Title, ProjectId (Text), InitiativeId (Text), Description (Multiple lines), Stat
 
 ### IT_04_Actions
 Title, ActionId (Text), InitiativeId (Text), ProjectId (Text), Description (Multiple lines), Status (Choice: OPEN, IN_PROGRESS, BLOCKED, DONE, CANCELLED), Priority (Choice: LOW, MEDIUM, HIGH, CRITICAL), OwnerUPN (Text), DueDate (Date), CompletedDate (Date), PlannerTaskId (Text)
+
+### IT_05_KPIs
+Title (the indicator's name), KpiId (Text), Description (Multiple lines), Category (Choice: SERVICE, DELIVERY, FINANCE, PEOPLE, OTHER), Status (Choice: ACTIVE, RETIRED), Unit (Text), Direction (Choice: HIGHER, LOWER), Target (Number), CurrentValue (Number), PreviousValue (Number, may be empty), MeasuredOn (Date), OwnerUPN (Text), ProjectId (Text). Health and trend are calculated.
+
+### IT_13_Incidents
+Title, IncidentId (Text), Description (Multiple lines), Status (Choice: NEW, IN_PROGRESS, ON_HOLD, RESOLVED, CLOSED), Severity (Choice: LOW, MEDIUM, HIGH, CRITICAL), Category (Choice: APPLICATION, INFRASTRUCTURE, NETWORK, SECURITY, ACCESS, OTHER), ReportedBy (Text), AssignedTo (Text), ReportedOn (Date), ResolvedOn (Date), Resolution (Multiple lines), RootCause (Multiple lines), ProjectId (Text), VendorId (Text). The deadline is calculated from ReportedOn and the severity.
+
+### IT_14_Interactions
+Title (the subject), InteractionId (Text), InteractionType (Choice: MEETING, CALL, EMAIL, WORKSHOP, OTHER), Status (Choice: LOGGED, FOLLOW_UP, DONE), InteractionDate (Date), ContactName (Text), ContactEmail (Text), Organization (Text), Summary (Multiple lines), NextSteps (Multiple lines), FollowUpDate (Date), OwnerUPN (Text), ProjectId (Text), VendorId (Text), MeetingId (Text)
+
+### IT_15_ChangeRequests
+Title, ChangeId (Text), Description (Multiple lines, what changes), Reason (Multiple lines), Status (Choice: DRAFT, SUBMITTED, APPROVED, REJECTED, IMPLEMENTED), ChangeType (Choice: STANDARD, NORMAL, EMERGENCY), Risk (Choice: LOW, MEDIUM, HIGH), PlannedDate (Date), ImplementedDate (Date), BackoutPlan (Multiple lines), OwnerUPN (Text, who requests it), ProjectId (Text)
 
 ### IT_06_Budgets
 Title, BudgetId (Text), FiscalYear (Number), Description (Multiple lines), Status (Choice: DRAFT, APPROVED, CLOSED), PlannedAmount (Number), OwnerUPN (Text). Committed, paid, remaining and % used are calculated from the expenses that point at the budget.
@@ -52,7 +64,7 @@ Title, MeetingId (Text), MeetingDate (Date), Summary (Multiple lines), Attendees
 Title, NoteId (Text), Body (Multiple lines), Category (Choice: DECISION, RISK, INFO, FOLLOW_UP), Status (Choice: ACTIVE, ARCHIVED), MeetingId (Text), InitiativeId (Text), ProjectId (Text)
 
 ## Future lists (documented only, not implemented)
-IT_05_KPIs, IT_13_Incidents, IT_14_Interactions, IT_15_ChangeRequests, IT_16_TeamSkills, IT_17_TrainingPlans, IT_18_KnowledgeBase
+IT_16_TeamSkills, IT_17_TrainingPlans, IT_18_KnowledgeBase
 
 ## Notes
 - Changing the columns of a list that already exists is not automated (see `ROADMAP.md`).

@@ -1,4 +1,6 @@
-import { ActionItem, Budget, CapexItem, Contract, Decision, Idea, Initiative, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Vendor } from '../models';
+import {
+  ActionItem, Budget, CapexItem, ChangeRequest, Contract, Decision, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Vendor
+} from '../models';
 import { isValidDayKey } from './dates';
 
 /** Translation key of the error per field name (e.g. validation.titleRequired); a missing key means the field is valid. */
@@ -199,5 +201,54 @@ export const validateContract = (contract: Contract): ValidationErrors => {
   if (!isFinite(contract.noticeDays) || Math.floor(contract.noticeDays) !== contract.noticeDays || contract.noticeDays < 0 || contract.noticeDays > 365) {
     errors.noticeDays = 'validation.noticeDaysRange';
   }
+  return errors;
+};
+
+export const validateIncident = (incident: Incident): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, incident.title);
+  validateOptionalEmail(errors, 'reportedBy', incident.reportedBy, 'validation.ownerInvalid');
+  validateOptionalEmail(errors, 'assignedTo', incident.assignedTo, 'validation.ownerInvalid');
+  validateOptionalDate(errors, 'reportedOn', incident.reportedOn);
+  validateOptionalDate(errors, 'resolvedOn', incident.resolvedOn);
+  if (!errors.reportedOn && !errors.resolvedOn && incident.reportedOn && incident.resolvedOn && incident.resolvedOn < incident.reportedOn) {
+    errors.resolvedOn = 'validation.resolvedBeforeReported';
+  }
+  return errors;
+};
+
+export const validateChange = (change: ChangeRequest): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, change.title);
+  validateOwner(errors, change.ownerUpn);
+  validateOptionalDate(errors, 'plannedDate', change.plannedDate);
+  validateOptionalDate(errors, 'implementedDate', change.implementedDate);
+  return errors;
+};
+
+export const validateInteraction = (interaction: Interaction): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, interaction.title);
+  validateOptionalEmail(errors, 'contactEmail', interaction.contactEmail, 'validation.contactInvalid');
+  validateOptionalEmail(errors, 'ownerUpn', interaction.ownerUpn, 'validation.ownerInvalid');
+  validateOptionalDate(errors, 'interactionDate', interaction.interactionDate);
+  validateOptionalDate(errors, 'followUpDate', interaction.followUpDate);
+  return errors;
+};
+
+export const validateKpi = (kpi: Kpi): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, kpi.title);
+  if (!isFinite(kpi.target)) {
+    errors.target = 'validation.mustBeNumber';
+  }
+  if (!isFinite(kpi.currentValue)) {
+    errors.currentValue = 'validation.mustBeNumber';
+  }
+  if (kpi.previousValue !== undefined && !isFinite(kpi.previousValue)) {
+    errors.previousValue = 'validation.mustBeNumber';
+  }
+  validateOptionalDate(errors, 'measuredOn', kpi.measuredOn);
+  validateOptionalEmail(errors, 'ownerUpn', kpi.ownerUpn, 'validation.ownerInvalid');
   return errors;
 };

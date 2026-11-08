@@ -29,6 +29,12 @@ export interface IAppConfig {
   sharePoint: {
     listNames: ISharePointListMap;
   };
+  service: {
+    /** Days allowed to resolve an incident, by severity, counted from the day it was reported. */
+    slaDays: Record<string, number>;
+    /** A KPI within this ratio of its target is "at risk" instead of "off target". */
+    kpiTolerance: number;
+  };
   approvals: {
     /** A project whose forecast exceeds its budget by more than this ratio needs approval. */
     overBudgetRatio: number;
@@ -67,6 +73,10 @@ export const AppConfig: IAppConfig = {
       meetings: 'IT_21_Meetings',
       notes: 'IT_22_Notes'
     }
+  },
+  service: {
+    slaDays: { LOW: 14, MEDIUM: 7, HIGH: 3, CRITICAL: 1 },
+    kpiTolerance: 0.1
   },
   approvals: {
     overBudgetRatio: 0.1,

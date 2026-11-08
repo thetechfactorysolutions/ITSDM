@@ -66,3 +66,12 @@ export const dayKeyFromValue = (value: string | undefined): string | undefined =
 export const dayKeyToSharePoint = (value: string | undefined): string | null => {
   return isValidDayKey(value) ? `${value}T12:00:00Z` : null;
 };
+
+/** The day key n days after (or before, if negative) the given one. Returns the input when it is not a valid day. */
+export const addDays = (value: string, days: number): string => {
+  const start = fromDayKey(value);
+  if (!start) {
+    return value;
+  }
+  return toDayKey(new Date(start.getFullYear(), start.getMonth(), start.getDate() + days));
+};

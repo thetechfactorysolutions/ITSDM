@@ -1,4 +1,6 @@
-import { ActionItem, Budget, CapexItem, Contract, Decision, IApprovalState, Idea, Initiative, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Vendor } from '../models';
+import {
+  ActionItem, Budget, CapexItem, ChangeRequest, Contract, Decision, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Vendor
+} from '../models';
 import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
 
@@ -222,6 +224,74 @@ export const buildContractPayload = (contract: Contract): Record<string, unknown
   ...buildApprovalPayload(getApproval(contract))
 });
 
+export const buildIncidentPayload = (incident: Incident): Record<string, unknown> => ({
+  Title: incident.title.trim(),
+  IncidentId: incident.incidentId,
+  Description: incident.description,
+  Status: incident.status,
+  Severity: incident.severity,
+  Category: incident.category,
+  ReportedBy: incident.reportedBy,
+  AssignedTo: incident.assignedTo,
+  ReportedOn: dayKeyToSharePoint(incident.reportedOn),
+  ResolvedOn: dayKeyToSharePoint(incident.resolvedOn),
+  Resolution: incident.resolution,
+  RootCause: incident.rootCause,
+  ProjectId: incident.projectId ?? '',
+  VendorId: incident.vendorId ?? ''
+});
+
+export const buildChangePayload = (change: ChangeRequest): Record<string, unknown> => ({
+  Title: change.title.trim(),
+  ChangeId: change.changeId,
+  Description: change.description,
+  Reason: change.reason,
+  Status: change.status,
+  ChangeType: change.changeType,
+  Risk: change.risk,
+  PlannedDate: dayKeyToSharePoint(change.plannedDate),
+  ImplementedDate: dayKeyToSharePoint(change.implementedDate),
+  BackoutPlan: change.backoutPlan,
+  OwnerUPN: change.ownerUpn,
+  ProjectId: change.projectId ?? '',
+  ...buildApprovalPayload(getApproval(change))
+});
+
+export const buildInteractionPayload = (interaction: Interaction): Record<string, unknown> => ({
+  Title: interaction.title.trim(),
+  InteractionId: interaction.interactionId,
+  InteractionType: interaction.type,
+  Status: interaction.status,
+  InteractionDate: dayKeyToSharePoint(interaction.interactionDate),
+  ContactName: interaction.contactName,
+  ContactEmail: interaction.contactEmail,
+  Organization: interaction.organization,
+  Summary: interaction.summary,
+  NextSteps: interaction.nextSteps,
+  FollowUpDate: dayKeyToSharePoint(interaction.followUpDate),
+  OwnerUPN: interaction.ownerUpn,
+  ProjectId: interaction.projectId ?? '',
+  VendorId: interaction.vendorId ?? '',
+  MeetingId: interaction.meetingId ?? ''
+});
+
+export const buildKpiPayload = (kpi: Kpi): Record<string, unknown> => ({
+  Title: kpi.title.trim(),
+  KpiId: kpi.kpiId,
+  Description: kpi.description,
+  Category: kpi.category,
+  Status: kpi.status,
+  Unit: kpi.unit,
+  Direction: kpi.direction,
+  Target: kpi.target,
+  CurrentValue: kpi.currentValue,
+  // null clears the column: a KPI with no previous value must not be read back as zero.
+  PreviousValue: kpi.previousValue === undefined ? null : kpi.previousValue,
+  MeasuredOn: dayKeyToSharePoint(kpi.measuredOn),
+  OwnerUPN: kpi.ownerUpn,
+  ProjectId: kpi.projectId ?? ''
+});
+
 /** Columns requested from each list. Asking only for what the app uses keeps the responses small. */
 export const SELECT = {
   ideas: ['Id', 'Title', 'IdeaId', 'Description', 'Status', 'OwnerUPN', 'SponsorUPN', 'EstimatedValue', 'TargetDate', 'Tags', 'ConvertedInitiativeId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
@@ -238,6 +308,10 @@ export const SELECT = {
   opex: ['Id', 'Title', 'OpexId', 'Description', 'Status', 'Amount', 'Frequency', 'ExpenseDate', 'OwnerUPN', 'BudgetId', 'ProjectId', 'VendorId', 'ContractId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   vendors: ['Id', 'Title', 'VendorId', 'Description', 'Status', 'Category', 'ContactName', 'ContactEmail', 'Website', 'OwnerUPN', 'Created', 'Modified', 'Editor/Title'],
   contracts: ['Id', 'Title', 'ContractId', 'Description', 'Status', 'VendorId', 'StartDate', 'EndDate', 'NoticeDays', 'AnnualValue', 'AutoRenew', 'OwnerUPN', 'ProjectId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
+  incidents: ['Id', 'Title', 'IncidentId', 'Description', 'Status', 'Severity', 'Category', 'ReportedBy', 'AssignedTo', 'ReportedOn', 'ResolvedOn', 'Resolution', 'RootCause', 'ProjectId', 'VendorId', 'Created', 'Modified', 'Editor/Title'],
+  changes: ['Id', 'Title', 'ChangeId', 'Description', 'Reason', 'Status', 'ChangeType', 'Risk', 'PlannedDate', 'ImplementedDate', 'BackoutPlan', 'OwnerUPN', 'ProjectId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
+  interactions: ['Id', 'Title', 'InteractionId', 'InteractionType', 'Status', 'InteractionDate', 'ContactName', 'ContactEmail', 'Organization', 'Summary', 'NextSteps', 'FollowUpDate', 'OwnerUPN', 'ProjectId', 'VendorId', 'MeetingId', 'Created', 'Modified', 'Editor/Title'],
+  kpis: ['Id', 'Title', 'KpiId', 'Description', 'Category', 'Status', 'Unit', 'Direction', 'Target', 'CurrentValue', 'PreviousValue', 'MeasuredOn', 'OwnerUPN', 'ProjectId', 'Created', 'Modified', 'Editor/Title'],
   notes: ['Id', 'Title', 'NoteId', 'Body', 'Category', 'Status', 'MeetingId', 'InitiativeId', 'ProjectId', 'Created', 'Modified', 'Editor/Title']
 };
 

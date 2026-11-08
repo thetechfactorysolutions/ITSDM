@@ -91,6 +91,65 @@ const LISTS = [
     })
   },
   {
+    title: 'IT_05_KPIs', file: 'schema_kpis.xml', description: 'Indicators with a target; health and trend are calculated',
+    fields: [T('KpiId'), N('Description'), C('Category', ['SERVICE', 'DELIVERY', 'FINANCE', 'PEOPLE', 'OTHER']), C('Status', ['ACTIVE', 'RETIRED']), T('Unit'),
+      C('Direction', ['HIGHER', 'LOWER']), NUM('Target'), NUM('CurrentValue'), NUM('PreviousValue'), D('MeasuredOn'), T('OwnerUPN'), T('ProjectId')],
+    rows: (day) => [
+      ['Average incident resolution time', 'KPI-DEMO-001', 'days', 'LOWER', 3, 3.2, 4.1],
+      ['First-contact resolution', 'KPI-DEMO-002', '%', 'HIGHER', 80, 65, 62],
+      ['Service availability', 'KPI-DEMO-003', '%', 'HIGHER', 99.5, 99.7, 99.6],
+      ['Open critical incidents', 'KPI-DEMO-004', 'incidents', 'LOWER', 0, 1, 0]
+    ].map(([t, id, unit, dir, target, current, previous]) => ({
+      Title: t, KpiId: id, Description: `Sample indicator: ${t}.`, Category: 'SERVICE', Status: 'ACTIVE', Unit: unit, Direction: dir,
+      Target: target, CurrentValue: current, PreviousValue: previous, MeasuredOn: day(-1), OwnerUPN: SAMPLE_OWNER
+    }))
+  },
+  {
+    title: 'IT_13_Incidents', file: 'schema_incidents.xml', description: 'Incidents with severity, deadline and resolution',
+    fields: [T('IncidentId'), N('Description'), C('Status', ['NEW', 'IN_PROGRESS', 'ON_HOLD', 'RESOLVED', 'CLOSED']), C('Severity', ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+      C('Category', ['APPLICATION', 'INFRASTRUCTURE', 'NETWORK', 'SECURITY', 'ACCESS', 'OTHER']), T('ReportedBy'), T('AssignedTo'), D('ReportedOn'), D('ResolvedOn'),
+      N('Resolution'), N('RootCause'), T('ProjectId'), T('VendorId')],
+    rows: (day) => [
+      ['Email delivery delays', 'INC-DEMO-001', 'IN_PROGRESS', 'CRITICAL', 'APPLICATION', -2, null, '', '', 'VEN-DEMO-002'],
+      ['VPN drops for remote users', 'INC-DEMO-002', 'NEW', 'MEDIUM', 'NETWORK', -2, null, '', '', ''],
+      ['Printer queue stuck', 'INC-DEMO-003', 'RESOLVED', 'LOW', 'INFRASTRUCTURE', -10, -8, 'Restarted the print spooler.', 'A driver update left the spooler hanging.', '']
+    ].map(([t, id, st, sev, cat, rep, res, resolution, cause, ven]) => {
+      const row = { Title: t, IncidentId: id, Description: `Sample incident: ${t}.`, Status: st, Severity: sev, Category: cat, ReportedBy: SAMPLE_OWNER, AssignedTo: SAMPLE_OWNER, ReportedOn: day(rep), VendorId: ven };
+      if (res !== null) { Object.assign(row, { ResolvedOn: day(res), Resolution: resolution, RootCause: cause }); }
+      return row;
+    })
+  },
+  {
+    title: 'IT_14_Interactions', file: 'schema_interactions.xml', description: 'Contacts with stakeholders and their follow-ups',
+    fields: [T('InteractionId'), C('InteractionType', ['MEETING', 'CALL', 'EMAIL', 'WORKSHOP', 'OTHER']), C('Status', ['LOGGED', 'FOLLOW_UP', 'DONE']), D('InteractionDate'),
+      T('ContactName'), T('ContactEmail'), T('Organization'), N('Summary'), N('NextSteps'), D('FollowUpDate'), T('OwnerUPN'), T('ProjectId'), T('VendorId'), T('MeetingId')],
+    rows: (day) => [
+      ['Quarterly review with Fabrikam', 'INT-DEMO-001', 'MEETING', 'FOLLOW_UP', -10, 'Sam Rivera', 'Fabrikam Telecom', 'Reviewed delivery dates for the telephony rollout.', 'Send the updated delivery plan.', -3, 'VEN-DEMO-002'],
+      ['Licence question', 'INT-DEMO-002', 'CALL', 'DONE', -5, 'Alex Morgan', 'Contoso Hardware', 'Clarified the warranty terms.', '', null, 'VEN-DEMO-001'],
+      ['Steering committee preparation', 'INT-DEMO-003', 'WORKSHOP', 'LOGGED', -1, 'Jo Bennett', 'Northwind Cloud', 'Agreed the agenda.', '', null, 'VEN-DEMO-003']
+    ].map(([t, id, type, st, d, contact, org, summary, next, fu, ven]) => {
+      const row = { Title: t, InteractionId: id, InteractionType: type, Status: st, InteractionDate: day(d), ContactName: contact, Organization: org, Summary: summary, NextSteps: next, OwnerUPN: SAMPLE_OWNER, VendorId: ven };
+      if (fu !== null) { row.FollowUpDate = day(fu); }
+      return row;
+    })
+  },
+  {
+    title: 'IT_15_ChangeRequests', file: 'schema_changes.xml', description: 'Change requests; risky and emergency ones need a recorded approval',
+    fields: [T('ChangeId'), N('Description'), N('Reason'), C('Status', ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'IMPLEMENTED']), C('ChangeType', ['STANDARD', 'NORMAL', 'EMERGENCY']),
+      C('Risk', ['LOW', 'MEDIUM', 'HIGH']), D('PlannedDate'), D('ImplementedDate'), N('BackoutPlan'), T('OwnerUPN'), T('ProjectId')],
+    rows: (day) => [
+      ['Upgrade the core network switch', 'CHG-DEMO-001', 'SUBMITTED', 'NORMAL', 'HIGH', 14, null, 'Replace the end-of-life switch in the data room.', 'Restore the previous configuration and cable.', true],
+      ['Rotate service-account passwords', 'CHG-DEMO-002', 'APPROVED', 'STANDARD', 'LOW', 3, null, 'Quarterly security hygiene.', 'Restore the previous secrets from the vault.', false],
+      ['Emergency security patch', 'CHG-DEMO-003', 'IMPLEMENTED', 'EMERGENCY', 'MEDIUM', -6, -5, 'Actively exploited vulnerability.', 'Roll the patch back.', false]
+    ].map(([t, id, st, type, risk, planned, implemented, reason, backout, pending]) => {
+      const row = { Title: t, ChangeId: id, Description: `Sample change: ${t}.`, Reason: reason, Status: st, ChangeType: type, Risk: risk, PlannedDate: day(planned), BackoutPlan: backout, OwnerUPN: SAMPLE_OWNER };
+      if (implemented !== null) { row.ImplementedDate = day(implemented); }
+      // This high-risk change waits for a recorded approval before it can be approved.
+      if (pending) { Object.assign(row, { ApprovalRule: 'change.approve', ApprovalStatus: 'PENDING', Approver: SAMPLE_OWNER, ApprovalRequestedOn: day(-1) }); }
+      return row;
+    })
+  },
+  {
     title: 'IT_06_Budgets', file: 'schema_budgets.xml', description: 'Budgets by year; committed and used are calculated from the expenses linked to them',
     fields: [T('BudgetId'), NUM('FiscalYear'), N('Description'), C('Status', ['DRAFT', 'APPROVED', 'CLOSED']), NUM('PlannedAmount'), T('OwnerUPN')],
     rows: () => [
@@ -232,7 +291,7 @@ const APPROVAL_FIELDS = [
   T('ApprovalRule'), C('ApprovalStatus', ['NONE', 'PENDING', 'APPROVED', 'REJECTED']), T('Approver'),
   D('ApprovalRequestedOn'), D('ApprovalDecidedOn'), T('ApprovalDecidedBy'), N('ApprovalComment')
 ];
-const WITH_APPROVALS = ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts'];
+const WITH_APPROVALS = ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests'];
 for (const list of LISTS) {
   if (WITH_APPROVALS.indexOf(list.title) > -1) {
     list.fields = list.fields.concat(APPROVAL_FIELDS);

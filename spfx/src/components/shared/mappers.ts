@@ -1,5 +1,6 @@
 import {
-  ActionItem, ActionPriority, ActionStatus, ApprovalStatus, AutoRenew, Budget, BudgetStatus, CapexItem, Contract, ContractStatus, ExpenseStatus, OpexFrequency, OpexItem, Vendor, VendorCategory, VendorStatus, Decision, DecisionStatus, IApprovalState, Idea, Lesson, LessonCategory, LessonStatus, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
+  ActionItem, ActionPriority, ActionStatus, ApprovalStatus, AutoRenew, ChangeRequest, ChangeStatus, ChangeType, Incident, IncidentCategory, IncidentSeverity, IncidentStatus,
+  Interaction, InteractionStatus, InteractionType, Kpi, KpiCategory, KpiDirection, KpiStatus, Budget, BudgetStatus, CapexItem, Contract, ContractStatus, ExpenseStatus, OpexFrequency, OpexItem, Vendor, VendorCategory, VendorStatus, Decision, DecisionStatus, IApprovalState, Idea, Lesson, LessonCategory, LessonStatus, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
   Project, ProjectRiskLevel, ProjectStatus, Review, ReviewHealth, ReviewStatus, ReviewType, Risk, RiskScale, RiskStatus
 } from '../../models';
 import { dayKeyFromValue } from '../../rules/dates';
@@ -314,4 +315,88 @@ export const mapContract = (item: Record<string, unknown>): Contract => ({
   modified: readString(item, 'Modified'),
   editor: readExpandedTitle(item, 'Editor'),
   approval: readApproval(item)
+});
+
+export const mapIncident = (item: Record<string, unknown>): Incident => ({
+  id: readId(item),
+  incidentId: readString(item, 'IncidentId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  status: readEnum(item, 'Status', enumValues(IncidentStatus), IncidentStatus.NEW),
+  severity: readEnum(item, 'Severity', enumValues(IncidentSeverity), IncidentSeverity.MEDIUM),
+  category: readEnum(item, 'Category', enumValues(IncidentCategory), IncidentCategory.OTHER),
+  reportedBy: readString(item, 'ReportedBy'),
+  assignedTo: readString(item, 'AssignedTo'),
+  reportedOn: readDate(item, 'ReportedOn'),
+  resolvedOn: readDate(item, 'ResolvedOn'),
+  resolution: readString(item, 'Resolution'),
+  rootCause: readString(item, 'RootCause'),
+  projectId: readString(item, 'ProjectId'),
+  vendorId: readString(item, 'VendorId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapChange = (item: Record<string, unknown>): ChangeRequest => ({
+  id: readId(item),
+  changeId: readString(item, 'ChangeId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  reason: readString(item, 'Reason'),
+  status: readEnum(item, 'Status', enumValues(ChangeStatus), ChangeStatus.DRAFT),
+  changeType: readEnum(item, 'ChangeType', enumValues(ChangeType), ChangeType.NORMAL),
+  risk: readEnum(item, 'Risk', enumValues(RiskScale), RiskScale.MEDIUM),
+  plannedDate: readDate(item, 'PlannedDate'),
+  implementedDate: readDate(item, 'ImplementedDate'),
+  backoutPlan: readString(item, 'BackoutPlan'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  projectId: readString(item, 'ProjectId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor'),
+  approval: readApproval(item)
+});
+
+export const mapInteraction = (item: Record<string, unknown>): Interaction => ({
+  id: readId(item),
+  interactionId: readString(item, 'InteractionId'),
+  title: readString(item, 'Title'),
+  type: readEnum(item, 'InteractionType', enumValues(InteractionType), InteractionType.MEETING),
+  status: readEnum(item, 'Status', enumValues(InteractionStatus), InteractionStatus.LOGGED),
+  interactionDate: readDate(item, 'InteractionDate'),
+  contactName: readString(item, 'ContactName'),
+  contactEmail: readString(item, 'ContactEmail'),
+  organization: readString(item, 'Organization'),
+  summary: readString(item, 'Summary'),
+  nextSteps: readString(item, 'NextSteps'),
+  followUpDate: readDate(item, 'FollowUpDate'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  projectId: readString(item, 'ProjectId'),
+  vendorId: readString(item, 'VendorId'),
+  meetingId: readString(item, 'MeetingId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapKpi = (item: Record<string, unknown>): Kpi => ({
+  id: readId(item),
+  kpiId: readString(item, 'KpiId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  category: readEnum(item, 'Category', enumValues(KpiCategory), KpiCategory.OTHER),
+  status: readEnum(item, 'Status', enumValues(KpiStatus), KpiStatus.ACTIVE),
+  unit: readString(item, 'Unit'),
+  direction: readEnum(item, 'Direction', enumValues(KpiDirection), KpiDirection.HIGHER),
+  target: readNumber(item, 'Target'),
+  currentValue: readNumber(item, 'CurrentValue'),
+  // An empty column means "no previous value yet", which is not the same as zero.
+  previousValue: item.PreviousValue === undefined || item.PreviousValue === null || item.PreviousValue === '' ? undefined : readNumber(item, 'PreviousValue'),
+  measuredOn: readDate(item, 'MeasuredOn'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  projectId: readString(item, 'ProjectId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
 });

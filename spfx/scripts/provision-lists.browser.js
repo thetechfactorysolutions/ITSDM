@@ -120,6 +120,15 @@
     IT_04_Actions: [T('ActionId'), T('InitiativeId'), T('ProjectId'), N('Description'),
       C('Status', ['OPEN', 'IN_PROGRESS', 'BLOCKED', 'DONE', 'CANCELLED']), C('Priority', level),
       T('OwnerUPN'), D('DueDate'), D('CompletedDate'), T('PlannerTaskId')],
+    IT_05_KPIs: [T('KpiId'), N('Description'), C('Category', ['SERVICE', 'DELIVERY', 'FINANCE', 'PEOPLE', 'OTHER']), C('Status', ['ACTIVE', 'RETIRED']), T('Unit'),
+      C('Direction', ['HIGHER', 'LOWER']), NUM('Target'), NUM('CurrentValue'), NUM('PreviousValue'), D('MeasuredOn'), T('OwnerUPN'), T('ProjectId')],
+    IT_13_Incidents: [T('IncidentId'), N('Description'), C('Status', ['NEW', 'IN_PROGRESS', 'ON_HOLD', 'RESOLVED', 'CLOSED']), C('Severity', ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+      C('Category', ['APPLICATION', 'INFRASTRUCTURE', 'NETWORK', 'SECURITY', 'ACCESS', 'OTHER']), T('ReportedBy'), T('AssignedTo'), D('ReportedOn'), D('ResolvedOn'),
+      N('Resolution'), N('RootCause'), T('ProjectId'), T('VendorId')],
+    IT_14_Interactions: [T('InteractionId'), C('InteractionType', ['MEETING', 'CALL', 'EMAIL', 'WORKSHOP', 'OTHER']), C('Status', ['LOGGED', 'FOLLOW_UP', 'DONE']), D('InteractionDate'),
+      T('ContactName'), T('ContactEmail'), T('Organization'), N('Summary'), N('NextSteps'), D('FollowUpDate'), T('OwnerUPN'), T('ProjectId'), T('VendorId'), T('MeetingId')],
+    IT_15_ChangeRequests: [T('ChangeId'), N('Description'), N('Reason'), C('Status', ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'IMPLEMENTED']), C('ChangeType', ['STANDARD', 'NORMAL', 'EMERGENCY']),
+      C('Risk', ['LOW', 'MEDIUM', 'HIGH']), D('PlannedDate'), D('ImplementedDate'), N('BackoutPlan'), T('OwnerUPN'), T('ProjectId')],
     IT_06_Budgets: [T('BudgetId'), NUM('FiscalYear'), N('Description'), C('Status', ['DRAFT', 'APPROVED', 'CLOSED']), NUM('PlannedAmount'), T('OwnerUPN')],
     IT_07_CAPEX: [T('CapexId'), N('Description'), C('Status', ['PLANNED', 'COMMITTED', 'PAID', 'CANCELLED']), NUM('Amount'), D('ExpenseDate'), T('InvoiceRef'), T('OwnerUPN'),
       T('BudgetId'), T('ProjectId'), T('VendorId')],
@@ -145,7 +154,7 @@
   // Same seven approval columns on the four main lists (see src/rules/approvals.ts).
   const approvalFields = [T('ApprovalRule'), C('ApprovalStatus', ['NONE', 'PENDING', 'APPROVED', 'REJECTED']), T('Approver'),
     D('ApprovalRequestedOn'), D('ApprovalDecidedOn'), T('ApprovalDecidedBy'), N('ApprovalComment')];
-  ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts'].forEach((name) => { defs[name] = defs[name].concat(approvalFields); });
+  ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests'].forEach((name) => { defs[name] = defs[name].concat(approvalFields); });
 
   for (const [title, fields] of Object.entries(defs)) await ensureList(title, fields);
 
