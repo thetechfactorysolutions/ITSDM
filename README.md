@@ -17,7 +17,7 @@ ITSDM is a SharePoint Framework (SPFx) web part for IT Service Delivery Manageme
 - **Full-width section** support, **English and Spanish**, keyboard and screen-reader friendly.
 - Lists and sample data are created when the app is added to a site.
 
-Not implemented yet (see `docs/ROADMAP.md`): Planner, Power Automate and Graph integrations, app-level roles, automatic schema migration. All 22 lists have their screen.
+Not implemented yet (see `docs/ROADMAP.md`): Planner and Graph integrations (automatic alerts are documented as Power Automate recipes in `docs/POWER_AUTOMATE.md`), app-level roles, automatic schema migration. All 22 lists have their screen.
 
 ## Architecture
 - SPFx web part host (`spfx/`), React 17 + Fluent UI v8, TypeScript, PnPjs

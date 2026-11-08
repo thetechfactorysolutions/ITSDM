@@ -81,6 +81,6 @@ En cada elemento: la regla aprobada, el estado (Sin aprobación, Pendiente, Apro
 
 - **Una sola aprobación activa por elemento.** Si un cambio dispara dos reglas a la vez, se pide una cada vez.
 - **Quién puede decidir:** cualquiera con permiso de edición en la lista. La aplicación anota quién y cuándo, pero no lo impide. Si hace falta separar funciones, se hace con permisos de SharePoint.
-- **Los avisos los envías tú.** El envío automático queda para el bloque de Power Automate del roadmap.
+- **Los avisos los envías tú.** Si quieres que los recordatorios salgan solos, mira el flujo 4 de `docs/POWER_AUTOMATE.md`.
 - **Los enlaces de email y de Teams** dependen de tener un programa de correo y Teams configurados en el equipo; no se han probado contra tu tenant.
 - Las listas ya creadas no se migran: las columnas de aprobación aparecen al volver a añadir la aplicación al sitio, o con los scripts de `spfx/scripts/`.

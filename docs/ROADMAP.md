@@ -38,9 +38,11 @@ Diseño en `docs/superpowers/specs/2026-11-08-ronda-2-diseno.md`: vínculos con 
 
 - **Listas restantes, fase 4 (personas y conocimiento):** habilidades (nivel actual y objetivo, brecha, caducidad de certificaciones), planes de formación y base de conocimiento (fecha de revisión y aprobación para publicar políticas). Con esto las 22 listas ya tienen pantalla (diseño en `docs/superpowers/specs/2026-11-08-listas-fase4-diseno.md`). Campos y reglas elegidos por defecto, a ajustar.
 
+- **Power Automate (avisos automáticos):** recetas paso a paso para seis flujos (acciones vencidas por responsable, proyectos en riesgo, incidentes fuera de plazo, aprobaciones sin decidir, contratos por renovar y resumen semanal), con los filtros y expresiones exactos (`docs/POWER_AUTOMATE.md`). Los flujos se crean en el tenant: no van en el paquete y no se han podido probar allí.
+
 ## Aplazado tras la ronda 2 (pendiente de retomar)
 Quedó fuera a propósito. Para retomarlo, pedir "retoma el roadmap".
-- **Integraciones:** Planner (crear plan/tarea al activar iniciativas y proyectos), Power Automate (avisos de acciones vencidas y proyectos en riesgo, resumen semanal) y Microsoft Graph (perfil, foto, calendario). Necesitan permisos y flujos del tenant.
+- **Integraciones:** Planner (crear plan/tarea al activar iniciativas y proyectos), Power Automate (ya documentado como recetas; falta, si se quiere, un botón en la app que dispare un flujo) y Microsoft Graph (perfil, foto, calendario). Necesitan permisos y flujos del tenant.
 - **Roles propios dentro de la aplicación.** Hoy mandan los permisos de SharePoint. (Las **aprobaciones** ya están hechas: ver `docs/APROBACIONES.md`. Quedan fuera los flujos de varios aprobadores y el envío automático de avisos, que dependen de Power Automate.)
 - **Migración de esquemas:** cambiar columnas de listas ya creadas sin borrarlas.
 - **Responsable como columna de persona** de SharePoint (hoy es el email en texto) y **columnas de búsqueda** reales entre listas.
