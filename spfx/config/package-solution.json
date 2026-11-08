@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "itsdm-client-side-solution",
+    "id": "0c53f3a8-ee89-4924-802e-fc71d0d5f607",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.23.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "IT Management Hub: manage the IT portfolio."
+      },
+      "longDescription": {
+        "default": "Web part for IT managers to track ideas, initiatives, projects and actions stored in SharePoint lists, with a dashboard of what is overdue or at risk."
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "itsdm Feature",
+        "description": "The feature that activates elements of the itsdm solution.",
+        "id": "86dd451b-4b27-42d3-9e69-6ed9a130e313",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/itsdm.sppkg"
+  }
+}
