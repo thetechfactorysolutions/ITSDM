@@ -240,6 +240,50 @@ const LISTS = [
     })
   },
   {
+    title: 'IT_16_TeamSkills', file: 'schema_skills.xml', description: 'Skills per person with the level reached and the level expected; certifications with expiry',
+    fields: [T('SkillId'), T('PersonUPN'), C('Category', ['TECHNICAL', 'PROCESS', 'TOOLING', 'SOFT', 'OTHER']), C('Level', ['BASIC', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']),
+      C('TargetLevel', ['BASIC', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']), C('Status', ['ACTIVE', 'ARCHIVED']), D('LastAssessed'), T('Certification'), D('CertificationExpiry'), N('Notes')],
+    rows: (day) => [
+      ['Microsoft 365 administration', 'SKL-DEMO-001', 'TOOLING', 'ADVANCED', 'ADVANCED', -30, 'MS-102', 200],
+      ['Azure infrastructure', 'SKL-DEMO-002', 'TECHNICAL', 'INTERMEDIATE', 'ADVANCED', -45, 'AZ-104', 30],
+      ['Incident management', 'SKL-DEMO-003', 'PROCESS', 'BASIC', 'INTERMEDIATE', -60, '', null]
+    ].map(([t, id, cat, level, target, assessed, cert, expiry]) => {
+      const row = { Title: t, SkillId: id, PersonUPN: SAMPLE_OWNER, Category: cat, Level: level, TargetLevel: target, Status: 'ACTIVE', LastAssessed: day(assessed), Notes: 'Sample skill record.' };
+      if (cert) { Object.assign(row, { Certification: cert, CertificationExpiry: day(expiry) }); }
+      return row;
+    })
+  },
+  {
+    title: 'IT_17_TrainingPlans', file: 'schema_training.xml', description: 'Training plans per person, linked to the skill they work on',
+    fields: [T('TrainingId'), C('Status', ['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']), C('TrainingType', ['COURSE', 'CERTIFICATION', 'WORKSHOP', 'SELF_STUDY', 'MENTORING']),
+      T('PersonUPN'), T('Provider'), T('SkillId'), T('VendorId'), D('StartDate'), D('DueDate'), D('CompletedDate'), NUM('Cost'), N('Notes')],
+    rows: (day) => [
+      ['Renew the Azure administrator certification', 'TRN-DEMO-001', 'IN_PROGRESS', 'CERTIFICATION', 'Microsoft Learn', 'SKL-DEMO-002', -10, 20, null, 165],
+      ['ITIL foundations course', 'TRN-DEMO-002', 'PLANNED', 'COURSE', 'Northwind Training', 'SKL-DEMO-003', -20, -3, null, 450],
+      ['Mentoring on the service desk', 'TRN-DEMO-003', 'COMPLETED', 'MENTORING', 'Internal', 'SKL-DEMO-003', -60, -30, -32, 0]
+    ].map(([t, id, st, type, provider, skill, start, due, done, cost]) => {
+      const row = { Title: t, TrainingId: id, Status: st, TrainingType: type, PersonUPN: SAMPLE_OWNER, Provider: provider, SkillId: skill, StartDate: day(start), DueDate: day(due), Cost: cost, Notes: 'Sample training plan.' };
+      if (done !== null) { row.CompletedDate = day(done); }
+      return row;
+    })
+  },
+  {
+    title: 'IT_18_KnowledgeBase', file: 'schema_knowledge.xml', description: 'Articles, runbooks and policies; publishing a policy needs a recorded approval',
+    fields: [T('ArticleId'), N('Summary'), N('Body'), C('Category', ['HOW_TO', 'RUNBOOK', 'FAQ', 'POLICY', 'REFERENCE']), C('Status', ['DRAFT', 'IN_REVIEW', 'PUBLISHED', 'ARCHIVED']),
+      T('OwnerUPN'), T('Tags'), D('PublishedOn'), D('ReviewDate'), T('ProjectId'), T('VendorId'), T('IncidentId')],
+    rows: (day) => [
+      ['Reset a user password', 'KB-DEMO-001', 'HOW_TO', 'PUBLISHED', 'How the service desk resets a password.', '1. Verify the identity. 2. Reset in the admin centre. 3. Ask the user to change it at sign-in.', 'password, service desk', -185, -5, '', false],
+      ['Restart the print spooler', 'KB-DEMO-002', 'RUNBOOK', 'PUBLISHED', 'Fix for a stuck print queue.', 'Restart the Print Spooler service and clear the queue folder.', 'printer', -30, 150, 'INC-DEMO-003', false],
+      ['Acceptable use policy', 'KB-DEMO-003', 'POLICY', 'IN_REVIEW', 'What staff may do with company devices.', 'Draft text of the policy.', 'policy, security', null, null, '', true]
+    ].map(([t, id, cat, st, summary, body, tags, published, review, incident, pending]) => {
+      const row = { Title: t, ArticleId: id, Summary: summary, Body: body, Category: cat, Status: st, OwnerUPN: SAMPLE_OWNER, Tags: tags, IncidentId: incident };
+      if (published !== null) { Object.assign(row, { PublishedOn: day(published), ReviewDate: day(review) }); }
+      // The policy waits for a recorded approval before it can be published.
+      if (pending) { Object.assign(row, { ApprovalRule: 'article.publishPolicy', ApprovalStatus: 'PENDING', Approver: SAMPLE_OWNER, ApprovalRequestedOn: day(-1) }); }
+      return row;
+    })
+  },
+  {
     title: 'IT_19_Reviews', file: 'schema_reviews.xml', description: 'Periodic reviews of projects and initiatives',
     fields: [T('ReviewId'), C('ReviewType', ['STATUS', 'RISK', 'FINANCIAL', 'CLOSURE']), C('Status', ['SCHEDULED', 'COMPLETED', 'CANCELLED']),
       C('Health', ['GREEN', 'AMBER', 'RED']), D('ReviewDate'), D('NextReviewDate'), N('Summary'), N('NextSteps'), T('OwnerUPN'), T('ProjectId'), T('InitiativeId')],
@@ -291,7 +335,7 @@ const APPROVAL_FIELDS = [
   T('ApprovalRule'), C('ApprovalStatus', ['NONE', 'PENDING', 'APPROVED', 'REJECTED']), T('Approver'),
   D('ApprovalRequestedOn'), D('ApprovalDecidedOn'), T('ApprovalDecidedBy'), N('ApprovalComment')
 ];
-const WITH_APPROVALS = ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests'];
+const WITH_APPROVALS = ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests', 'IT_18_KnowledgeBase'];
 for (const list of LISTS) {
   if (WITH_APPROVALS.indexOf(list.title) > -1) {
     list.fields = list.fields.concat(APPROVAL_FIELDS);

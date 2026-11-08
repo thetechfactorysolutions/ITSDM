@@ -5,6 +5,7 @@ import { buildApprovalPayload } from '../../entities/payloads';
 import { ActionItem, ActionStatus, ApprovalStatus, IApprovalState, IdeaStatus, Initiative, InitiativeStatus, ProjectStatus } from '../../models';
 import { budgetFigures, contractAlert, isLiveBudget, needsContractAttention } from '../../rules/finance';
 import { isHighActiveRisk } from '../../rules/governance';
+import { certificationAlert, hasSkillGap, isReviewDue, isTrainingOverdue, needsCertificationAttention } from '../../rules/people';
 import { isActiveKpi, isFollowUpOverdue, isIncidentOpen, isIncidentOverdue, kpiHealth } from '../../rules/operations';
 import { ApprovalEntity, decideApproval, findRule, getApproval, isPending } from '../../rules/approvals';
 import { isActionDueToday, isActionDueWithinDays, isOverdueAction, isProjectAtRiskByVariance } from '../../rules/businessRules';
@@ -28,7 +29,7 @@ const Dashboard: React.FC = () => {
   const theme = getTheme();
   const { userEmail, ideas: ideasState, initiatives: initiativesState, projects: projectsState, actions: actionsState, risks: risksState,
     budgets: budgetsState, capex: capexState, opex: opexState, contracts: contractsState,
-    incidents: incidentsState, changes: changesState, interactions: interactionsState, kpis: kpisState } = useHubData();
+    incidents: incidentsState, changes: changesState, interactions: interactionsState, kpis: kpisState, skills: skillsState, trainings: trainingsState, articles: articlesState } = useHubData();
   const [actionError, setActionError] = React.useState<string | undefined>();
   const [deciding, setDeciding] = React.useState<{ row: IPendingApproval; decision: ApprovalStatus.APPROVED | ApprovalStatus.REJECTED } | undefined>();
 
@@ -53,13 +54,19 @@ const Dashboard: React.FC = () => {
     capexState.items.filter(isPending).map(c => ({ key: `capex-${c.id}`, entity: 'capex' as ApprovalEntity, id: c.id, title: c.title, approval: getApproval(c), update: capexState.update })),
     opexState.items.filter(isPending).map(o => ({ key: `opex-${o.id}`, entity: 'opex' as ApprovalEntity, id: o.id, title: o.title, approval: getApproval(o), update: opexState.update })),
     contractsState.items.filter(isPending).map(c => ({ key: `contracts-${c.id}`, entity: 'contracts' as ApprovalEntity, id: c.id, title: c.title, approval: getApproval(c), update: contractsState.update })),
-    changesState.items.filter(isPending).map(c => ({ key: `changes-${c.id}`, entity: 'changes' as ApprovalEntity, id: c.id, title: c.title, approval: getApproval(c), update: changesState.update }))
+    changesState.items.filter(isPending).map(c => ({ key: `changes-${c.id}`, entity: 'changes' as ApprovalEntity, id: c.id, title: c.title, approval: getApproval(c), update: changesState.update })),
+    articlesState.items.filter(isPending).map(a => ({ key: `articles-${a.id}`, entity: 'articles' as ApprovalEntity, id: a.id, title: a.title, approval: getApproval(a), update: articlesState.update }))
   );
   const highRisks = risksState.items.filter(isHighActiveRisk);
   const openIncidents = incidentsState.items.filter(i => isIncidentOpen(i.status));
   const overdueIncidents = openIncidents.filter(i => isIncidentOverdue(i, now));
   const offTargetKpis = kpisState.items.filter(k => isActiveKpi(k) && kpiHealth(k) === 'OFF_TARGET');
   const followUpsDue = interactionsState.items.filter(i => isFollowUpOverdue(i, now));
+  const skillGaps = skillsState.items.filter(hasSkillGap);
+  const certsToAttend = skillsState.items.filter(sk => needsCertificationAttention(sk, now));
+  const certsExpired = certsToAttend.filter(sk => certificationAlert(sk, now).alert === 'EXPIRED');
+  const trainingsOverdue = trainingsState.items.filter(x => isTrainingOverdue(x, now));
+  const articlesToReview = articlesState.items.filter(a => isReviewDue(a, now));
   const contractsToAttend = contractsState.items.filter(c => needsContractAttention(c, now));
   const lapsedContracts = contractsToAttend.filter(c => contractAlert(c, now).alert === 'LAPSED');
   const liveBudgets = budgetsState.items.filter(isLiveBudget).map(b => ({ budget: b, figures: budgetFigures(b, capexState.items, opexState.items) }));
@@ -156,6 +163,18 @@ const Dashboard: React.FC = () => {
   if (followUpsDue.length > 0) {
     attention.push(t('dashboard.attentionFollowUps', { count: followUpsDue.length }));
   }
+  if (certsExpired.length > 0) {
+    attention.push(t('dashboard.attentionCertsExpired', { count: certsExpired.length }));
+  }
+  if (certsToAttend.length > certsExpired.length) {
+    attention.push(t('dashboard.attentionCertsExpiring', { count: certsToAttend.length - certsExpired.length }));
+  }
+  if (trainingsOverdue.length > 0) {
+    attention.push(t('dashboard.attentionTrainings', { count: trainingsOverdue.length }));
+  }
+  if (articlesToReview.length > 0) {
+    attention.push(t('dashboard.attentionArticles', { count: articlesToReview.length }));
+  }
   if (contractsToAttend.length > 0) {
     attention.push(t('dashboard.attentionContracts', { count: contractsToAttend.length }));
   }
@@ -191,6 +210,10 @@ const Dashboard: React.FC = () => {
         <KpiTile label={t('dashboard.followUpsDue')} value={followUpsDue.length} tone={followUpsDue.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.contractsToRenew')} value={contractsToAttend.length} tone={lapsedContracts.length > 0 ? 'danger' : contractsToAttend.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.budgetsOver')} value={overBudgets.length} tone={overBudgets.length > 0 ? 'danger' : nearBudgets.length > 0 ? 'warning' : 'good'} />
+        <KpiTile label={t('dashboard.skillGaps')} value={skillGaps.length} tone={skillGaps.length > 0 ? 'warning' : 'good'} />
+        <KpiTile label={t('dashboard.certsToAttend')} value={certsToAttend.length} tone={certsExpired.length > 0 ? 'danger' : certsToAttend.length > 0 ? 'warning' : 'good'} />
+        <KpiTile label={t('dashboard.trainingsOverdue')} value={trainingsOverdue.length} tone={trainingsOverdue.length > 0 ? 'warning' : 'good'} />
+        <KpiTile label={t('dashboard.articlesToReview')} value={articlesToReview.length} tone={articlesToReview.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.highRisks')} value={highRisks.length} tone={highRisks.length > 0 ? 'danger' : 'good'} />
         <KpiTile label={t('dashboard.projectsAtRisk')} value={projectsAtRisk.length} tone={projectsAtRisk.length > 0 ? 'danger' : 'good'} />
       </div>

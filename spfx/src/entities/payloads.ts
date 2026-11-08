@@ -1,5 +1,5 @@
 import {
-  ActionItem, Budget, CapexItem, ChangeRequest, Contract, Decision, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Vendor
+  ActionItem, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
@@ -293,6 +293,53 @@ export const buildKpiPayload = (kpi: Kpi): Record<string, unknown> => ({
 });
 
 /** Columns requested from each list. Asking only for what the app uses keeps the responses small. */
+export const buildSkillPayload = (skill: Skill): Record<string, unknown> => ({
+  Title: skill.title.trim(),
+  SkillId: skill.skillId,
+  PersonUPN: skill.personUpn,
+  Category: skill.category,
+  Level: skill.level,
+  TargetLevel: skill.targetLevel,
+  Status: skill.status,
+  LastAssessed: dayKeyToSharePoint(skill.lastAssessed),
+  Certification: skill.certification,
+  CertificationExpiry: dayKeyToSharePoint(skill.certificationExpiry),
+  Notes: skill.notes
+});
+
+export const buildTrainingPayload = (training: Training): Record<string, unknown> => ({
+  Title: training.title.trim(),
+  TrainingId: training.trainingId,
+  Status: training.status,
+  TrainingType: training.type,
+  PersonUPN: training.personUpn,
+  Provider: training.provider,
+  SkillId: training.skillId ?? '',
+  VendorId: training.vendorId ?? '',
+  StartDate: dayKeyToSharePoint(training.startDate),
+  DueDate: dayKeyToSharePoint(training.dueDate),
+  CompletedDate: dayKeyToSharePoint(training.completedDate),
+  Cost: training.cost,
+  Notes: training.notes
+});
+
+export const buildArticlePayload = (article: Article): Record<string, unknown> => ({
+  Title: article.title.trim(),
+  ArticleId: article.articleId,
+  Summary: article.summary,
+  Body: article.body,
+  Category: article.category,
+  Status: article.status,
+  OwnerUPN: article.ownerUpn,
+  Tags: article.tags,
+  PublishedOn: dayKeyToSharePoint(article.publishedOn),
+  ReviewDate: dayKeyToSharePoint(article.reviewDate),
+  ProjectId: article.projectId ?? '',
+  VendorId: article.vendorId ?? '',
+  IncidentId: article.incidentId ?? '',
+  ...buildApprovalPayload(getApproval(article))
+});
+
 export const SELECT = {
   ideas: ['Id', 'Title', 'IdeaId', 'Description', 'Status', 'OwnerUPN', 'SponsorUPN', 'EstimatedValue', 'TargetDate', 'Tags', 'ConvertedInitiativeId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   initiatives: ['Id', 'Title', 'InitiativeId', 'Description', 'Status', 'OwnerUPN', 'ProgressPct', 'TargetDate', 'SourceIdeaId', 'PlannerPlanId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
@@ -312,6 +359,9 @@ export const SELECT = {
   changes: ['Id', 'Title', 'ChangeId', 'Description', 'Reason', 'Status', 'ChangeType', 'Risk', 'PlannedDate', 'ImplementedDate', 'BackoutPlan', 'OwnerUPN', 'ProjectId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   interactions: ['Id', 'Title', 'InteractionId', 'InteractionType', 'Status', 'InteractionDate', 'ContactName', 'ContactEmail', 'Organization', 'Summary', 'NextSteps', 'FollowUpDate', 'OwnerUPN', 'ProjectId', 'VendorId', 'MeetingId', 'Created', 'Modified', 'Editor/Title'],
   kpis: ['Id', 'Title', 'KpiId', 'Description', 'Category', 'Status', 'Unit', 'Direction', 'Target', 'CurrentValue', 'PreviousValue', 'MeasuredOn', 'OwnerUPN', 'ProjectId', 'Created', 'Modified', 'Editor/Title'],
+  skills: ['Id', 'Title', 'SkillId', 'PersonUPN', 'Category', 'Level', 'TargetLevel', 'Status', 'LastAssessed', 'Certification', 'CertificationExpiry', 'Notes', 'Created', 'Modified', 'Editor/Title'],
+  trainings: ['Id', 'Title', 'TrainingId', 'Status', 'TrainingType', 'PersonUPN', 'Provider', 'SkillId', 'VendorId', 'StartDate', 'DueDate', 'CompletedDate', 'Cost', 'Notes', 'Created', 'Modified', 'Editor/Title'],
+  articles: ['Id', 'Title', 'ArticleId', 'Summary', 'Body', 'Category', 'Status', 'OwnerUPN', 'Tags', 'PublishedOn', 'ReviewDate', 'ProjectId', 'VendorId', 'IncidentId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   notes: ['Id', 'Title', 'NoteId', 'Body', 'Category', 'Status', 'MeetingId', 'InitiativeId', 'ProjectId', 'Created', 'Modified', 'Editor/Title']
 };
 

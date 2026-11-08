@@ -35,6 +35,14 @@ export interface IAppConfig {
     /** A KPI within this ratio of its target is "at risk" instead of "off target". */
     kpiTolerance: number;
   };
+  people: {
+    /** A certification that expires within this many days is flagged. */
+    certificationWarningDays: number;
+  };
+  knowledge: {
+    /** Days after publishing until an article should be read again. */
+    reviewDays: number;
+  };
   approvals: {
     /** A project whose forecast exceeds its budget by more than this ratio needs approval. */
     overBudgetRatio: number;
@@ -77,6 +85,12 @@ export const AppConfig: IAppConfig = {
   service: {
     slaDays: { LOW: 14, MEDIUM: 7, HIGH: 3, CRITICAL: 1 },
     kpiTolerance: 0.1
+  },
+  people: {
+    certificationWarningDays: 60
+  },
+  knowledge: {
+    reviewDays: 180
   },
   approvals: {
     overBudgetRatio: 0.1,

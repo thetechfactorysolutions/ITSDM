@@ -13,6 +13,7 @@ Algunos cambios no deberían hacerse sin el visto bueno de otra persona. La apli
 | `opex.commit` | OPEX | un gasto cuyo importe **anual** (importe x 12, 4 o 1 según la frecuencia) es de 50.000 o más pasa a Comprometido o Pagado | Activa |
 | `contract.activate` | Contratos | un contrato de **50.000 o más** de importe anual pasa a **Activo** (también al renovarlo) | Activa |
 | `change.approve` | Cambios | un cambio de **riesgo alto** o de **emergencia** pasa a **Aprobado** | Activa |
+| `article.publishPolicy` | Base de conocimiento | un artículo de categoría **Política** pasa a **Publicado** | Activa |
 | `initiative.activate` | Iniciativas | una iniciativa pasa a **Activa** | **Desactivada** (ejemplo) |
 
 Los umbrales (10 %, 100.000 y 50.000) están en `spfx/src/config/AppConfig.ts`, en `approvals` (`overBudgetRatio`, `highBudget` y `highSpend`).

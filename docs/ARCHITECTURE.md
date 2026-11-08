@@ -7,7 +7,7 @@
 - TypeScript, no extra runtime dependencies (charts are drawn as SVG)
 
 ## Layers
-1. **Presentation** (`src/components`): one screen per tab (Dashboard, Ideas, Initiatives, Projects, Actions, Finance, Vendors, Operations, Governance, Notes, Import, Help).
+1. **Presentation** (`src/components`): one screen per tab (Dashboard, Ideas, Initiatives, Projects, Actions, Finance, Vendors, Operations, People (skills, training, knowledge base), Governance, Notes, Import, Help).
    - `shared/EntityScreen` is the generic list screen: command bar, search, status filter, "show closed", sorting, create/edit panel, details, archive, delete with confirmation, CSV export/import and inline status change. Ideas, Initiatives, Projects, Actions, Budgets, CAPEX, OPEX, Vendors, Contracts, Incidents, Changes, Interactions, KPIs, Risks, Decisions, Lessons, Reviews, Notes and Meetings configure it; they do not repeat it.
    - `shared/HubData` loads every list once for the whole web part and shares it through context, so tabs do not refetch and a change in one tab shows up in the others.
    - `shared/DateField`, `UserField`, `LinkField` are the form inputs (calendar, people search, link picker).
@@ -18,6 +18,7 @@
    - `validation`: form validation (returns translation keys).
    - `dates`, `ids`, `csv`, `tableView`: date handling without timezone shifts, readable ids, CSV, search/filter/sort.
    - `transcriptImport`, `transcriptCommit`, `importPrompt`: the import from a meeting (see `IMPORTAR_REUNIONES.md`).
+   - `people`: skill gaps, certification alerts, late training plans, articles due for review, and the status rules of skills, training plans and articles.
    - `operations`: incident deadlines (SLA) and overdue, KPI health and trend, follow-ups, and the status rules of incidents, changes, interactions and KPIs.
    - `finance`: budget figures (committed, paid, % used and level), annualised OPEX, contract renewal alerts and the status rules of budgets, expenses, vendors and contracts.
    - `governance`: risk score and level, and the status rules of risks, decisions, lessons and reviews.

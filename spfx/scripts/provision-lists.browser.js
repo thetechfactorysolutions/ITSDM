@@ -142,6 +142,12 @@
       C('Impact', ['LOW', 'MEDIUM', 'HIGH']), T('OwnerUPN'), N('Mitigation'), D('DueDate'), T('ProjectId'), T('InitiativeId'), T('MeetingId')],
     IT_12_Decisions: [T('DecisionId'), N('Description'), N('Rationale'), C('Status', ['PROPOSED', 'DECIDED', 'SUPERSEDED']), T('DecidedBy'), D('DecisionDate'),
       T('ProjectId'), T('InitiativeId'), T('MeetingId')],
+    IT_16_TeamSkills: [T('SkillId'), T('PersonUPN'), C('Category', ['TECHNICAL', 'PROCESS', 'TOOLING', 'SOFT', 'OTHER']), C('Level', ['BASIC', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']),
+      C('TargetLevel', ['BASIC', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']), C('Status', ['ACTIVE', 'ARCHIVED']), D('LastAssessed'), T('Certification'), D('CertificationExpiry'), N('Notes')],
+    IT_17_TrainingPlans: [T('TrainingId'), C('Status', ['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']), C('TrainingType', ['COURSE', 'CERTIFICATION', 'WORKSHOP', 'SELF_STUDY', 'MENTORING']),
+      T('PersonUPN'), T('Provider'), T('SkillId'), T('VendorId'), D('StartDate'), D('DueDate'), D('CompletedDate'), NUM('Cost'), N('Notes')],
+    IT_18_KnowledgeBase: [T('ArticleId'), N('Summary'), N('Body'), C('Category', ['HOW_TO', 'RUNBOOK', 'FAQ', 'POLICY', 'REFERENCE']), C('Status', ['DRAFT', 'IN_REVIEW', 'PUBLISHED', 'ARCHIVED']),
+      T('OwnerUPN'), T('Tags'), D('PublishedOn'), D('ReviewDate'), T('ProjectId'), T('VendorId'), T('IncidentId')],
     IT_19_Reviews: [T('ReviewId'), C('ReviewType', ['STATUS', 'RISK', 'FINANCIAL', 'CLOSURE']), C('Status', ['SCHEDULED', 'COMPLETED', 'CANCELLED']),
       C('Health', ['GREEN', 'AMBER', 'RED']), D('ReviewDate'), D('NextReviewDate'), N('Summary'), N('NextSteps'), T('OwnerUPN'), T('ProjectId'), T('InitiativeId')],
     IT_20_LessonsLearned: [T('LessonId'), N('Description'), N('Recommendation'), C('Category', ['PROCESS', 'TECHNOLOGY', 'PEOPLE', 'VENDOR', 'OTHER']),
@@ -154,7 +160,7 @@
   // Same seven approval columns on the four main lists (see src/rules/approvals.ts).
   const approvalFields = [T('ApprovalRule'), C('ApprovalStatus', ['NONE', 'PENDING', 'APPROVED', 'REJECTED']), T('Approver'),
     D('ApprovalRequestedOn'), D('ApprovalDecidedOn'), T('ApprovalDecidedBy'), N('ApprovalComment')];
-  ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests'].forEach((name) => { defs[name] = defs[name].concat(approvalFields); });
+  ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests', 'IT_18_KnowledgeBase'].forEach((name) => { defs[name] = defs[name].concat(approvalFields); });
 
   for (const [title, fields] of Object.entries(defs)) await ensureList(title, fields);
 

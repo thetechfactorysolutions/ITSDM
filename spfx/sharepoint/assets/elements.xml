@@ -141,6 +141,33 @@
       </Rows>
     </Data>
   </ListInstance>
+  <ListInstance Title="IT_16_TeamSkills" Description="Skills per person with the level reached and the level expected; certifications with expiry" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_16_TeamSkills" CustomSchema="schema_skills.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Microsoft 365 administration</Field><Field Name="SkillId">SKL-DEMO-001</Field><Field Name="PersonUPN">demo.owner@example.com</Field><Field Name="Category">TOOLING</Field><Field Name="Level">ADVANCED</Field><Field Name="TargetLevel">ADVANCED</Field><Field Name="Status">ACTIVE</Field><Field Name="LastAssessed">2026-10-09T12:00:00Z</Field><Field Name="Notes">Sample skill record.</Field><Field Name="Certification">MS-102</Field><Field Name="CertificationExpiry">2027-05-27T12:00:00Z</Field></Row>
+          <Row><Field Name="Title">Azure infrastructure</Field><Field Name="SkillId">SKL-DEMO-002</Field><Field Name="PersonUPN">demo.owner@example.com</Field><Field Name="Category">TECHNICAL</Field><Field Name="Level">INTERMEDIATE</Field><Field Name="TargetLevel">ADVANCED</Field><Field Name="Status">ACTIVE</Field><Field Name="LastAssessed">2026-09-24T12:00:00Z</Field><Field Name="Notes">Sample skill record.</Field><Field Name="Certification">AZ-104</Field><Field Name="CertificationExpiry">2026-12-08T12:00:00Z</Field></Row>
+          <Row><Field Name="Title">Incident management</Field><Field Name="SkillId">SKL-DEMO-003</Field><Field Name="PersonUPN">demo.owner@example.com</Field><Field Name="Category">PROCESS</Field><Field Name="Level">BASIC</Field><Field Name="TargetLevel">INTERMEDIATE</Field><Field Name="Status">ACTIVE</Field><Field Name="LastAssessed">2026-09-09T12:00:00Z</Field><Field Name="Notes">Sample skill record.</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
+  <ListInstance Title="IT_17_TrainingPlans" Description="Training plans per person, linked to the skill they work on" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_17_TrainingPlans" CustomSchema="schema_training.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Renew the Azure administrator certification</Field><Field Name="TrainingId">TRN-DEMO-001</Field><Field Name="Status">IN_PROGRESS</Field><Field Name="TrainingType">CERTIFICATION</Field><Field Name="PersonUPN">demo.owner@example.com</Field><Field Name="Provider">Microsoft Learn</Field><Field Name="SkillId">SKL-DEMO-002</Field><Field Name="StartDate">2026-10-29T12:00:00Z</Field><Field Name="DueDate">2026-11-28T12:00:00Z</Field><Field Name="Cost">165</Field><Field Name="Notes">Sample training plan.</Field></Row>
+          <Row><Field Name="Title">ITIL foundations course</Field><Field Name="TrainingId">TRN-DEMO-002</Field><Field Name="Status">PLANNED</Field><Field Name="TrainingType">COURSE</Field><Field Name="PersonUPN">demo.owner@example.com</Field><Field Name="Provider">Northwind Training</Field><Field Name="SkillId">SKL-DEMO-003</Field><Field Name="StartDate">2026-10-19T12:00:00Z</Field><Field Name="DueDate">2026-11-05T12:00:00Z</Field><Field Name="Cost">450</Field><Field Name="Notes">Sample training plan.</Field></Row>
+          <Row><Field Name="Title">Mentoring on the service desk</Field><Field Name="TrainingId">TRN-DEMO-003</Field><Field Name="Status">COMPLETED</Field><Field Name="TrainingType">MENTORING</Field><Field Name="PersonUPN">demo.owner@example.com</Field><Field Name="Provider">Internal</Field><Field Name="SkillId">SKL-DEMO-003</Field><Field Name="StartDate">2026-09-09T12:00:00Z</Field><Field Name="DueDate">2026-10-09T12:00:00Z</Field><Field Name="Cost">0</Field><Field Name="Notes">Sample training plan.</Field><Field Name="CompletedDate">2026-10-07T12:00:00Z</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
+  <ListInstance Title="IT_18_KnowledgeBase" Description="Articles, runbooks and policies; publishing a policy needs a recorded approval" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_18_KnowledgeBase" CustomSchema="schema_knowledge.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Reset a user password</Field><Field Name="ArticleId">KB-DEMO-001</Field><Field Name="Summary">How the service desk resets a password.</Field><Field Name="Body">1. Verify the identity. 2. Reset in the admin centre. 3. Ask the user to change it at sign-in.</Field><Field Name="Category">HOW_TO</Field><Field Name="Status">PUBLISHED</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="Tags">password, service desk</Field><Field Name="IncidentId"></Field><Field Name="PublishedOn">2026-05-07T12:00:00Z</Field><Field Name="ReviewDate">2026-11-03T12:00:00Z</Field></Row>
+          <Row><Field Name="Title">Restart the print spooler</Field><Field Name="ArticleId">KB-DEMO-002</Field><Field Name="Summary">Fix for a stuck print queue.</Field><Field Name="Body">Restart the Print Spooler service and clear the queue folder.</Field><Field Name="Category">RUNBOOK</Field><Field Name="Status">PUBLISHED</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="Tags">printer</Field><Field Name="IncidentId">INC-DEMO-003</Field><Field Name="PublishedOn">2026-10-09T12:00:00Z</Field><Field Name="ReviewDate">2027-04-07T12:00:00Z</Field></Row>
+          <Row><Field Name="Title">Acceptable use policy</Field><Field Name="ArticleId">KB-DEMO-003</Field><Field Name="Summary">What staff may do with company devices.</Field><Field Name="Body">Draft text of the policy.</Field><Field Name="Category">POLICY</Field><Field Name="Status">IN_REVIEW</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="Tags">policy, security</Field><Field Name="IncidentId"></Field><Field Name="ApprovalRule">article.publishPolicy</Field><Field Name="ApprovalStatus">PENDING</Field><Field Name="Approver">demo.owner@example.com</Field><Field Name="ApprovalRequestedOn">2026-11-07T12:00:00Z</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
   <ListInstance Title="IT_19_Reviews" Description="Periodic reviews of projects and initiatives" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_19_Reviews" CustomSchema="schema_reviews.xml">
     <Data>
       <Rows>

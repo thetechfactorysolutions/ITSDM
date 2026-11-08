@@ -5,12 +5,12 @@ import { EXPAND_EDITOR, SELECT } from '../../entities/payloads';
 import { IListHookState, useListItems } from '../../hooks/useListItems';
 import { useSharePointService } from '../../hooks/useSharePointService';
 import {
-  ActionItem, Budget, CapexItem, ChangeRequest, Contract, Decision, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Vendor
+  ActionItem, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../../models';
 import { IQueryOptions, SharePointService } from '../../services/SharePointService';
 import {
   mapAction, mapBudget, mapCapex, mapChange, mapContract, mapDecision, mapIdea, mapIncident, mapInitiative, mapInteraction, mapKpi, mapLesson, mapMeeting, mapNote, mapOpex, mapProject,
-  mapReview, mapRisk, mapVendor
+  mapArticle, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
 } from './mappers';
 
 export interface IHubData {
@@ -35,6 +35,9 @@ export interface IHubData {
   changes: IListHookState<ChangeRequest>;
   interactions: IListHookState<Interaction>;
   kpis: IListHookState<Kpi>;
+  skills: IListHookState<Skill>;
+  trainings: IListHookState<Training>;
+  articles: IListHookState<Article>;
 }
 
 export const HubDataContext = React.createContext<IHubData | undefined>(undefined);
@@ -64,6 +67,9 @@ const INCIDENTS_QUERY = query(SELECT.incidents);
 const CHANGES_QUERY = query(SELECT.changes);
 const INTERACTIONS_QUERY = query(SELECT.interactions);
 const KPIS_QUERY = query(SELECT.kpis);
+const SKILLS_QUERY = query(SELECT.skills);
+const TRAININGS_QUERY = query(SELECT.trainings);
+const ARTICLES_QUERY = query(SELECT.articles);
 
 /**
  * Loads each list once for the whole web part. Every tab reads the same state, so switching
@@ -91,6 +97,9 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ context, chil
   const changes = useListItems<ChangeRequest>(service, listNames.changeRequests, mapChange, CHANGES_QUERY);
   const interactions = useListItems<Interaction>(service, listNames.interactions, mapInteraction, INTERACTIONS_QUERY);
   const kpis = useListItems<Kpi>(service, listNames.kpis, mapKpi, KPIS_QUERY);
+  const skills = useListItems<Skill>(service, listNames.teamSkills, mapSkill, SKILLS_QUERY);
+  const trainings = useListItems<Training>(service, listNames.trainingPlans, mapTraining, TRAININGS_QUERY);
+  const articles = useListItems<Article>(service, listNames.knowledgeBase, mapArticle, ARTICLES_QUERY);
 
   const value: IHubData = {
     service,
@@ -113,7 +122,10 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ context, chil
     incidents,
     changes,
     interactions,
-    kpis
+    kpis,
+    skills,
+    trainings,
+    articles
   };
 
   return <HubDataContext.Provider value={value}>{children}</HubDataContext.Provider>;

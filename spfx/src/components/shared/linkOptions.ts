@@ -48,3 +48,20 @@ export const useLinkOptions = (): ILinkOptions => {
   const meetingOptions = React.useMemo(() => meetings.items.map(m => ({ id: m.meetingId, title: m.title })), [meetings.items]);
   return { initiativeOptions, projectOptions, meetingOptions };
 };
+
+export interface IPeopleLinkOptions {
+  skillOptions: ILinkOption[];
+  vendorOptions: ILinkOption[];
+  projectOptions: ILinkOption[];
+  incidentOptions: ILinkOption[];
+}
+
+/** The choices for skill, vendor, project and incident pickers, used by the people and knowledge screens. */
+export const usePeopleLinkOptions = (): IPeopleLinkOptions => {
+  const { skills, vendors, projects, incidents } = useHubData();
+  const skillOptions = React.useMemo(() => skills.items.map(s => ({ id: s.skillId, title: `${s.title} · ${s.personUpn}` })), [skills.items]);
+  const vendorOptions = React.useMemo(() => vendors.items.map(v => ({ id: v.vendorId, title: v.title })), [vendors.items]);
+  const projectOptions = React.useMemo(() => projects.items.map(p => ({ id: p.projectId, title: p.title })), [projects.items]);
+  const incidentOptions = React.useMemo(() => incidents.items.map(i => ({ id: i.incidentId, title: i.title })), [incidents.items]);
+  return { skillOptions, vendorOptions, projectOptions, incidentOptions };
+};

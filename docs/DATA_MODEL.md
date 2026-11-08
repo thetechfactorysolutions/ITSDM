@@ -54,6 +54,14 @@
 - **KPI health:** *On target* when the current value meets the target; *At risk* within 10% of it (below it when higher is better, above it when lower is better); *Off target* otherwise. **Trend:** improving, worsening or stable against the previous value, taking the direction into account; no previous value means no trend. Changing the current value on save moves the old one to the previous value and sets the measurement date to today.
 - Closed statuses (hidden by default) now also include Resolved, Implemented and Retired.
 
+## People and knowledge
+- **Skill gap** = the target level minus the current level, in levels (Basic 1, Intermediate 2, Advanced 3, Expert 4); zero when the person has reached or passed the target. Archived skills do not count.
+- **Certification alert:** an active skill with a certification and an expiry date is *expiring* when the days left are within the warning period (60 by default, `AppConfig.people.certificationWarningDays`) and *expired* once the date has passed. The expiry day itself is still valid.
+- **Skill:** Active or Archived (free between them). One record is one person in one skill.
+- **Training plan:** Planned ⇄ In progress → Completed or Cancelled (a completed one can be reopened as In progress; a cancelled one returns to Planned). Completing fills the completion date (today) if empty; reopening clears it. It is **late** when its due date has passed and it is not Completed or Cancelled. The cost is informative and is not added to any budget.
+- **Article:** Draft ⇄ In review → Published → In review or Archived (an archived one can return to Draft). Publishing fills the publication date (today) and a review date (today + 180 days, `AppConfig.knowledge.reviewDays`) if empty. A published article whose review date has passed is **due for review**. **Publishing a policy needs an approval** (rule `article.publishPolicy`).
+- Closed statuses (hidden by default) include Archived, Completed and Cancelled for these lists.
+
 ## Approvals
 Ideas, initiatives, projects and actions carry one active approval (`ApprovalRule`, `ApprovalStatus` NONE/PENDING/APPROVED/REJECTED, `Approver`, `ApprovalRequestedOn`, `ApprovalDecidedOn`, `ApprovalDecidedBy`, `ApprovalComment`). Which changes need one is defined as data in `src/rules/approvals.ts`; see `APROBACIONES.md`.
 

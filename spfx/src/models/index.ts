@@ -17,3 +17,6 @@ export * from './Incident';
 export * from './ChangeRequest';
 export * from './Interaction';
 export * from './Kpi';
+export * from './Skill';
+export * from './Training';
+export * from './Article';

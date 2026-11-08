@@ -222,6 +222,28 @@ $decisions = @(
   @{ Name = 'DecidedBy'; Type = 'Text' }, @{ Name = 'DecisionDate'; Type = 'Date' },
   @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }, @{ Name = 'MeetingId'; Type = 'Text' }
 )
+$skills = @(
+  @{ Name = 'SkillId'; Type = 'Text' }, @{ Name = 'PersonUPN'; Type = 'Text' },
+  @{ Name = 'Category'; Type = 'Choice'; Choices = 'TECHNICAL', 'PROCESS', 'TOOLING', 'SOFT', 'OTHER' },
+  @{ Name = 'Level'; Type = 'Choice'; Choices = 'BASIC', 'INTERMEDIATE', 'ADVANCED', 'EXPERT' },
+  @{ Name = 'TargetLevel'; Type = 'Choice'; Choices = 'BASIC', 'INTERMEDIATE', 'ADVANCED', 'EXPERT' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'ACTIVE', 'ARCHIVED' }, @{ Name = 'LastAssessed'; Type = 'Date' },
+  @{ Name = 'Certification'; Type = 'Text' }, @{ Name = 'CertificationExpiry'; Type = 'Date' }, @{ Name = 'Notes'; Type = 'Note' }
+)
+$training = @(
+  @{ Name = 'TrainingId'; Type = 'Text' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED' },
+  @{ Name = 'TrainingType'; Type = 'Choice'; Choices = 'COURSE', 'CERTIFICATION', 'WORKSHOP', 'SELF_STUDY', 'MENTORING' },
+  @{ Name = 'PersonUPN'; Type = 'Text' }, @{ Name = 'Provider'; Type = 'Text' }, @{ Name = 'SkillId'; Type = 'Text' }, @{ Name = 'VendorId'; Type = 'Text' },
+  @{ Name = 'StartDate'; Type = 'Date' }, @{ Name = 'DueDate'; Type = 'Date' }, @{ Name = 'CompletedDate'; Type = 'Date' },
+  @{ Name = 'Cost'; Type = 'Number' }, @{ Name = 'Notes'; Type = 'Note' }
+)
+$knowledge = @(
+  @{ Name = 'ArticleId'; Type = 'Text' }, @{ Name = 'Summary'; Type = 'Note' }, @{ Name = 'Body'; Type = 'Note' },
+  @{ Name = 'Category'; Type = 'Choice'; Choices = 'HOW_TO', 'RUNBOOK', 'FAQ', 'POLICY', 'REFERENCE' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'DRAFT', 'IN_REVIEW', 'PUBLISHED', 'ARCHIVED' }, @{ Name = 'OwnerUPN'; Type = 'Text' },
+  @{ Name = 'Tags'; Type = 'Text' }, @{ Name = 'PublishedOn'; Type = 'Date' }, @{ Name = 'ReviewDate'; Type = 'Date' },
+  @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'VendorId'; Type = 'Text' }, @{ Name = 'IncidentId'; Type = 'Text' }
+)
 $reviews = @(
   @{ Name = 'ReviewId'; Type = 'Text' }, @{ Name = 'ReviewType'; Type = 'Choice'; Choices = 'STATUS', 'RISK', 'FINANCIAL', 'CLOSURE' },
   @{ Name = 'Status'; Type = 'Choice'; Choices = 'SCHEDULED', 'COMPLETED', 'CANCELLED' }, @{ Name = 'Health'; Type = 'Choice'; Choices = 'GREEN', 'AMBER', 'RED' },
@@ -250,6 +272,7 @@ $capex += $approval
 $opex += $approval
 $contracts += $approval
 $changes += $approval
+$knowledge += $approval
 
 # ---------- create structure ----------
 Write-Host 'Creating lists and columns...' -ForegroundColor Cyan
@@ -268,6 +291,9 @@ Initialize-ItsdmList -Title 'IT_09_Vendors'     -Fields $vendors
 Initialize-ItsdmList -Title 'IT_10_Contracts'   -Fields $contracts
 Initialize-ItsdmList -Title 'IT_11_Risks'       -Fields $risks
 Initialize-ItsdmList -Title 'IT_12_Decisions'   -Fields $decisions
+Initialize-ItsdmList -Title 'IT_16_TeamSkills'  -Fields $skills
+Initialize-ItsdmList -Title 'IT_17_TrainingPlans' -Fields $training
+Initialize-ItsdmList -Title 'IT_18_KnowledgeBase' -Fields $knowledge
 Initialize-ItsdmList -Title 'IT_19_Reviews'     -Fields $reviews
 Initialize-ItsdmList -Title 'IT_20_LessonsLearned' -Fields $lessons
 Initialize-ItsdmList -Title 'IT_21_Meetings'    -Fields $meetings

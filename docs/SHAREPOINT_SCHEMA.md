@@ -51,6 +51,15 @@ Title, RiskId (Text), Description (Multiple lines), Status (Choice: OPEN, MITIGA
 ### IT_12_Decisions
 Title, DecisionId (Text), Description (Multiple lines, the context), Rationale (Multiple lines), Status (Choice: PROPOSED, DECIDED, SUPERSEDED), DecidedBy (Text), DecisionDate (Date), ProjectId (Text), InitiativeId (Text), MeetingId (Text)
 
+### IT_16_TeamSkills
+Title (the skill's name), SkillId (Text), PersonUPN (Text), Category (Choice: TECHNICAL, PROCESS, TOOLING, SOFT, OTHER), Level (Choice: BASIC, INTERMEDIATE, ADVANCED, EXPERT), TargetLevel (Choice: same four), Status (Choice: ACTIVE, ARCHIVED), LastAssessed (Date), Certification (Text), CertificationExpiry (Date), Notes (Multiple lines). The gap and the certification alert are calculated.
+
+### IT_17_TrainingPlans
+Title, TrainingId (Text), Status (Choice: PLANNED, IN_PROGRESS, COMPLETED, CANCELLED), TrainingType (Choice: COURSE, CERTIFICATION, WORKSHOP, SELF_STUDY, MENTORING), PersonUPN (Text), Provider (Text), SkillId (Text, a skill's business id), VendorId (Text), StartDate (Date), DueDate (Date), CompletedDate (Date), Cost (Number, informative), Notes (Multiple lines)
+
+### IT_18_KnowledgeBase
+Title, ArticleId (Text), Summary (Multiple lines), Body (Multiple lines), Category (Choice: HOW_TO, RUNBOOK, FAQ, POLICY, REFERENCE), Status (Choice: DRAFT, IN_REVIEW, PUBLISHED, ARCHIVED), OwnerUPN (Text), Tags (Text, comma separated), PublishedOn (Date), ReviewDate (Date), ProjectId (Text), VendorId (Text), IncidentId (Text), plus the seven approval columns (publishing a policy needs an approval).
+
 ### IT_19_Reviews
 Title, ReviewId (Text), ReviewType (Choice: STATUS, RISK, FINANCIAL, CLOSURE), Status (Choice: SCHEDULED, COMPLETED, CANCELLED), Health (Choice: GREEN, AMBER, RED), ReviewDate (Date), NextReviewDate (Date), Summary (Multiple lines), NextSteps (Multiple lines), OwnerUPN (Text), ProjectId (Text), InitiativeId (Text)
 
@@ -62,9 +71,6 @@ Title, MeetingId (Text), MeetingDate (Date), Summary (Multiple lines), Attendees
 
 ### IT_22_Notes
 Title, NoteId (Text), Body (Multiple lines), Category (Choice: DECISION, RISK, INFO, FOLLOW_UP), Status (Choice: ACTIVE, ARCHIVED), MeetingId (Text), InitiativeId (Text), ProjectId (Text)
-
-## Future lists (documented only, not implemented)
-IT_16_TeamSkills, IT_17_TrainingPlans, IT_18_KnowledgeBase
 
 ## Notes
 - Changing the columns of a list that already exists is not automated (see `ROADMAP.md`).

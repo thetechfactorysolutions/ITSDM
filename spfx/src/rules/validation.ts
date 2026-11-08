@@ -1,5 +1,5 @@
 import {
-  ActionItem, Budget, CapexItem, ChangeRequest, Contract, Decision, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Vendor
+  ActionItem, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { isValidDayKey } from './dates';
 
@@ -250,5 +250,46 @@ export const validateKpi = (kpi: Kpi): ValidationErrors => {
   }
   validateOptionalDate(errors, 'measuredOn', kpi.measuredOn);
   validateOptionalEmail(errors, 'ownerUpn', kpi.ownerUpn, 'validation.ownerInvalid');
+  return errors;
+};
+
+/** The person a skill or a training belongs to is required and must be an email. */
+const validatePerson = (errors: ValidationErrors, person: string): void => {
+  if (person.trim().length === 0) {
+    errors.personUpn = 'validation.ownerRequired';
+  } else if (!EMAIL_PATTERN.test(person.trim())) {
+    errors.personUpn = 'validation.ownerInvalid';
+  }
+};
+
+export const validateSkill = (skill: Skill): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, skill.title);
+  validatePerson(errors, skill.personUpn);
+  validateOptionalDate(errors, 'lastAssessed', skill.lastAssessed);
+  validateOptionalDate(errors, 'certificationExpiry', skill.certificationExpiry);
+  return errors;
+};
+
+export const validateTraining = (training: Training): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, training.title);
+  validatePerson(errors, training.personUpn);
+  validateOptionalDate(errors, 'startDate', training.startDate);
+  validateOptionalDate(errors, 'dueDate', training.dueDate);
+  validateOptionalDate(errors, 'completedDate', training.completedDate);
+  if (!errors.startDate && !errors.dueDate && training.startDate && training.dueDate && training.dueDate < training.startDate) {
+    errors.dueDate = 'validation.endBeforeStart';
+  }
+  validateNonNegative(errors, 'cost', training.cost);
+  return errors;
+};
+
+export const validateArticle = (article: Article): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, article.title);
+  validateOwner(errors, article.ownerUpn);
+  validateOptionalDate(errors, 'publishedOn', article.publishedOn);
+  validateOptionalDate(errors, 'reviewDate', article.reviewDate);
   return errors;
 };

@@ -37,6 +37,7 @@ src/
     dates, ids, csv, tableView   Fechas sin saltos de zona horaria, ids, CSV, búsqueda/filtro/orden
     transcriptImport/Commit, importPrompt   Importación desde una reunión
     approvals, approvalMessage   Reglas de aprobación (datos) y mensajes de solicitud
+    people                       Brechas de habilidad, caducidad de certificaciones, formación atrasada, revisión de artículos y estados
     operations                   Plazos de incidentes, salud y tendencia de KPIs, seguimientos y estados
     finance                      Cifras de presupuestos, OPEX anualizado, alertas de contratos y estados
     governance                   Puntuación de riesgos, estados de riesgos, decisiones, lecciones y revisiones
@@ -46,7 +47,7 @@ src/
   i18n/            Diccionarios en inglés y español
   components/
     shared/        EntityScreen (pantalla genérica de lista), HubData, campos, gráficos
-    Dashboard, Ideas, Initiatives, Projects, Actions, Finance (Budgets, CAPEX, OPEX), Vendors (Vendors, Contracts), Operations (Incidents, Changes, Interactions, KPIs), Governance (Risks, Decisions, Lessons, Reviews), Notes, Import, Help
+    Dashboard, Ideas, Initiatives, Projects, Actions, Finance (Budgets, CAPEX, OPEX), Vendors (Vendors, Contracts), Operations (Incidents, Changes, Interactions, KPIs), People (Skills, Training, Knowledge base), Governance (Risks, Decisions, Lessons, Reviews), Notes, Import, Help
   config/AppConfig Nombres de las listas de SharePoint
 scripts/
   generate-assets.js          Definición única de las listas → XML del paquete
@@ -73,4 +74,4 @@ Las columnas de fecha se leen como el día local en que caen y se escriben a med
 
 ## Pendiente
 
-Ver `../docs/ROADMAP.md`: Planner, Power Automate y Graph; roles y aprobaciones propios; las 16 listas restantes; migración automática de esquemas.
+Ver `../docs/ROADMAP.md`: Planner, Power Automate y Graph; roles y aprobaciones propios; migración automática de esquemas.

@@ -1,5 +1,5 @@
 import {
-  ActionItem, ActionPriority, ActionStatus, ApprovalStatus, AutoRenew, ChangeRequest, ChangeStatus, ChangeType, Incident, IncidentCategory, IncidentSeverity, IncidentStatus,
+  ActionItem, ActionPriority, ActionStatus, Article, ArticleCategory, ArticleStatus, Skill, SkillCategory, SkillLevel, SkillStatus, Training, TrainingStatus, TrainingType, ApprovalStatus, AutoRenew, ChangeRequest, ChangeStatus, ChangeType, Incident, IncidentCategory, IncidentSeverity, IncidentStatus,
   Interaction, InteractionStatus, InteractionType, Kpi, KpiCategory, KpiDirection, KpiStatus, Budget, BudgetStatus, CapexItem, Contract, ContractStatus, ExpenseStatus, OpexFrequency, OpexItem, Vendor, VendorCategory, VendorStatus, Decision, DecisionStatus, IApprovalState, Idea, Lesson, LessonCategory, LessonStatus, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
   Project, ProjectRiskLevel, ProjectStatus, Review, ReviewHealth, ReviewStatus, ReviewType, Risk, RiskScale, RiskStatus
 } from '../../models';
@@ -399,4 +399,63 @@ export const mapKpi = (item: Record<string, unknown>): Kpi => ({
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
   editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapSkill = (item: Record<string, unknown>): Skill => ({
+  id: readId(item),
+  skillId: readString(item, 'SkillId'),
+  title: readString(item, 'Title'),
+  personUpn: readString(item, 'PersonUPN'),
+  category: readEnum(item, 'Category', enumValues(SkillCategory), SkillCategory.OTHER),
+  level: readEnum(item, 'Level', enumValues(SkillLevel), SkillLevel.BASIC),
+  targetLevel: readEnum(item, 'TargetLevel', enumValues(SkillLevel), SkillLevel.INTERMEDIATE),
+  status: readEnum(item, 'Status', enumValues(SkillStatus), SkillStatus.ACTIVE),
+  lastAssessed: readDate(item, 'LastAssessed'),
+  certification: readString(item, 'Certification'),
+  certificationExpiry: readDate(item, 'CertificationExpiry'),
+  notes: readString(item, 'Notes'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapTraining = (item: Record<string, unknown>): Training => ({
+  id: readId(item),
+  trainingId: readString(item, 'TrainingId'),
+  title: readString(item, 'Title'),
+  status: readEnum(item, 'Status', enumValues(TrainingStatus), TrainingStatus.PLANNED),
+  type: readEnum(item, 'TrainingType', enumValues(TrainingType), TrainingType.COURSE),
+  personUpn: readString(item, 'PersonUPN'),
+  provider: readString(item, 'Provider'),
+  skillId: readString(item, 'SkillId'),
+  vendorId: readString(item, 'VendorId'),
+  startDate: readDate(item, 'StartDate'),
+  dueDate: readDate(item, 'DueDate'),
+  completedDate: readDate(item, 'CompletedDate'),
+  cost: readNumber(item, 'Cost'),
+  notes: readString(item, 'Notes'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapArticle = (item: Record<string, unknown>): Article => ({
+  id: readId(item),
+  articleId: readString(item, 'ArticleId'),
+  title: readString(item, 'Title'),
+  summary: readString(item, 'Summary'),
+  body: readString(item, 'Body'),
+  category: readEnum(item, 'Category', enumValues(ArticleCategory), ArticleCategory.HOW_TO),
+  status: readEnum(item, 'Status', enumValues(ArticleStatus), ArticleStatus.DRAFT),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  tags: readString(item, 'Tags'),
+  publishedOn: readDate(item, 'PublishedOn'),
+  reviewDate: readDate(item, 'ReviewDate'),
+  projectId: readString(item, 'ProjectId'),
+  vendorId: readString(item, 'VendorId'),
+  incidentId: readString(item, 'IncidentId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor'),
+  approval: readApproval(item)
 });

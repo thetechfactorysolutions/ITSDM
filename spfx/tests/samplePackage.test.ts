@@ -3,9 +3,10 @@ import * as cp from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { mapBudget, mapCapex, mapChange, mapContract, mapIncident, mapInteraction, mapKpi, mapOpex } from '../src/components/shared/mappers';
+import { mapArticle, mapBudget, mapCapex, mapChange, mapContract, mapIncident, mapInteraction, mapKpi, mapOpex, mapSkill, mapTraining } from '../src/components/shared/mappers';
 import { APPROVAL_RULES } from '../src/rules/approvals';
 import { budgetFigures, contractAlert } from '../src/rules/finance';
+import { certificationAlert, hasSkillGap, isReviewDue, isTrainingOverdue } from '../src/rules/people';
 import { isFollowUpOverdue, isIncidentOverdue, kpiHealth, kpiTrend } from '../src/rules/operations';
 
 /**
@@ -61,6 +62,7 @@ const testEveryListAndSample = (): void => {
   const expected = [
     'IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_06_Budgets', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_09_Vendors', 'IT_10_Contracts',
     'IT_05_KPIs', 'IT_13_Incidents', 'IT_14_Interactions', 'IT_15_ChangeRequests',
+    'IT_16_TeamSkills', 'IT_17_TrainingPlans', 'IT_18_KnowledgeBase',
     'IT_11_Risks', 'IT_12_Decisions', 'IT_19_Reviews', 'IT_20_LessonsLearned', 'IT_21_Meetings', 'IT_22_Notes'
   ];
   assert.deepEqual(instances.map(i => i.title).sort(), expected.sort(), 'every list is in the package');
@@ -92,7 +94,7 @@ const testEveryListAndSample = (): void => {
 
 const testApprovalColumnsMatchTheRules = (): void => {
   // lists that carry an approval must have the seven columns, and every approval row must name a real rule
-  for (const title of ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests']) {
+  for (const title of ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests', 'IT_18_KnowledgeBase']) {
     const instance = instances.filter(i => i.title === title)[0];
     const names = parseSchema(read(instance.schemaFile)).map(f => f.name);
     for (const column of ['ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment']) {
@@ -102,7 +104,7 @@ const testApprovalColumnsMatchTheRules = (): void => {
       assert.ok(APPROVAL_RULES.some(rule => rule.id === row.ApprovalRule), `${title}: unknown approval rule ${row.ApprovalRule}`);
     }
   }
-  for (const title of ['IT_06_Budgets', 'IT_09_Vendors', 'IT_11_Risks']) {
+  for (const title of ['IT_06_Budgets', 'IT_09_Vendors', 'IT_11_Risks', 'IT_16_TeamSkills', 'IT_17_TrainingPlans']) {
     const instance = instances.filter(i => i.title === title)[0];
     assert.equal(parseSchema(read(instance.schemaFile)).some(f => f.name === 'ApprovalStatus'), false, `${title} has no approval columns`);
   }
@@ -145,6 +147,22 @@ const testSamplesShowTheirCases = (): void => {
   assert.equal(pendingChange.approval?.status, 'PENDING', 'a high-risk change waits for approval');
   assert.equal(pendingChange.approval?.ruleId, 'change.approve');
   assert.equal(pendingChange.risk, 'HIGH');
+
+  const skills = rowsOf('IT_16_TeamSkills').map(mapSkill);
+  assert.deepEqual(skills.filter(hasSkillGap).map(k => k.skillId).sort(), ['SKL-DEMO-002', 'SKL-DEMO-003'], 'two skills are below their target level');
+  assert.deepEqual(skills.map(k => certificationAlert(k).alert), ['NONE', 'EXPIRING', 'NONE'], 'one certification is about to expire');
+
+  const trainings = rowsOf('IT_17_TrainingPlans').map(mapTraining);
+  assert.deepEqual(trainings.filter(x => isTrainingOverdue(x)).map(x => x.trainingId), ['TRN-DEMO-002'], 'one training is late');
+  assert.ok(trainings.some(x => x.status === 'COMPLETED' && !!x.completedDate), 'a completed training has its completion date');
+  assert.ok(trainings.every(x => skills.some(k => k.skillId === x.skillId)), 'every training points to a sample skill');
+
+  const articles = rowsOf('IT_18_KnowledgeBase').map(mapArticle);
+  assert.deepEqual(articles.filter(a => isReviewDue(a)).map(a => a.articleId), ['KB-DEMO-001'], 'one published article is due for review');
+  const policy = articles.filter(a => a.articleId === 'KB-DEMO-003')[0];
+  assert.equal(policy.approval?.status, 'PENDING', 'a policy waits for approval before it is published');
+  assert.equal(policy.approval?.ruleId, 'article.publishPolicy');
+  assert.equal(policy.category, 'POLICY');
 
   const project = byId('IT_03_Projects', 'ProjectId', 'PROJ-DEMO-002');
   assert.equal(project.ApprovalStatus, 'PENDING', 'a project also waits for approval, from the earlier round');

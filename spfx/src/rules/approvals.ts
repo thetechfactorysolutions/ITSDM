@@ -1,6 +1,6 @@
 import { AppConfig } from '../config/AppConfig';
 import {
-  ActionItem, ApprovalStatus, CapexItem, ChangeRequest, ChangeStatus, ChangeType, Contract, ContractStatus, IApprovalState, Idea, IdeaStatus, Initiative, InitiativeStatus, OpexItem, Project, ProjectStatus, RiskScale
+  ActionItem, Article, ArticleCategory, ArticleStatus, ApprovalStatus, CapexItem, ChangeRequest, ChangeStatus, ChangeType, Contract, ContractStatus, IApprovalState, Idea, IdeaStatus, Initiative, InitiativeStatus, OpexItem, Project, ProjectStatus, RiskScale
 } from '../models';
 import { toDayKey } from './dates';
 import { isCommitted, opexAnnualAmount } from './finance';
@@ -14,7 +14,7 @@ import { isCommitted, opexAnnualAmount } from './finance';
  * quick status change, the CSV import and the dashboard all read this list.
  */
 
-export type ApprovalEntity = 'ideas' | 'initiatives' | 'projects' | 'actions' | 'capex' | 'opex' | 'contracts' | 'changes';
+export type ApprovalEntity = 'ideas' | 'initiatives' | 'projects' | 'actions' | 'capex' | 'opex' | 'contracts' | 'changes' | 'articles';
 
 export interface IEntityByApprovalKey {
   ideas: Idea;
@@ -25,6 +25,7 @@ export interface IEntityByApprovalKey {
   opex: OpexItem;
   contracts: Contract;
   changes: ChangeRequest;
+  articles: Article;
 }
 
 export interface IApprovalRule {
@@ -118,6 +119,15 @@ export const APPROVAL_RULES: IApprovalRule[] = [
     requires: (current, next) =>
       next.status === ChangeStatus.APPROVED && (!current || current.status !== ChangeStatus.APPROVED) &&
       (next.risk === RiskScale.HIGH || next.changeType === ChangeType.EMERGENCY)
+  }),
+
+  // Knowledge base: a policy binds people, so publishing one needs a recorded sign-off.
+  rule({
+    id: 'article.publishPolicy',
+    entity: 'articles',
+    enabled: true,
+    requires: (current, next) =>
+      next.status === ArticleStatus.PUBLISHED && (!current || current.status !== ArticleStatus.PUBLISHED) && next.category === ArticleCategory.POLICY
   }),
 
   // Off by default: an example of a rule that is switched on by changing `enabled` to true.
