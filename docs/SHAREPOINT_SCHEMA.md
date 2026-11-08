@@ -18,6 +18,18 @@ Title, ProjectId (Text), InitiativeId (Text), Description (Multiple lines), Stat
 ### IT_04_Actions
 Title, ActionId (Text), InitiativeId (Text), ProjectId (Text), Description (Multiple lines), Status (Choice: OPEN, IN_PROGRESS, BLOCKED, DONE, CANCELLED), Priority (Choice: LOW, MEDIUM, HIGH, CRITICAL), OwnerUPN (Text), DueDate (Date), CompletedDate (Date), PlannerTaskId (Text)
 
+### IT_11_Risks
+Title, RiskId (Text), Description (Multiple lines), Status (Choice: OPEN, MITIGATING, ACCEPTED, CLOSED), Probability (Choice: LOW, MEDIUM, HIGH), Impact (Choice: LOW, MEDIUM, HIGH), OwnerUPN (Text), Mitigation (Multiple lines), DueDate (Date), ProjectId (Text), InitiativeId (Text), MeetingId (Text)
+
+### IT_12_Decisions
+Title, DecisionId (Text), Description (Multiple lines, the context), Rationale (Multiple lines), Status (Choice: PROPOSED, DECIDED, SUPERSEDED), DecidedBy (Text), DecisionDate (Date), ProjectId (Text), InitiativeId (Text), MeetingId (Text)
+
+### IT_19_Reviews
+Title, ReviewId (Text), ReviewType (Choice: STATUS, RISK, FINANCIAL, CLOSURE), Status (Choice: SCHEDULED, COMPLETED, CANCELLED), Health (Choice: GREEN, AMBER, RED), ReviewDate (Date), NextReviewDate (Date), Summary (Multiple lines), NextSteps (Multiple lines), OwnerUPN (Text), ProjectId (Text), InitiativeId (Text)
+
+### IT_20_LessonsLearned
+Title, LessonId (Text), Description (Multiple lines, what happened), Recommendation (Multiple lines), Category (Choice: PROCESS, TECHNOLOGY, PEOPLE, VENDOR, OTHER), Status (Choice: NEW, REVIEWED, APPLIED), OwnerUPN (Text), ProjectId (Text), InitiativeId (Text), MeetingId (Text)
+
 ### IT_21_Meetings
 Title, MeetingId (Text), MeetingDate (Date), Summary (Multiple lines), Attendees (Multiple lines), Transcript (Multiple lines), ImportedItems (Multiple lines)
 
@@ -25,7 +37,7 @@ Title, MeetingId (Text), MeetingDate (Date), Summary (Multiple lines), Attendees
 Title, NoteId (Text), Body (Multiple lines), Category (Choice: DECISION, RISK, INFO, FOLLOW_UP), Status (Choice: ACTIVE, ARCHIVED), MeetingId (Text), InitiativeId (Text), ProjectId (Text)
 
 ## Future lists (documented only, not implemented)
-IT_05_KPIs, IT_06_Budgets, IT_07_CAPEX, IT_08_OPEX, IT_09_Vendors, IT_10_Contracts, IT_11_Risks, IT_12_Decisions, IT_13_Incidents, IT_14_Interactions, IT_15_ChangeRequests, IT_16_TeamSkills, IT_17_TrainingPlans, IT_18_KnowledgeBase, IT_19_Reviews, IT_20_LessonsLearned
+IT_05_KPIs, IT_06_Budgets, IT_07_CAPEX, IT_08_OPEX, IT_09_Vendors, IT_10_Contracts, IT_13_Incidents, IT_14_Interactions, IT_15_ChangeRequests, IT_16_TeamSkills, IT_17_TrainingPlans, IT_18_KnowledgeBase
 
 ## Notes
 - Changing the columns of a list that already exists is not automated (see `ROADMAP.md`).

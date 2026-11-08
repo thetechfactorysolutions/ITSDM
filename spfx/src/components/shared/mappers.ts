@@ -1,6 +1,6 @@
 import {
-  ActionItem, ActionPriority, ActionStatus, ApprovalStatus, IApprovalState, Idea, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
-  Project, ProjectRiskLevel, ProjectStatus
+  ActionItem, ActionPriority, ActionStatus, ApprovalStatus, Decision, DecisionStatus, IApprovalState, Idea, Lesson, LessonCategory, LessonStatus, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
+  Project, ProjectRiskLevel, ProjectStatus, Review, ReviewHealth, ReviewStatus, ReviewType, Risk, RiskScale, RiskStatus
 } from '../../models';
 import { dayKeyFromValue } from '../../rules/dates';
 
@@ -150,6 +150,78 @@ export const mapNote = (item: Record<string, unknown>): Note => ({
   meetingId: readString(item, 'MeetingId'),
   initiativeId: readString(item, 'InitiativeId'),
   projectId: readString(item, 'ProjectId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapRisk = (item: Record<string, unknown>): Risk => ({
+  id: readId(item),
+  riskId: readString(item, 'RiskId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  status: readEnum(item, 'Status', enumValues(RiskStatus), RiskStatus.OPEN),
+  probability: readEnum(item, 'Probability', enumValues(RiskScale), RiskScale.MEDIUM),
+  impact: readEnum(item, 'Impact', enumValues(RiskScale), RiskScale.MEDIUM),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  mitigation: readString(item, 'Mitigation'),
+  dueDate: readDate(item, 'DueDate'),
+  projectId: readString(item, 'ProjectId'),
+  initiativeId: readString(item, 'InitiativeId'),
+  meetingId: readString(item, 'MeetingId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapDecision = (item: Record<string, unknown>): Decision => ({
+  id: readId(item),
+  decisionId: readString(item, 'DecisionId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  rationale: readString(item, 'Rationale'),
+  status: readEnum(item, 'Status', enumValues(DecisionStatus), DecisionStatus.PROPOSED),
+  decidedBy: readString(item, 'DecidedBy'),
+  decisionDate: readDate(item, 'DecisionDate'),
+  projectId: readString(item, 'ProjectId'),
+  initiativeId: readString(item, 'InitiativeId'),
+  meetingId: readString(item, 'MeetingId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapLesson = (item: Record<string, unknown>): Lesson => ({
+  id: readId(item),
+  lessonId: readString(item, 'LessonId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  recommendation: readString(item, 'Recommendation'),
+  category: readEnum(item, 'Category', enumValues(LessonCategory), LessonCategory.OTHER),
+  status: readEnum(item, 'Status', enumValues(LessonStatus), LessonStatus.NEW),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  projectId: readString(item, 'ProjectId'),
+  initiativeId: readString(item, 'InitiativeId'),
+  meetingId: readString(item, 'MeetingId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapReview = (item: Record<string, unknown>): Review => ({
+  id: readId(item),
+  reviewId: readString(item, 'ReviewId'),
+  title: readString(item, 'Title'),
+  reviewType: readEnum(item, 'ReviewType', enumValues(ReviewType), ReviewType.STATUS),
+  status: readEnum(item, 'Status', enumValues(ReviewStatus), ReviewStatus.SCHEDULED),
+  health: readEnum(item, 'Health', enumValues(ReviewHealth), ReviewHealth.GREEN),
+  reviewDate: readDate(item, 'ReviewDate'),
+  nextReviewDate: readDate(item, 'NextReviewDate'),
+  summary: readString(item, 'Summary'),
+  nextSteps: readString(item, 'NextSteps'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  projectId: readString(item, 'ProjectId'),
+  initiativeId: readString(item, 'InitiativeId'),
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
   editor: readExpandedTitle(item, 'Editor')

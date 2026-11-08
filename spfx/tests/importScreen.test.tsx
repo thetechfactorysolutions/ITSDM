@@ -32,7 +32,8 @@ const makeHub = (calls: ICall[], failTitles: string[] = []): IHubData => {
   return {
     service: service as unknown as IHubData['service'], userEmail: 'me@x.com',
     ideas: emptyList(), initiatives: emptyList() as never, projects: emptyList() as never, actions: emptyList() as never,
-    meetings: emptyList() as never, notes: emptyList() as never
+    meetings: emptyList() as never, notes: emptyList() as never,
+    risks: emptyList() as never, decisions: emptyList() as never, lessons: emptyList() as never, reviews: emptyList() as never
   };
 };
 

@@ -5,3 +5,7 @@ export * from './Action';
 export * from './Meeting';
 export * from './Note';
 export * from './Approval';
+export * from './Risk';
+export * from './Decision';
+export * from './Lesson';
+export * from './Review';

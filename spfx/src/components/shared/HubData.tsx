@@ -4,9 +4,9 @@ import { AppConfig } from '../../config/AppConfig';
 import { EXPAND_EDITOR, SELECT } from '../../entities/payloads';
 import { IListHookState, useListItems } from '../../hooks/useListItems';
 import { useSharePointService } from '../../hooks/useSharePointService';
-import { ActionItem, Idea, Initiative, Meeting, Note, Project } from '../../models';
+import { ActionItem, Decision, Idea, Initiative, Lesson, Meeting, Note, Project, Review, Risk } from '../../models';
 import { IQueryOptions, SharePointService } from '../../services/SharePointService';
-import { mapAction, mapIdea, mapInitiative, mapMeeting, mapNote, mapProject } from './mappers';
+import { mapAction, mapDecision, mapIdea, mapInitiative, mapLesson, mapMeeting, mapNote, mapProject, mapReview, mapRisk } from './mappers';
 
 export interface IHubData {
   service: SharePointService;
@@ -17,6 +17,10 @@ export interface IHubData {
   actions: IListHookState<ActionItem>;
   meetings: IListHookState<Meeting>;
   notes: IListHookState<Note>;
+  risks: IListHookState<Risk>;
+  decisions: IListHookState<Decision>;
+  lessons: IListHookState<Lesson>;
+  reviews: IListHookState<Review>;
 }
 
 export const HubDataContext = React.createContext<IHubData | undefined>(undefined);
@@ -33,6 +37,10 @@ const PROJECTS_QUERY = query(SELECT.projects);
 const ACTIONS_QUERY = query(SELECT.actions);
 const MEETINGS_QUERY = query(SELECT.meetings);
 const NOTES_QUERY = query(SELECT.notes);
+const RISKS_QUERY = query(SELECT.risks);
+const DECISIONS_QUERY = query(SELECT.decisions);
+const LESSONS_QUERY = query(SELECT.lessons);
+const REVIEWS_QUERY = query(SELECT.reviews);
 
 /**
  * Loads each list once for the whole web part. Every tab reads the same state, so switching
@@ -47,6 +55,10 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ context, chil
   const actions = useListItems<ActionItem>(service, listNames.actions, mapAction, ACTIONS_QUERY);
   const meetings = useListItems<Meeting>(service, listNames.meetings, mapMeeting, MEETINGS_QUERY);
   const notes = useListItems<Note>(service, listNames.notes, mapNote, NOTES_QUERY);
+  const risks = useListItems<Risk>(service, listNames.risks, mapRisk, RISKS_QUERY);
+  const decisions = useListItems<Decision>(service, listNames.decisions, mapDecision, DECISIONS_QUERY);
+  const lessons = useListItems<Lesson>(service, listNames.lessonsLearned, mapLesson, LESSONS_QUERY);
+  const reviews = useListItems<Review>(service, listNames.reviews, mapReview, REVIEWS_QUERY);
 
   const value: IHubData = {
     service,
@@ -56,7 +68,11 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ context, chil
     projects,
     actions,
     meetings,
-    notes
+    notes,
+    risks,
+    decisions,
+    lessons,
+    reviews
   };
 
   return <HubDataContext.Provider value={value}>{children}</HubDataContext.Provider>;

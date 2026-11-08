@@ -30,11 +30,13 @@ Diseño en `docs/superpowers/specs/2026-11-08-ronda-2-diseno.md`: vínculos con 
 ## Hecho tras la ronda 2
 - **Aprobaciones** con reglas como datos, solicitud por email o Teams, decisión registrada y lista en el Panel (`docs/APROBACIONES.md`, diseño en `docs/superpowers/specs/2026-11-08-aprobaciones-diseno.md`).
 
+- **Listas restantes, fase 1 (gobierno):** riesgos, decisiones, lecciones aprendidas y revisiones, con su importación desde reuniones (diseño en `docs/superpowers/specs/2026-11-08-listas-fase1-diseno.md`). Campos y reglas elegidos por defecto, a ajustar.
+
 ## Aplazado tras la ronda 2 (pendiente de retomar)
 Quedó fuera a propósito. Para retomarlo, pedir "retoma el roadmap".
 - **Integraciones:** Planner (crear plan/tarea al activar iniciativas y proyectos), Power Automate (avisos de acciones vencidas y proyectos en riesgo, resumen semanal) y Microsoft Graph (perfil, foto, calendario). Necesitan permisos y flujos del tenant.
 - **Roles propios dentro de la aplicación.** Hoy mandan los permisos de SharePoint. (Las **aprobaciones** ya están hechas: ver `docs/APROBACIONES.md`. Quedan fuera los flujos de varios aprobadores y el envío automático de avisos, que dependen de Power Automate.)
-- **Las 16 listas sin interfaz** (`IT_05` a `IT_20`): KPIs, presupuestos, CAPEX/OPEX, proveedores, contratos, riesgos, decisiones, incidentes, interacciones, cambios, habilidades, formación, conocimiento, revisiones y lecciones aprendidas.
+- **Las 12 listas restantes sin interfaz** (`IT_05` a `IT_10` y `IT_13` a `IT_18`), por fases: **dinero y proveedores** (presupuestos, CAPEX, OPEX, proveedores, contratos); **servicio y operación** (incidentes, interacciones, cambios, KPIs); **personas y conocimiento** (habilidades, formación, base de conocimiento).
 - **Migración de esquemas:** cambiar columnas de listas ya creadas sin borrarlas.
 - **Responsable como columna de persona** de SharePoint (hoy es el email en texto) y **columnas de búsqueda** reales entre listas.
 - **Datos de ejemplo opcionales** al instalar y paquetes separados para sandbox y producción.

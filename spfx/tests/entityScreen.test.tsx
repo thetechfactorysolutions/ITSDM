@@ -32,7 +32,8 @@ const empty = (): never => ({ items: [], loading: false, error: undefined, reloa
 const render = (items: Initiative[], rec: IRecorder, language: Language = 'en'): React.ReactElement => {
   const hub: IHubData = {
     service: { searchUsers: async () => [], createItem: async () => ({}) } as unknown as IHubData['service'],
-    userEmail: 'me@x.com', initiatives: makeList(items, rec), ideas: empty(), projects: empty(), actions: empty(), meetings: empty(), notes: empty()
+    userEmail: 'me@x.com', initiatives: makeList(items, rec), ideas: empty(), projects: empty(), actions: empty(), meetings: empty(), notes: empty(),
+    risks: empty(), decisions: empty(), lessons: empty(), reviews: empty()
   };
   return React.createElement(I18nProvider, { language }, React.createElement(HubDataContext.Provider, { value: hub }, React.createElement(Initiatives)));
 };

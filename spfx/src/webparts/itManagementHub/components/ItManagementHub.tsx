@@ -5,6 +5,7 @@ import styles from './ItManagementHub.module.scss';
 import { AppConfig } from '../../../config/AppConfig';
 import { HubDataProvider } from '../../../components/shared/HubData';
 import Dashboard from '../../../components/Dashboard/Dashboard';
+import Governance from '../../../components/Governance/Governance';
 import Help from '../../../components/Help/Help';
 import Ideas from '../../../components/Ideas/Ideas';
 import Import from '../../../components/Import/Import';
@@ -30,6 +31,7 @@ const Tabs: React.FC<{ description: string }> = ({ description }) => {
         <PivotItem headerText={t('nav.initiatives')}><Initiatives /></PivotItem>
         <PivotItem headerText={t('nav.projects')}><Projects /></PivotItem>
         <PivotItem headerText={t('nav.actions')}><Actions /></PivotItem>
+        <PivotItem headerText={t('nav.governance')}><Governance /></PivotItem>
         <PivotItem headerText={t('nav.notes')}><Notes /></PivotItem>
         <PivotItem headerText={t('nav.import')}><Import /></PivotItem>
         <PivotItem headerText={t('nav.help')}><Help /></PivotItem>

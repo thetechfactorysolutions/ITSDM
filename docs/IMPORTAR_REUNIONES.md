@@ -21,13 +21,16 @@ La pestaña **Importar** convierte lo hablado en una reunión en ideas, iniciati
 | Un trabajo con alcance propio | **Proyectos** |
 | Un programa grande que agrupa proyectos | **Iniciativas** |
 | Una propuesta todavía sin decidir | **Ideas** |
-| Decisiones, riesgos, información a tener en cuenta, seguimientos | **Notas** |
+| Algo que podría salir mal | **Gobierno → Riesgos** |
+| Una decisión ya tomada (con su motivo y quién la tomó) | **Gobierno → Decisiones** |
+| Un aprendizaje para la próxima vez | **Gobierno → Lecciones aprendidas** |
+| Información a tener en cuenta y seguimientos que no encajan en lo anterior | **Notas** |
 | La reunión en sí (fecha, resumen, asistentes, transcripción) | **Reuniones** |
 
 ## Qué hace la aplicación con lo que recibe
 
-- **Estados:** siempre los de partida (Nueva, Borrador, En planificación, Abierta, Activa). La IA no decide estados.
-- **Responsables:** si la IA da un email, se usa. Si da un nombre, la aplicación lo busca en el directorio; si hay una coincidencia clara lo asigna, y si no, lo asigna a ti y te avisa.
+- **Estados:** siempre los de partida (Nueva, Borrador, En planificación, Abierta, Abierto, Activa). La IA no decide estados. **Excepción: las decisiones** se crean ya como *Decidida*, con la fecha de la reunión, porque una decisión dicha en una reunión es algo ya tomado.
+- **Responsables (y quién decidió):** si la IA da un email, se usa. Si da un nombre, la aplicación lo busca en el directorio; si hay una coincidencia clara lo asigna, y si no, lo asigna a ti y te avisa.
 - **Vínculos:** un proyecto o una acción se vincula a una iniciativa o un proyecto por su **título**, buscando primero entre lo que viene en el mismo resultado y luego entre lo que ya existe (sin distinguir mayúsculas ni acentos). Si no lo encuentra, lo deja sin vincular y te avisa.
 - **Fechas:** solo acepta días reales (`AAAA-MM-DD`). Si una fecha no es válida (por ejemplo "el viernes"), la deja vacía y te avisa.
 - **Valores desconocidos** de prioridad, riesgo o categoría: usa el valor por defecto y te avisa. Acepta también palabras en español (alta, media, baja, crítica; decisión, riesgo, seguimiento).
@@ -60,14 +63,24 @@ Pega esto en **Resultado de la IA** para ver el funcionamiento sin usar ninguna 
     { "title": "Enviar la petición de compra", "owner": "ana@empresa.com", "dueDate": "2026-11-13", "priority": "HIGH", "project": "Renovación de portátiles oleada 1" },
     { "title": "Revisar el contrato del proveedor", "owner": "Luis García", "dueDate": "2026-11-20", "priority": "media" }
   ],
+  "risks": [
+    { "title": "El proveedor de telefonía podría retrasarse", "owner": "Luis García", "probability": "alta", "impact": "HIGH",
+      "mitigation": "Acordar una fecha firme", "dueDate": "2026-11-20", "project": "Renovación de portátiles oleada 1" }
+  ],
+  "decisions": [
+    { "title": "Comprar los portátiles en dos oleadas", "description": "Un solo pedido superaría el presupuesto trimestral.",
+      "rationale": "El presupuesto se libera por oleada.", "decidedBy": "ana@empresa.com", "project": "Renovación de portátiles oleada 1" }
+  ],
+  "lessons": [
+    { "title": "Confirmar plazos con el proveedor antes de fijar fechas", "recommendation": "Pedirlos por escrito", "category": "proveedor" }
+  ],
   "notes": [
-    { "title": "Presupuesto aprobado para la oleada 1", "body": "Finanzas confirmó el presupuesto.", "category": "DECISION", "project": "Renovación de portátiles oleada 1" },
-    { "title": "El proveedor de telefonía podría retrasarse", "body": "Avisó de un posible retraso de dos semanas.", "category": "RISK" }
+    { "title": "Compartir el nuevo catálogo de servicios", "body": "Pendiente de enviar antes de la próxima reunión.", "category": "FOLLOW_UP" }
   ]
 }
 ```
 
-Resultado esperado en la vista previa: 1 reunión, 1 iniciativa, 1 proyecto vinculado a la iniciativa, 1 idea, 2 acciones (la primera vinculada al proyecto y a su iniciativa) y 2 notas (la primera vinculada al proyecto), con un aviso en la segunda acción si "Luis García" no se encuentra en tu directorio.
+Resultado esperado en la vista previa: 1 reunión, 1 iniciativa, 1 proyecto vinculado a la iniciativa, 1 idea, 2 acciones (la primera vinculada al proyecto y a su iniciativa) , 1 riesgo (puntuación 9, nivel alto, vinculado al proyecto), 1 decisión (ya Decidida, con la fecha de la reunión), 1 lección y 1 nota de seguimiento, con un aviso en la segunda acción y en el riesgo si "Luis García" no se encuentra en tu directorio.
 
 ## Formato que espera la aplicación
 
@@ -80,6 +93,9 @@ Todos los apartados son opcionales; los que falten o estén vacíos se ignoran.
   "initiatives": [ { "title": "", "description": "", "owner": "", "targetDate": "" } ],
   "projects":    [ { "title": "", "description": "", "owner": "", "initiative": "título", "startDate": "", "endDate": "", "budget": 0, "forecast": 0, "riskLevel": "LOW|MEDIUM|HIGH|CRITICAL" } ],
   "actions":     [ { "title": "", "description": "", "owner": "", "dueDate": "", "priority": "LOW|MEDIUM|HIGH|CRITICAL", "project": "título", "initiative": "título" } ],
+  "risks":       [ { "title": "", "description": "", "owner": "", "probability": "LOW|MEDIUM|HIGH", "impact": "LOW|MEDIUM|HIGH", "mitigation": "", "dueDate": "", "project": "título", "initiative": "título" } ],
+  "decisions":   [ { "title": "", "description": "contexto", "rationale": "por qué", "decidedBy": "", "project": "título", "initiative": "título" } ],
+  "lessons":     [ { "title": "", "description": "qué pasó", "recommendation": "", "category": "PROCESS|TECHNOLOGY|PEOPLE|VENDOR|OTHER", "owner": "", "project": "título", "initiative": "título" } ],
   "notes":       [ { "title": "", "body": "", "category": "DECISION|RISK|INFO|FOLLOW_UP", "project": "título", "initiative": "título" } ]
 }
 ```

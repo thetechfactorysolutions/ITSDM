@@ -26,7 +26,8 @@ const makeHub = (projects: Project[], updates: IUpdate[], created: Array<Record<
   const none = (): never => list([]) as never;
   return {
     service: { searchUsers: async () => [], createItem: async () => ({}) } as unknown as IHubData['service'], userEmail: 'me@x.com',
-    projects: list(projects), ideas: none(), initiatives: none(), actions: none(), meetings: none(), notes: none()
+    projects: list(projects), ideas: none(), initiatives: none(), actions: none(), meetings: none(), notes: none(),
+    risks: none(), decisions: none(), lessons: none(), reviews: none()
   };
 };
 

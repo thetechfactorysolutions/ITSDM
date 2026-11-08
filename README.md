@@ -8,12 +8,13 @@ ITSDM is a SharePoint Framework (SPFx) web part for IT Service Delivery Manageme
 - **Dashboard:** counters, "My work" with quick close, charts of actions by status and budget vs forecast.
 - **Ideas → Initiatives → Projects → Actions:** create, edit, details, archive, delete, search, filter, sort, export/import CSV, links chosen from a picker, status rules.
 - **Approvals:** rules (defined as data, easy to extend) that block changes such as validating an idea or going over budget until someone approves; the request goes by ready-made email or Teams message (`docs/APROBACIONES.md`).
+- **Governance:** risks (with a probability x impact score), decisions, lessons learned and reviews, linked to projects, initiatives and meetings.
 - **Notes and Meetings:** decisions, risks, information and follow-ups linked to a meeting, initiative or project.
 - **Import from a meeting:** copy an instruction, run it with your own AI on the transcript, paste the result, review a preview and confirm. The app never calls an AI service (see `docs/IMPORTAR_REUNIONES.md`).
 - **Full-width section** support, **English and Spanish**, keyboard and screen-reader friendly.
 - Lists and sample data are created when the app is added to a site.
 
-Not implemented yet (see `docs/ROADMAP.md`): Planner, Power Automate and Graph integrations, app-level roles, the 16 remaining lists, automatic schema migration.
+Not implemented yet (see `docs/ROADMAP.md`): Planner, Power Automate and Graph integrations, app-level roles, the 12 remaining lists (money and vendors; service and operations; people and knowledge), automatic schema migration.
 
 ## Architecture
 - SPFx web part host (`spfx/`), React 17 + Fluent UI v8, TypeScript, PnPjs

@@ -5,6 +5,7 @@ import { csvDate, csvEnum, csvNumber, enumValues } from '../../entities/csvHelpe
 import { buildInitiativePayload } from '../../entities/payloads';
 import { TranslateFn, useT } from '../../i18n/I18n';
 import { Initiative, InitiativeStatus } from '../../models';
+import { riskScore } from '../../rules/governance';
 import { generateBusinessId } from '../../rules/ids';
 import { getAllowedInitiativeStatuses } from '../../rules/transitions';
 import { validateInitiative } from '../../rules/validation';
@@ -57,7 +58,7 @@ const csvColumns = [
 
 const Initiatives: React.FC = () => {
   const t = useT();
-  const { service, userEmail, initiatives: state, ideas, projects, actions, notes } = useHubData();
+  const { service, userEmail, initiatives: state, ideas, projects, actions, notes, risks, decisions, lessons, reviews } = useHubData();
   const columns = React.useMemo(() => makeColumns(t), [t]);
 
   const ideaOptions = React.useMemo(() => ideas.items.map(i => ({ id: i.ideaId, title: i.title })), [ideas.items]);
@@ -107,6 +108,10 @@ const Initiatives: React.FC = () => {
     const myProjects = projects.items.filter(p => p.initiativeId === initiative.initiativeId);
     const myActions = actions.items.filter(a => a.initiativeId === initiative.initiativeId);
     const myNotes = notes.items.filter(n => n.initiativeId === initiative.initiativeId);
+    const myRisks = risks.items.filter(r => r.initiativeId === initiative.initiativeId);
+    const myDecisions = decisions.items.filter(d => d.initiativeId === initiative.initiativeId);
+    const myLessons = lessons.items.filter(l => l.initiativeId === initiative.initiativeId);
+    const myReviews = reviews.items.filter(r => r.initiativeId === initiative.initiativeId);
     const sourceIdea = ideas.items.filter(i => i.ideaId === initiative.sourceIdeaId)[0];
 
     return (
@@ -124,6 +129,10 @@ const Initiatives: React.FC = () => {
         <RelatedList title={t('nav.projects')} items={myProjects.map(p => ({ key: p.projectId, title: p.title, meta: t(`status.${p.status}`) }))} />
         <RelatedList title={t('nav.actions')} items={myActions.map(a => ({ key: a.actionId, title: a.title, meta: t(`status.${a.status}`) }))} />
         <RelatedList title={t('nav.notes')} items={myNotes.map(n => ({ key: n.noteId, title: n.title, meta: t(`category.${n.category}`) }))} />
+        <RelatedList title={t('nav.risks')} items={myRisks.map(r => ({ key: r.riskId, title: r.title, meta: `${t(`status.${r.status}`)} · ${riskScore(r.probability, r.impact)}` }))} />
+        <RelatedList title={t('nav.decisions')} items={myDecisions.map(d => ({ key: d.decisionId, title: d.title, meta: t(`status.${d.status}`) }))} />
+        <RelatedList title={t('nav.lessons')} items={myLessons.map(l => ({ key: l.lessonId, title: l.title, meta: t(`lessonCategory.${l.category}`) }))} />
+        <RelatedList title={t('nav.reviews')} items={myReviews.map(r => ({ key: r.reviewId, title: r.title, meta: t(`status.${r.status}`) }))} />
       </Stack>
     );
   };

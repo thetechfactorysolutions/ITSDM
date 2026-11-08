@@ -72,6 +72,8 @@ export interface IEntityScreenProps<T extends IEntityBase> {
   /** Status used by "Archive"; the command is disabled when the item cannot move there. */
   archiveStatus: string;
   canArchive: (item: T) => boolean;
+  /** Hides the Archive command for lists where it makes no sense (the status picker covers it). */
+  hideArchive?: boolean;
   csvFileName: string;
   csvColumns: Array<ICsvColumn<T>>;
   csvFromRow: (row: Record<string, string>) => T;
@@ -325,8 +327,10 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   if (props.renderDetail) {
     commandItems.push({ key: 'details', text: t('common.details'), iconProps: { iconName: 'Info' }, disabled: !selected, onClick: () => setIsDetailOpen(true) });
   }
+  if (!props.hideArchive) {
+    commandItems.push({ key: 'archive', text: t('common.archive'), iconProps: { iconName: 'Archive' }, disabled: !selected || !props.canArchive(selected), onClick: () => setConfirm('archive') });
+  }
   commandItems.push(
-    { key: 'archive', text: t('common.archive'), iconProps: { iconName: 'Archive' }, disabled: !selected || !props.canArchive(selected), onClick: () => setConfirm('archive') },
     { key: 'delete', text: t('common.delete'), iconProps: { iconName: 'Delete' }, disabled: !selected, onClick: () => setConfirm('delete') }
   );
   (props.extraCommands ? props.extraCommands(selected) : []).forEach(item => commandItems.push(item));
@@ -445,7 +449,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
           closeButtonAriaLabel={t('common.close')}
           headerText={selected ? props.getTitle(selected) : ''}
         >
-          {selected && props.renderDetail(selected)}
+          {isDetailOpen && selected && props.renderDetail(selected)}
         </Panel>
       )}
 

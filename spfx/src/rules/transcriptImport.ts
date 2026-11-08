@@ -1,10 +1,12 @@
 import {
-  ActionItem, ActionPriority, ActionStatus, Idea, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
-  Project, ProjectRiskLevel, ProjectStatus
+  ActionItem, ActionPriority, ActionStatus, Decision, DecisionStatus, Idea, IdeaStatus, Initiative, InitiativeStatus, Lesson, LessonCategory, LessonStatus,
+  Meeting, Note, NoteCategory, NoteStatus, Project, ProjectRiskLevel, ProjectStatus, Risk, RiskScale, RiskStatus
 } from '../models';
 import { dayKeyFromValue, isValidDayKey, toDayKey } from './dates';
 import { generateBusinessId } from './ids';
-import { validateAction, validateIdea, validateInitiative, validateMeeting, validateNote, validateProject, ValidationErrors } from './validation';
+import {
+  validateAction, validateDecision, validateIdea, validateInitiative, validateLesson, validateMeeting, validateNote, validateProject, validateRisk, ValidationErrors
+} from './validation';
 
 /**
  * Turns the text an AI produced from a meeting transcript into drafts of ideas, initiatives,
@@ -12,8 +14,8 @@ import { validateAction, validateIdea, validateInitiative, validateMeeting, vali
  * the reading, repairing and checking are pure functions so they can be tested exhaustively.
  */
 
-export type ImportKind = 'initiatives' | 'projects' | 'ideas' | 'actions' | 'notes';
-export const IMPORT_KINDS: ImportKind[] = ['initiatives', 'projects', 'ideas', 'actions', 'notes'];
+export type ImportKind = 'initiatives' | 'projects' | 'ideas' | 'actions' | 'risks' | 'decisions' | 'lessons' | 'notes';
+export const IMPORT_KINDS: ImportKind[] = ['initiatives', 'projects', 'ideas', 'actions', 'risks', 'decisions', 'lessons', 'notes'];
 
 export interface IImportWarning {
   /** Translation key, e.g. import.warn.ownerUnresolved. */
@@ -39,6 +41,9 @@ export interface IImportPlan {
   projects: Array<IDraft<Project>>;
   ideas: Array<IDraft<Idea>>;
   actions: Array<IDraft<ActionItem>>;
+  risks: Array<IDraft<Risk>>;
+  decisions: Array<IDraft<Decision>>;
+  lessons: Array<IDraft<Lesson>>;
   notes: Array<IDraft<Note>>;
   /** Problems about the result as a whole (unknown sections, nothing found...). */
   problems: IImportWarning[];
@@ -50,6 +55,9 @@ export interface IExistingRefs {
   ideas: Array<{ title: string }>;
   actions: Array<{ title: string }>;
   notes: Array<{ title: string }>;
+  risks?: Array<{ title: string }>;
+  decisions?: Array<{ title: string }>;
+  lessons?: Array<{ title: string }>;
   meetings: Array<{ title: string; date?: string }>;
 }
 
@@ -175,6 +183,7 @@ const MAX_TITLE = 255;
 
 const ALIASES: Record<string, string> = {
   alta: 'HIGH', alto: 'HIGH', media: 'MEDIUM', medio: 'MEDIUM', baja: 'LOW', bajo: 'LOW', critica: 'CRITICAL', critico: 'CRITICAL', urgente: 'CRITICAL',
+  proceso: 'PROCESS', tecnologia: 'TECHNOLOGY', personas: 'PEOPLE', proveedor: 'VENDOR', otra: 'OTHER', otro: 'OTHER',
   decision: 'DECISION', riesgo: 'RISK', informacion: 'INFO', info: 'INFO', seguimiento: 'FOLLOW_UP', followup: 'FOLLOW_UP', pendiente: 'FOLLOW_UP'
 };
 
@@ -199,6 +208,8 @@ const norm = (text: string): string => squash(text);
 const PRIORITIES = [ActionPriority.LOW, ActionPriority.MEDIUM, ActionPriority.HIGH, ActionPriority.CRITICAL];
 const RISKS = [ProjectRiskLevel.LOW, ProjectRiskLevel.MEDIUM, ProjectRiskLevel.HIGH, ProjectRiskLevel.CRITICAL];
 const CATEGORIES = [NoteCategory.DECISION, NoteCategory.RISK, NoteCategory.INFO, NoteCategory.FOLLOW_UP];
+const RISK_SCALE = [RiskScale.LOW, RiskScale.MEDIUM, RiskScale.HIGH];
+const LESSON_CATEGORIES = [LessonCategory.PROCESS, LessonCategory.TECHNOLOGY, LessonCategory.PEOPLE, LessonCategory.VENDOR, LessonCategory.OTHER];
 
 // ------------------------------------------------------------------ building the plan
 
@@ -426,6 +437,97 @@ export const buildPlan = (parsed: Record<string, unknown>, ctx: IBuildContext): 
     actions.push(finish(item.actionId, item, common, extra, validateAction(item), exists(ctx.existing.actions, item.title)));
   });
 
+  /** Project and initiative links shared by the sections that have both. An initiative follows its project. */
+  const readLinks = (raw: Record<string, unknown>, extra: IImportWarning[]): { projectId: string; initiativeId: string } => {
+    const projectTitle = asText(pick(raw, 'project', 'proyecto'));
+    const initiativeTitle = asText(pick(raw, 'initiative', 'iniciativa'));
+    const project = findProject(projectTitle);
+    const initiative = findInitiative(initiativeTitle);
+    if (projectTitle && !project) {
+      extra.push({ key: 'import.warn.linkUnresolved', params: { kind: 'project', title: projectTitle } });
+    }
+    if (initiativeTitle && !initiative) {
+      extra.push({ key: 'import.warn.linkUnresolved', params: { kind: 'initiative', title: initiativeTitle } });
+    }
+    return { projectId: project ? project.id : '', initiativeId: initiative ? initiative.id : (project ? project.initiativeId : '') };
+  };
+
+  // ----- risks -----
+  const risks: Array<IDraft<Risk>> = [];
+  asObjects(pick(parsed, 'risks', 'riesgos')).forEach((raw, index) => {
+    const common = readCommon(raw, ctx);
+    if (!common) {
+      problems.push({ key: 'import.warn.itemWithoutTitle', params: { section: 'risks', position: index + 1 } });
+      return;
+    }
+    const extra: IImportWarning[] = [];
+    const probability = toEnum(pick(raw, 'probability', 'probabilidad'), RISK_SCALE, RiskScale.MEDIUM);
+    const impact = toEnum(pick(raw, 'impact', 'impacto'), RISK_SCALE, RiskScale.MEDIUM);
+    if (!probability.recognised) {
+      extra.push({ key: 'import.warn.valueUnknown', params: { field: 'probability', value: asText(pick(raw, 'probability', 'probabilidad')) } });
+    }
+    if (!impact.recognised) {
+      extra.push({ key: 'import.warn.valueUnknown', params: { field: 'impact', value: asText(pick(raw, 'impact', 'impacto')) } });
+    }
+    const links = readLinks(raw, extra);
+    const item: Risk = {
+      riskId: newId('RISK'), title: common.title, description: common.description, status: RiskStatus.OPEN, probability: probability.value, impact: impact.value,
+      ownerUpn: common.ownerEmail, mitigation: asText(pick(raw, 'mitigation', 'mitigacion')),
+      dueDate: readDate(pick(raw, 'dueDate', 'fechaLimite', 'fecha'), 'dueDate', extra),
+      projectId: links.projectId, initiativeId: links.initiativeId, meetingId: meetingItem.meetingId
+    };
+    risks.push(finish(item.riskId, item, common, extra, validateRisk(item), exists(ctx.existing.risks ?? [], item.title)));
+  });
+
+  // ----- decisions -----
+  // A decision stated in a meeting is already taken, so it is created as DECIDED with the meeting's date.
+  const decisions: Array<IDraft<Decision>> = [];
+  asObjects(pick(parsed, 'decisions', 'decisiones')).forEach((raw, index) => {
+    const base = readCommon(raw, ctx);
+    if (!base) {
+      problems.push({ key: 'import.warn.itemWithoutTitle', params: { section: 'decisions', position: index + 1 } });
+      return;
+    }
+    const extra: IImportWarning[] = [];
+    // The person who decided: an email is used; a name is looked up later; with none, it stays empty.
+    const deciderText = asText(pick(raw, 'decidedBy', 'decididaPor', 'owner', 'responsable'));
+    const decider = EMAIL.test(deciderText) ? deciderText : '';
+    const deciderName = deciderText !== '' && decider === '' ? deciderText : undefined;
+    if (deciderName) {
+      extra.push({ key: 'import.warn.deciderUnresolved', params: { name: deciderName } });
+    }
+    const common: ICommon = { ...base, warnings: base.warnings.filter(w => w.key !== 'import.warn.ownerUnresolved'), ownerName: deciderName };
+    const links = readLinks(raw, extra);
+    const item: Decision = {
+      decisionId: newId('DEC'), title: common.title, description: common.description, rationale: asText(pick(raw, 'rationale', 'motivo', 'porque')),
+      status: DecisionStatus.DECIDED, decidedBy: decider, decisionDate: meetingItem.meetingDate,
+      projectId: links.projectId, initiativeId: links.initiativeId, meetingId: meetingItem.meetingId
+    };
+    decisions.push(finish(item.decisionId, item, common, extra, validateDecision(item), exists(ctx.existing.decisions ?? [], item.title)));
+  });
+
+  // ----- lessons learned -----
+  const lessons: Array<IDraft<Lesson>> = [];
+  asObjects(pick(parsed, 'lessons', 'lecciones', 'leccionesAprendidas')).forEach((raw, index) => {
+    const common = readCommon(raw, ctx);
+    if (!common) {
+      problems.push({ key: 'import.warn.itemWithoutTitle', params: { section: 'lessons', position: index + 1 } });
+      return;
+    }
+    const extra: IImportWarning[] = [];
+    const category = toEnum(pick(raw, 'category', 'categoria'), LESSON_CATEGORIES, LessonCategory.OTHER);
+    if (!category.recognised) {
+      extra.push({ key: 'import.warn.valueUnknown', params: { field: 'category', value: asText(pick(raw, 'category', 'categoria')) } });
+    }
+    const links = readLinks(raw, extra);
+    const item: Lesson = {
+      lessonId: newId('LESS'), title: common.title, description: common.description, recommendation: asText(pick(raw, 'recommendation', 'recomendacion')),
+      category: category.value, status: LessonStatus.NEW, ownerUpn: common.ownerEmail,
+      projectId: links.projectId, initiativeId: links.initiativeId, meetingId: meetingItem.meetingId
+    };
+    lessons.push(finish(item.lessonId, item, common, extra, validateLesson(item), exists(ctx.existing.lessons ?? [], item.title)));
+  });
+
   // ----- notes -----
   const notes: Array<IDraft<Note>> = [];
   asObjects(pick(parsed, 'notes', 'notas')).forEach((raw, index) => {
@@ -459,11 +561,11 @@ export const buildPlan = (parsed: Record<string, unknown>, ctx: IBuildContext): 
     notes.push(finish(item.noteId, item, noteCommon, extra, validateNote(item), exists(ctx.existing.notes, item.title)));
   });
 
-  if (initiatives.length + projects.length + ideas.length + actions.length + notes.length === 0) {
+  if (initiatives.length + projects.length + ideas.length + actions.length + risks.length + decisions.length + lessons.length + notes.length === 0) {
     problems.push({ key: 'import.warn.nothingFound' });
   }
 
-  return { meeting, initiatives, projects, ideas, actions, notes, problems };
+  return { meeting, initiatives, projects, ideas, actions, risks, decisions, lessons, notes, problems };
 };
 
 // ------------------------------------------------------------------ owners
@@ -480,6 +582,9 @@ export const collectOwnerNames = (plan: IImportPlan): string[] => {
   plan.projects.forEach(d => add(d.ownerName));
   plan.ideas.forEach(d => add(d.ownerName));
   plan.actions.forEach(d => add(d.ownerName));
+  plan.risks.forEach(d => add(d.ownerName));
+  plan.lessons.forEach(d => add(d.ownerName));
+  plan.decisions.forEach(d => add(d.ownerName));
   return names;
 };
 
@@ -497,13 +602,31 @@ const resolveIn = <T extends { ownerUpn: string }>(drafts: Array<IDraft<T>>, res
     };
   });
 
+/** Same for decisions, where the person found is the one who decided. */
+const resolveDeciders = (drafts: Array<IDraft<Decision>>, resolved: Record<string, string | undefined>): Array<IDraft<Decision>> =>
+  drafts.map(draft => {
+    const email = draft.ownerName ? resolved[draft.ownerName] : undefined;
+    if (!draft.ownerName || !email) {
+      return draft;
+    }
+    return {
+      ...draft,
+      ownerName: undefined,
+      item: { ...draft.item, decidedBy: email },
+      warnings: draft.warnings.filter(w => w.key !== 'import.warn.deciderUnresolved')
+    };
+  });
+
 /** Applies directory matches (name -> email, only for unique matches) and drops the warnings they fix. */
 export const applyResolvedOwners = (plan: IImportPlan, resolved: Record<string, string | undefined>): IImportPlan => ({
   ...plan,
   initiatives: resolveIn(plan.initiatives, resolved),
   projects: resolveIn(plan.projects, resolved),
   ideas: resolveIn(plan.ideas, resolved),
-  actions: resolveIn(plan.actions, resolved)
+  actions: resolveIn(plan.actions, resolved),
+  risks: resolveIn(plan.risks, resolved),
+  lessons: resolveIn(plan.lessons, resolved),
+  decisions: resolveDeciders(plan.decisions, resolved)
 });
 
 export const countIncluded = (plan: IImportPlan): number =>

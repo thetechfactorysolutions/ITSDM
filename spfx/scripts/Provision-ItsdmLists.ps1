@@ -156,6 +156,32 @@ $notes = @(
   @{ Name = 'MeetingId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }
 )
 
+$risks = @(
+  @{ Name = 'RiskId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'OPEN', 'MITIGATING', 'ACCEPTED', 'CLOSED' },
+  @{ Name = 'Probability'; Type = 'Choice'; Choices = 'LOW', 'MEDIUM', 'HIGH' }, @{ Name = 'Impact'; Type = 'Choice'; Choices = 'LOW', 'MEDIUM', 'HIGH' },
+  @{ Name = 'OwnerUPN'; Type = 'Text' }, @{ Name = 'Mitigation'; Type = 'Note' }, @{ Name = 'DueDate'; Type = 'Date' },
+  @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }, @{ Name = 'MeetingId'; Type = 'Text' }
+)
+$decisions = @(
+  @{ Name = 'DecisionId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' }, @{ Name = 'Rationale'; Type = 'Note' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'PROPOSED', 'DECIDED', 'SUPERSEDED' },
+  @{ Name = 'DecidedBy'; Type = 'Text' }, @{ Name = 'DecisionDate'; Type = 'Date' },
+  @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }, @{ Name = 'MeetingId'; Type = 'Text' }
+)
+$reviews = @(
+  @{ Name = 'ReviewId'; Type = 'Text' }, @{ Name = 'ReviewType'; Type = 'Choice'; Choices = 'STATUS', 'RISK', 'FINANCIAL', 'CLOSURE' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'SCHEDULED', 'COMPLETED', 'CANCELLED' }, @{ Name = 'Health'; Type = 'Choice'; Choices = 'GREEN', 'AMBER', 'RED' },
+  @{ Name = 'ReviewDate'; Type = 'Date' }, @{ Name = 'NextReviewDate'; Type = 'Date' }, @{ Name = 'Summary'; Type = 'Note' }, @{ Name = 'NextSteps'; Type = 'Note' },
+  @{ Name = 'OwnerUPN'; Type = 'Text' }, @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }
+)
+$lessons = @(
+  @{ Name = 'LessonId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' }, @{ Name = 'Recommendation'; Type = 'Note' },
+  @{ Name = 'Category'; Type = 'Choice'; Choices = 'PROCESS', 'TECHNOLOGY', 'PEOPLE', 'VENDOR', 'OTHER' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'NEW', 'REVIEWED', 'APPLIED' }, @{ Name = 'OwnerUPN'; Type = 'Text' },
+  @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }, @{ Name = 'MeetingId'; Type = 'Text' }
+)
+
 # Same seven approval columns on the four main lists (see src/rules/approvals.ts).
 $approval = @(
   @{ Name = 'ApprovalRule'; Type = 'Text' },
@@ -174,6 +200,10 @@ Initialize-ItsdmList -Title 'IT_01_Ideas'       -Fields $ideas
 Initialize-ItsdmList -Title 'IT_02_Initiatives' -Fields $initiatives
 Initialize-ItsdmList -Title 'IT_03_Projects'    -Fields $projects
 Initialize-ItsdmList -Title 'IT_04_Actions'     -Fields $actions
+Initialize-ItsdmList -Title 'IT_11_Risks'       -Fields $risks
+Initialize-ItsdmList -Title 'IT_12_Decisions'   -Fields $decisions
+Initialize-ItsdmList -Title 'IT_19_Reviews'     -Fields $reviews
+Initialize-ItsdmList -Title 'IT_20_LessonsLearned' -Fields $lessons
 Initialize-ItsdmList -Title 'IT_21_Meetings'    -Fields $meetings
 Initialize-ItsdmList -Title 'IT_22_Notes'       -Fields $notes
 

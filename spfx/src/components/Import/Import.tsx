@@ -71,6 +71,15 @@ const metaFor = (t: TranslateFn, kind: ImportKind, item: Record<string, unknown>
   if (kind === 'projects' && item.riskLevel) {
     parts.push(t(`risk.${item.riskLevel as string}`));
   }
+  if (kind === 'risks' && item.probability && item.impact) {
+    parts.push(`${t(`probability.${item.probability as string}`)} / ${t(`impact.${item.impact as string}`)}`);
+  }
+  if (kind === 'decisions' && item.decidedBy) {
+    parts.push(item.decidedBy as string);
+  }
+  if (kind === 'lessons' && item.category) {
+    parts.push(t(`lessonCategory.${item.category as string}`));
+  }
   if (kind === 'notes' && item.category) {
     parts.push(t(`category.${item.category as string}`));
   }
@@ -103,6 +112,9 @@ const Import: React.FC = () => {
     ideas: hub.ideas.items.map(i => ({ title: i.title })),
     actions: hub.actions.items.map(a => ({ title: a.title })),
     notes: hub.notes.items.map(n => ({ title: n.title })),
+    risks: hub.risks.items.map(r => ({ title: r.title })),
+    decisions: hub.decisions.items.map(d => ({ title: d.title })),
+    lessons: hub.lessons.items.map(l => ({ title: l.title })),
     meetings: hub.meetings.items.map(m => ({ title: m.title, date: m.meetingDate }))
   };
 
@@ -167,7 +179,8 @@ const Import: React.FC = () => {
       return {
         ...prev,
         meeting: { ...prev.meeting, include: include && prev.meeting.errors.length === 0 },
-        initiatives: all(prev.initiatives), projects: all(prev.projects), ideas: all(prev.ideas), actions: all(prev.actions), notes: all(prev.notes)
+        initiatives: all(prev.initiatives), projects: all(prev.projects), ideas: all(prev.ideas), actions: all(prev.actions),
+        risks: all(prev.risks), decisions: all(prev.decisions), lessons: all(prev.lessons), notes: all(prev.notes)
       };
     });
   };
@@ -182,7 +195,8 @@ const Import: React.FC = () => {
       listNames: {
         initiatives: AppConfig.sharePoint.listNames.initiatives, projects: AppConfig.sharePoint.listNames.projects,
         ideas: AppConfig.sharePoint.listNames.ideas, actions: AppConfig.sharePoint.listNames.actions,
-        notes: AppConfig.sharePoint.listNames.notes, meetings: AppConfig.sharePoint.listNames.meetings
+        notes: AppConfig.sharePoint.listNames.notes, meetings: AppConfig.sharePoint.listNames.meetings,
+        risks: AppConfig.sharePoint.listNames.risks, decisions: AppConfig.sharePoint.listNames.decisions, lessons: AppConfig.sharePoint.listNames.lessonsLearned
       },
       sourceTag: id => t('import.sourceTag', { id })
     }, {
@@ -201,7 +215,7 @@ const Import: React.FC = () => {
     setStep('done');
 
     // Every list may have changed, so reload them once.
-    [hub.initiatives, hub.projects, hub.ideas, hub.actions, hub.notes, hub.meetings].forEach(state => { state.reload().catch(() => undefined); });
+    [hub.initiatives, hub.projects, hub.ideas, hub.actions, hub.notes, hub.meetings, hub.risks, hub.decisions, hub.lessons].forEach(state => { state.reload().catch(() => undefined); });
   };
 
   const retryFailed = (): void => {

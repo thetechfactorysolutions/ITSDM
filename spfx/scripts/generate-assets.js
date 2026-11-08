@@ -91,6 +91,55 @@ const LISTS = [
     })
   },
   {
+    title: 'IT_11_Risks', file: 'schema_risks.xml', description: 'Risks with probability, impact and mitigation',
+    fields: [T('RiskId'), N('Description'), C('Status', ['OPEN', 'MITIGATING', 'ACCEPTED', 'CLOSED']),
+      C('Probability', ['LOW', 'MEDIUM', 'HIGH']), C('Impact', ['LOW', 'MEDIUM', 'HIGH']),
+      T('OwnerUPN'), N('Mitigation'), D('DueDate'), T('ProjectId'), T('InitiativeId'), T('MeetingId')],
+    rows: (day) => [
+      ['Telephony vendor may deliver late', 'RISK-DEMO-001', 'OPEN', 'HIGH', 'HIGH', 'Agree a firm delivery date and a penalty clause.', 14, 'PROJ-DEMO-002'],
+      ['Users may resist the new laptops', 'RISK-DEMO-002', 'MITIGATING', 'MEDIUM', 'MEDIUM', 'Run short demos in each department.', 30, 'PROJ-DEMO-001'],
+      ['Licence renewal could be missed', 'RISK-DEMO-003', 'ACCEPTED', 'LOW', 'MEDIUM', 'Calendar reminder 60 days before.', 60, '']
+    ].map(([t, id, st, p, i, mit, d, proj]) => ({
+      Title: t, RiskId: id, Description: `Sample risk: ${t}.`, Status: st, Probability: p, Impact: i, OwnerUPN: SAMPLE_OWNER,
+      Mitigation: mit, DueDate: day(d), ProjectId: proj, MeetingId: 'MEET-DEMO-001'
+    }))
+  },
+  {
+    title: 'IT_12_Decisions', file: 'schema_decisions.xml', description: 'Decisions with their context and rationale',
+    fields: [T('DecisionId'), N('Description'), N('Rationale'), C('Status', ['PROPOSED', 'DECIDED', 'SUPERSEDED']),
+      T('DecidedBy'), D('DecisionDate'), T('ProjectId'), T('InitiativeId'), T('MeetingId')],
+    rows: (day) => [
+      ['Buy laptops in two waves', 'DEC-DEMO-001', 'DECIDED', 'Budget is released per wave.', 'A single purchase would exceed the quarterly budget.', -3, 'PROJ-DEMO-001'],
+      ['Move telephony to Teams Phone', 'DEC-DEMO-002', 'PROPOSED', 'Waiting for the licence quote.', 'Removes the separate telephony contract.', 0, 'PROJ-DEMO-002']
+    ].map(([t, id, st, ctx, why, d, proj]) => {
+      const row = { Title: t, DecisionId: id, Description: ctx, Rationale: why, Status: st, ProjectId: proj, MeetingId: 'MEET-DEMO-001' };
+      if (st === 'DECIDED') { row.DecidedBy = SAMPLE_OWNER; row.DecisionDate = day(d); }
+      return row;
+    })
+  },
+  {
+    title: 'IT_19_Reviews', file: 'schema_reviews.xml', description: 'Periodic reviews of projects and initiatives',
+    fields: [T('ReviewId'), C('ReviewType', ['STATUS', 'RISK', 'FINANCIAL', 'CLOSURE']), C('Status', ['SCHEDULED', 'COMPLETED', 'CANCELLED']),
+      C('Health', ['GREEN', 'AMBER', 'RED']), D('ReviewDate'), D('NextReviewDate'), N('Summary'), N('NextSteps'), T('OwnerUPN'), T('ProjectId'), T('InitiativeId')],
+    rows: (day) => [
+      ['Telephony rollout: status review', 'REV-DEMO-001', 'STATUS', 'COMPLETED', 'AMBER', -7, 7, 'Forecast is above budget; approval pending.', 'Decide on the budget increase.', 'PROJ-DEMO-002'],
+      ['Laptop refresh: financial review', 'REV-DEMO-002', 'FINANCIAL', 'SCHEDULED', 'GREEN', 14, 45, '', '', 'PROJ-DEMO-001']
+    ].map(([t, id, type, st, health, d, next, summary, steps, proj]) => ({
+      Title: t, ReviewId: id, ReviewType: type, Status: st, Health: health, ReviewDate: day(d), NextReviewDate: day(next),
+      Summary: summary, NextSteps: steps, OwnerUPN: SAMPLE_OWNER, ProjectId: proj
+    }))
+  },
+  {
+    title: 'IT_20_LessonsLearned', file: 'schema_lessons.xml', description: 'What was learned and what to do next time',
+    fields: [T('LessonId'), N('Description'), N('Recommendation'), C('Category', ['PROCESS', 'TECHNOLOGY', 'PEOPLE', 'VENDOR', 'OTHER']),
+      C('Status', ['NEW', 'REVIEWED', 'APPLIED']), T('OwnerUPN'), T('ProjectId'), T('InitiativeId'), T('MeetingId')],
+    rows: () => [
+      ['Confirm vendor lead times before committing a date', 'LESS-DEMO-001', 'The first telephony date was set before the vendor confirmed stock.', 'Get written lead times and add a margin.', 'VENDOR', 'NEW', 'PROJ-DEMO-002']
+    ].map(([t, id, what, rec, cat, st, proj]) => ({
+      Title: t, LessonId: id, Description: what, Recommendation: rec, Category: cat, Status: st, OwnerUPN: SAMPLE_OWNER, ProjectId: proj, MeetingId: 'MEET-DEMO-001'
+    }))
+  },
+  {
     title: 'IT_21_Meetings', file: 'schema_meetings.xml', description: 'Meetings imported from a transcript, with what was created from them',
     fields: [T('MeetingId'), D('MeetingDate'), N('Summary'), N('Attendees'), N('Transcript'), N('ImportedItems')],
     rows: (day) => [

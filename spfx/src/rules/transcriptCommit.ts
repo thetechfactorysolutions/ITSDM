@@ -1,5 +1,5 @@
 import {
-  buildActionPayload, buildIdeaPayload, buildInitiativePayload, buildMeetingPayload, buildNotePayload, buildProjectPayload
+  buildActionPayload, buildDecisionPayload, buildIdeaPayload, buildInitiativePayload, buildLessonPayload, buildMeetingPayload, buildNotePayload, buildProjectPayload, buildRiskPayload
 } from '../entities/payloads';
 import { IDraft, IImportPlan, ImportKind, IMPORT_KINDS } from './transcriptImport';
 
@@ -102,6 +102,9 @@ export const commitPlan = async (plan: IImportPlan, deps: ICommitDeps, options: 
   await run('projects', plan.projects, p => buildProjectPayload({ ...p, description: withSource(p.description, tag) }), p => p.projectId, p => p.title);
   await run('ideas', plan.ideas, i => buildIdeaPayload({ ...i, description: withSource(i.description, tag) }), i => i.ideaId, i => i.title);
   await run('actions', plan.actions, a => buildActionPayload({ ...a, description: withSource(a.description, tag) }), a => a.actionId, a => a.title);
+  await run('risks', plan.risks, r => buildRiskPayload({ ...r, description: withSource(r.description, tag) }), r => r.riskId, r => r.title);
+  await run('decisions', plan.decisions, d => buildDecisionPayload({ ...d, description: withSource(d.description, tag) }), d => d.decisionId, d => d.title);
+  await run('lessons', plan.lessons, l => buildLessonPayload({ ...l, description: withSource(l.description, tag) }), l => l.lessonId, l => l.title);
   await run('notes', plan.notes, n => buildNotePayload(n), n => n.noteId, n => n.title);
 
   // Write what was created back to the meeting, so it is traceable from there.
@@ -128,6 +131,9 @@ export const planForRetry = (plan: IImportPlan, failedKeys: string[]): IImportPl
     projects: only(plan.projects),
     ideas: only(plan.ideas),
     actions: only(plan.actions),
+    risks: only(plan.risks),
+    decisions: only(plan.decisions),
+    lessons: only(plan.lessons),
     notes: only(plan.notes)
   };
 };

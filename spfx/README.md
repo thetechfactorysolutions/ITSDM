@@ -20,7 +20,7 @@ npm install
 | `npx gulp serve` | Servidor local para el workbench de SharePoint |
 | `npm run package` | Genera las listas, compila y crea `sharepoint/solution/itsdm.sppkg` |
 | `npm run assets` | Solo regenera los XML de las listas (`sharepoint/assets`) |
-| `npm test` | Lint + compilación + 11 grupos de tests (reglas, validación, ids, importación, idiomas, hook y pantallas) |
+| `npm test` | Lint + compilación + 14 grupos de tests (reglas, validación, ids, importación, idiomas, hook y pantallas) |
 
 Despliegue: `npm run package` → subir `sharepoint/solution/itsdm.sppkg` al catálogo de aplicaciones → **añadir la app al sitio** (Contenido del sitio → Nuevo → Aplicación). Al añadirla, SharePoint crea las listas con sus columnas y unos datos de ejemplo. Después, en la página, la web part se puede poner en una sección de ancho completo.
 
@@ -37,13 +37,14 @@ src/
     dates, ids, csv, tableView   Fechas sin saltos de zona horaria, ids, CSV, búsqueda/filtro/orden
     transcriptImport/Commit, importPrompt   Importación desde una reunión
     approvals, approvalMessage   Reglas de aprobación (datos) y mensajes de solicitud
+    governance                   Puntuación de riesgos, estados de riesgos, decisiones, lecciones y revisiones
   entities/        Payloads y columnas de cada lista
   services/        SharePointService (PnPjs) + andamiaje de Graph, Planner y Power Automate
   hooks/           useListItems
   i18n/            Diccionarios en inglés y español
   components/
     shared/        EntityScreen (pantalla genérica de lista), HubData, campos, gráficos
-    Dashboard, Ideas, Initiatives, Projects, Actions, Notes, Import, Help
+    Dashboard, Ideas, Initiatives, Projects, Actions, Governance (Risks, Decisions, Lessons, Reviews), Notes, Import, Help
   config/AppConfig Nombres de las listas de SharePoint
 scripts/
   generate-assets.js          Definición única de las listas → XML del paquete
@@ -54,7 +55,7 @@ tests/             Reglas, validación, ids, importación, idiomas, hook, pantal
 
 ## Listas de SharePoint
 
-Se crean solas al añadir la app. Su definición está en `scripts/generate-assets.js` y el esquema documentado en `../docs/SHAREPOINT_SCHEMA.md`: `IT_01_Ideas`, `IT_02_Initiatives`, `IT_03_Projects`, `IT_04_Actions`, `IT_21_Meetings` e `IT_22_Notes`. Los nombres están en `src/config/AppConfig.ts`.
+Se crean solas al añadir la app. Su definición está en `scripts/generate-assets.js` y el esquema documentado en `../docs/SHAREPOINT_SCHEMA.md`: `IT_01_Ideas`, `IT_02_Initiatives`, `IT_03_Projects`, `IT_04_Actions`, `IT_11_Risks`, `IT_12_Decisions`, `IT_19_Reviews`, `IT_20_LessonsLearned`, `IT_21_Meetings` e `IT_22_Notes`. Los nombres están en `src/config/AppConfig.ts`.
 
 ## Reglas de negocio
 

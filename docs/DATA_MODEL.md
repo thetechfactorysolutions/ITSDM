@@ -6,12 +6,17 @@
 - **Project**: execution vehicle with scope, timeline, budget and risk
 - **Action**: trackable unit of work linked to an initiative and/or project
 - **Meeting**: a meeting imported from a transcript, with its summary, transcript and what was created from it
-- **Note**: a decision, risk, information or follow-up, linked to a meeting, initiative and/or project
+- **Note**: information or a follow-up, linked to a meeting, initiative and/or project
+- **Risk**: something that could go wrong, with probability, impact, owner and mitigation
+- **Decision**: what was decided, its context, why, who and when
+- **Lesson learned**: what happened and what to do next time
+- **Review**: a periodic look at a project or initiative, with a health (green, amber, red)
 
 ## Relationships
 - Idea → (validated + confirmation) → Initiative
 - Initiative 1..* Projects; Initiative 1..* Actions; Project 1..* Actions
-- Meeting 1..* Notes
+- Meeting 1..* Notes, risks, decisions and lessons
+- Risks, decisions, lessons and reviews can each point at a project and/or an initiative, and appear in their details
 - Links are stored as the **business id** of the other item (`InitiativeId`, `ProjectId`, `SourceIdeaId`, `MeetingId`) and chosen from a picker. They are text columns, not SharePoint lookup columns, so existing lists did not need to change.
 
 ## Status rules
@@ -20,6 +25,14 @@
 - The form and the table only offer allowed statuses, and a save is checked against the **saved** status, not the value edited in the form.
 - When an action becomes DONE its completion date is filled with today (if empty); reopening clears it.
 - **Archive** = move to CANCELLED (notes: ARCHIVED). Closed items are hidden unless "Show closed" is on.
+
+## Governance
+- **Risk score** = probability (Low 1, Medium 2, High 3) x impact (same scale), from 1 to 9. Level: **Low** up to 2, **Medium** up to 4, **High** from 6. Score and level are calculated, not stored. A risk is *active* until it is Closed; the dashboard counts the active High ones.
+- **Risk:** Open → Mitigating / Accepted → Closed (a closed risk can be reopened).
+- **Decision:** Proposed → Decided → Superseded. When it becomes Decided, the date (today) and who decided (the user) are filled in if empty.
+- **Lesson:** New → Reviewed → Applied.
+- **Review:** Scheduled → Completed or Cancelled (can be rescheduled).
+- Closed statuses (hidden by default): Closed, Superseded, Applied, Completed, Cancelled.
 
 ## Approvals
 Ideas, initiatives, projects and actions carry one active approval (`ApprovalRule`, `ApprovalStatus` NONE/PENDING/APPROVED/REJECTED, `Approver`, `ApprovalRequestedOn`, `ApprovalDecidedOn`, `ApprovalDecidedBy`, `ApprovalComment`). Which changes need one is defined as data in `src/rules/approvals.ts`; see `APROBACIONES.md`.

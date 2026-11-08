@@ -6,6 +6,7 @@ import { buildProjectPayload } from '../../entities/payloads';
 import { TranslateFn, useT } from '../../i18n/I18n';
 import { Project, ProjectRiskLevel, ProjectStatus } from '../../models';
 import { isProjectAtRiskByVariance } from '../../rules/businessRules';
+import { riskScore } from '../../rules/governance';
 import { generateBusinessId } from '../../rules/ids';
 import { getAllowedProjectStatuses } from '../../rules/transitions';
 import { validateProject } from '../../rules/validation';
@@ -64,7 +65,7 @@ const csvColumns = [
 
 const Projects: React.FC = () => {
   const t = useT();
-  const { service, userEmail, projects: state, initiatives, actions, notes } = useHubData();
+  const { service, userEmail, projects: state, initiatives, actions, notes, risks, decisions, lessons, reviews } = useHubData();
   const columns = React.useMemo(() => makeColumns(t), [t]);
 
   const initiativeOptions = React.useMemo(() => initiatives.items.map(i => ({ id: i.initiativeId, title: i.title })), [initiatives.items]);
@@ -119,6 +120,10 @@ const Projects: React.FC = () => {
   const renderDetail = (project: Project): React.ReactNode => {
     const myActions = actions.items.filter(a => a.projectId === project.projectId);
     const myNotes = notes.items.filter(n => n.projectId === project.projectId);
+    const myRisks = risks.items.filter(r => r.projectId === project.projectId);
+    const myDecisions = decisions.items.filter(d => d.projectId === project.projectId);
+    const myLessons = lessons.items.filter(l => l.projectId === project.projectId);
+    const myReviews = reviews.items.filter(r => r.projectId === project.projectId);
     const initiative = initiatives.items.filter(i => i.initiativeId === project.initiativeId)[0];
     const variance = project.budgetAmount > 0 ? Math.round(((project.forecastAmount - project.budgetAmount) / project.budgetAmount) * 100) : 0;
 
@@ -140,6 +145,10 @@ const Projects: React.FC = () => {
         ]} />
         <RelatedList title={t('nav.actions')} items={myActions.map(a => ({ key: a.actionId, title: a.title, meta: t(`status.${a.status}`) }))} />
         <RelatedList title={t('nav.notes')} items={myNotes.map(n => ({ key: n.noteId, title: n.title, meta: t(`category.${n.category}`) }))} />
+        <RelatedList title={t('nav.risks')} items={myRisks.map(r => ({ key: r.riskId, title: r.title, meta: `${t(`status.${r.status}`)} · ${riskScore(r.probability, r.impact)}` }))} />
+        <RelatedList title={t('nav.decisions')} items={myDecisions.map(d => ({ key: d.decisionId, title: d.title, meta: t(`status.${d.status}`) }))} />
+        <RelatedList title={t('nav.lessons')} items={myLessons.map(l => ({ key: l.lessonId, title: l.title, meta: t(`lessonCategory.${l.category}`) }))} />
+        <RelatedList title={t('nav.reviews')} items={myReviews.map(r => ({ key: r.reviewId, title: r.title, meta: t(`status.${r.status}`) }))} />
       </Stack>
     );
   };

@@ -1,4 +1,4 @@
-import { ActionItem, IApprovalState, Idea, Initiative, Meeting, Note, Project } from '../models';
+import { ActionItem, Decision, IApprovalState, Idea, Initiative, Lesson, Meeting, Note, Project, Review, Risk } from '../models';
 import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
 
@@ -97,6 +97,62 @@ export const buildNotePayload = (note: Note): Record<string, unknown> => ({
   ProjectId: note.projectId ?? ''
 });
 
+export const buildRiskPayload = (risk: Risk): Record<string, unknown> => ({
+  Title: risk.title.trim(),
+  RiskId: risk.riskId,
+  Description: risk.description,
+  Status: risk.status,
+  Probability: risk.probability,
+  Impact: risk.impact,
+  OwnerUPN: risk.ownerUpn,
+  Mitigation: risk.mitigation,
+  DueDate: dayKeyToSharePoint(risk.dueDate),
+  ProjectId: risk.projectId ?? '',
+  InitiativeId: risk.initiativeId ?? '',
+  MeetingId: risk.meetingId ?? ''
+});
+
+export const buildDecisionPayload = (decision: Decision): Record<string, unknown> => ({
+  Title: decision.title.trim(),
+  DecisionId: decision.decisionId,
+  Description: decision.description,
+  Rationale: decision.rationale,
+  Status: decision.status,
+  DecidedBy: decision.decidedBy,
+  DecisionDate: dayKeyToSharePoint(decision.decisionDate),
+  ProjectId: decision.projectId ?? '',
+  InitiativeId: decision.initiativeId ?? '',
+  MeetingId: decision.meetingId ?? ''
+});
+
+export const buildLessonPayload = (lesson: Lesson): Record<string, unknown> => ({
+  Title: lesson.title.trim(),
+  LessonId: lesson.lessonId,
+  Description: lesson.description,
+  Recommendation: lesson.recommendation,
+  Category: lesson.category,
+  Status: lesson.status,
+  OwnerUPN: lesson.ownerUpn,
+  ProjectId: lesson.projectId ?? '',
+  InitiativeId: lesson.initiativeId ?? '',
+  MeetingId: lesson.meetingId ?? ''
+});
+
+export const buildReviewPayload = (review: Review): Record<string, unknown> => ({
+  Title: review.title.trim(),
+  ReviewId: review.reviewId,
+  ReviewType: review.reviewType,
+  Status: review.status,
+  Health: review.health,
+  ReviewDate: dayKeyToSharePoint(review.reviewDate),
+  NextReviewDate: dayKeyToSharePoint(review.nextReviewDate),
+  Summary: review.summary,
+  NextSteps: review.nextSteps,
+  OwnerUPN: review.ownerUpn,
+  ProjectId: review.projectId ?? '',
+  InitiativeId: review.initiativeId ?? ''
+});
+
 /** Columns requested from each list. Asking only for what the app uses keeps the responses small. */
 export const SELECT = {
   ideas: ['Id', 'Title', 'IdeaId', 'Description', 'Status', 'OwnerUPN', 'SponsorUPN', 'EstimatedValue', 'TargetDate', 'Tags', 'ConvertedInitiativeId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
@@ -104,6 +160,10 @@ export const SELECT = {
   projects: ['Id', 'Title', 'ProjectId', 'InitiativeId', 'Description', 'Status', 'OwnerUPN', 'StartDate', 'EndDate', 'BudgetAmount', 'ForecastAmount', 'RiskLevel', 'PlannerPlanId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   actions: ['Id', 'Title', 'ActionId', 'InitiativeId', 'ProjectId', 'Description', 'Status', 'Priority', 'OwnerUPN', 'DueDate', 'CompletedDate', 'PlannerTaskId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   meetings: ['Id', 'Title', 'MeetingId', 'MeetingDate', 'Summary', 'Attendees', 'Transcript', 'ImportedItems', 'Created', 'Modified', 'Editor/Title'],
+  risks: ['Id', 'Title', 'RiskId', 'Description', 'Status', 'Probability', 'Impact', 'OwnerUPN', 'Mitigation', 'DueDate', 'ProjectId', 'InitiativeId', 'MeetingId', 'Created', 'Modified', 'Editor/Title'],
+  decisions: ['Id', 'Title', 'DecisionId', 'Description', 'Rationale', 'Status', 'DecidedBy', 'DecisionDate', 'ProjectId', 'InitiativeId', 'MeetingId', 'Created', 'Modified', 'Editor/Title'],
+  lessons: ['Id', 'Title', 'LessonId', 'Description', 'Recommendation', 'Category', 'Status', 'OwnerUPN', 'ProjectId', 'InitiativeId', 'MeetingId', 'Created', 'Modified', 'Editor/Title'],
+  reviews: ['Id', 'Title', 'ReviewId', 'ReviewType', 'Status', 'Health', 'ReviewDate', 'NextReviewDate', 'Summary', 'NextSteps', 'OwnerUPN', 'ProjectId', 'InitiativeId', 'Created', 'Modified', 'Editor/Title'],
   notes: ['Id', 'Title', 'NoteId', 'Body', 'Category', 'Status', 'MeetingId', 'InitiativeId', 'ProjectId', 'Created', 'Modified', 'Editor/Title']
 };
 

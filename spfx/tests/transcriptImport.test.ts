@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { ActionPriority, ActionStatus, IdeaStatus, InitiativeStatus, NoteCategory, NoteStatus, ProjectRiskLevel, ProjectStatus } from '../src/models';
+import {
+  ActionPriority, ActionStatus, DecisionStatus, IdeaStatus, InitiativeStatus, LessonCategory, LessonStatus, NoteCategory, NoteStatus, ProjectRiskLevel, ProjectStatus, RiskScale, RiskStatus
+} from '../src/models';
 import { buildImportPrompt } from '../src/rules/importPrompt';
 import { commitPlan, ICommitDeps, planForRetry } from '../src/rules/transcriptCommit';
 import {
@@ -219,7 +221,7 @@ interface ICall { op: 'create' | 'update'; list: string; payload: Record<string,
 const makeDeps = (calls: ICall[], failTitles: string[] = []): ICommitDeps => {
   let nextId = 100;
   return {
-    listNames: { initiatives: 'L_INIT', projects: 'L_PROJ', ideas: 'L_IDEA', actions: 'L_ACT', notes: 'L_NOTE', meetings: 'L_MEET' },
+    listNames: { initiatives: 'L_INIT', projects: 'L_PROJ', ideas: 'L_IDEA', actions: 'L_ACT', notes: 'L_NOTE', meetings: 'L_MEET', risks: 'L_RISK', decisions: 'L_DEC', lessons: 'L_LESS' },
     sourceTag: id => `[Source: ${id}]`,
     createItem: async (list, payload) => {
       if (failTitles.indexOf(String(payload.Title)) > -1) {
@@ -289,12 +291,103 @@ const testExcludedAndMeetingFailure = async (): Promise<void> => {
   assert.equal(calls.filter(c => c.op === 'update').length, 0, 'no summary is written when the meeting does not exist');
 };
 
+// ---------------------------------------------------------------- risks, decisions and lessons
+const GOV = {
+  meeting: { title: 'Weekly sync', date: '2026-11-06' },
+  projects: [{ title: 'Laptop refresh' }],
+  risks: [
+    { title: 'Vendor may deliver late', owner: 'ana@x.com', probability: 'alta', impact: 'HIGH', mitigation: 'Agree a firm date', dueDate: '2026-11-20', project: 'Laptop refresh' },
+    { title: 'Odd one', impact: 'catastrophic' }
+  ],
+  decisions: [
+    { title: 'Buy in two waves', description: 'Budget is tight', rationale: 'Released per wave', decidedBy: 'Luis García', project: 'Laptop refresh' },
+    { title: 'Keep the old contract', decidedBy: 'boss@x.com' }
+  ],
+  lessons: [{ title: 'Confirm lead times', recommendation: 'Ask in writing', categoria: 'proveedor', project: 'Laptop refresh' }]
+};
+
+const testGovernanceSections = (): void => {
+  const plan = buildPlan(parse(GOV), makeCtx());
+  const project = plan.projects[0].item;
+  const [r1, r2] = plan.risks;
+
+  assert.equal(r1.item.status, RiskStatus.OPEN, 'a new risk starts open');
+  assert.equal(r1.item.probability, RiskScale.HIGH, 'a Spanish word is understood');
+  assert.equal(r1.item.impact, RiskScale.HIGH);
+  assert.equal(r1.item.ownerUpn, 'ana@x.com');
+  assert.equal(r1.item.dueDate, '2026-11-20');
+  assert.equal(r1.item.projectId, project.projectId);
+  assert.equal(r1.item.meetingId, plan.meeting.item.meetingId, 'linked back to the meeting');
+  assert.equal(r2.item.impact, RiskScale.MEDIUM, 'an unknown value falls back to the default');
+  assert.deepEqual(keys(r2.warnings), ['import.warn.valueUnknown']);
+  assert.equal(r2.include, true);
+
+  const [d1, d2] = plan.decisions;
+  assert.equal(d1.item.status, DecisionStatus.DECIDED, 'a decision taken in a meeting is already decided');
+  assert.equal(d1.item.decisionDate, '2026-11-06', 'with the date of the meeting');
+  assert.equal(d1.item.decidedBy, '', 'a name is not an email, so the decider waits for the directory');
+  assert.equal(d1.ownerName, 'Luis García');
+  assert.deepEqual(keys(d1.warnings), ['import.warn.deciderUnresolved'], 'the decision-specific warning, not the "assigned to you" one');
+  assert.equal(d1.item.rationale, 'Released per wave');
+  assert.equal(d1.include, true, 'an unresolved decider does not block it');
+  assert.equal(d2.item.decidedBy, 'boss@x.com');
+  assert.deepEqual(d2.warnings, []);
+
+  const lesson = plan.lessons[0];
+  assert.equal(lesson.item.category, LessonCategory.VENDOR);
+  assert.equal(lesson.item.status, LessonStatus.NEW);
+  assert.equal(lesson.item.recommendation, 'Ask in writing');
+  assert.equal(lesson.item.projectId, project.projectId);
+
+  assert.equal(countIncluded(plan), 6, '1 project + 2 risks + 2 decisions + 1 lesson');
+  assert.equal(plan.problems.length, 0);
+
+  // the directory lookup covers the person who decided
+  assert.deepEqual(collectOwnerNames(plan), ['Luis García']);
+  const resolved = applyResolvedOwners(plan, { 'Luis García': 'luis@x.com' });
+  assert.equal(resolved.decisions[0].item.decidedBy, 'luis@x.com');
+  assert.deepEqual(resolved.decisions[0].warnings, [], 'the warning goes away once resolved');
+  assert.deepEqual(collectOwnerNames(resolved), []);
+};
+
+const testGovernanceDuplicates = (): void => {
+  const plan = buildPlan(parse(GOV), makeCtx({ risks: [{ title: 'vendor MAY deliver late' }], decisions: [{ title: 'Buy in two waves' }], lessons: [{ title: 'Confirm lead times' }] }));
+  assert.ok(keys(plan.risks[0].warnings).indexOf('import.warn.duplicate') > -1);
+  assert.ok(keys(plan.decisions[0].warnings).indexOf('import.warn.duplicate') > -1);
+  assert.ok(keys(plan.lessons[0].warnings).indexOf('import.warn.duplicate') > -1);
+  assert.equal(plan.risks[0].include, true, 'a duplicate warns but is not blocked');
+};
+
+const testGovernanceCommit = async (): Promise<void> => {
+  const plan = buildPlan(parse(GOV), makeCtx());
+  const calls: ICall[] = [];
+  const result = await commitPlan(plan, makeDeps(calls), { transcript: '' });
+  assert.equal(result.failed.length, 0);
+  assert.deepEqual(calls.filter(c => c.op === 'create').map(c => c.list),
+    ['L_MEET', 'L_PROJ', 'L_RISK', 'L_RISK', 'L_DEC', 'L_DEC', 'L_LESS'], 'each kind goes to its own list, in order');
+
+  const risk = calls.filter(c => c.list === 'L_RISK')[0].payload as Record<string, unknown>;
+  assert.equal(risk.Status, 'OPEN');
+  assert.equal(risk.Probability, 'HIGH');
+  assert.ok(String(risk.Description).indexOf('[Source: MEET-') > -1, 'the origin is written in the description');
+  const decision = calls.filter(c => c.list === 'L_DEC')[0].payload as Record<string, unknown>;
+  assert.equal(decision.Status, 'DECIDED');
+  assert.equal(decision.DecisionDate, '2026-11-06T12:00:00Z');
+  assert.equal(String(decision.MeetingId).indexOf('MEET-'), 0);
+
+  // retrying only what failed also covers the new kinds
+  const retry = planForRetry(plan, [plan.decisions[1].key]);
+  assert.equal(countIncluded(retry), 1);
+  assert.equal(retry.decisions[1].include, true);
+  assert.equal(retry.risks.every(d => !d.include), true);
+};
+
 // ---------------------------------------------------------------- prompt
 const testPrompt = (): void => {
   const es = buildImportPrompt('es', new Date(2026, 10, 8));
   const en = buildImportPrompt('en', new Date(2026, 10, 8));
   for (const text of [es, en]) {
-    for (const section of ['"meeting"', '"ideas"', '"initiatives"', '"projects"', '"actions"', '"notes"']) {
+    for (const section of ['"meeting"', '"ideas"', '"initiatives"', '"projects"', '"actions"', '"risks"', '"decisions"', '"lessons"', '"notes"']) {
       assert.ok(text.indexOf(section) > -1, `prompt mentions ${section}`);
     }
     assert.ok(text.indexOf('2026-11-08') > -1, 'today is given for relative dates');
@@ -317,6 +410,9 @@ const run = async (): Promise<void> => {
   testGaps();
   testSpanishKeys();
   testNoteOwnerIsIgnored();
+  testGovernanceSections();
+  testGovernanceDuplicates();
+  await testGovernanceCommit();
   await testCommit();
   await testPartialFailureAndRetry();
   await testExcludedAndMeetingFailure();

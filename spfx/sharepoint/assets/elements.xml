@@ -43,6 +43,38 @@
       </Rows>
     </Data>
   </ListInstance>
+  <ListInstance Title="IT_11_Risks" Description="Risks with probability, impact and mitigation" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_11_Risks" CustomSchema="schema_risks.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Telephony vendor may deliver late</Field><Field Name="RiskId">RISK-DEMO-001</Field><Field Name="Description">Sample risk: Telephony vendor may deliver late.</Field><Field Name="Status">OPEN</Field><Field Name="Probability">HIGH</Field><Field Name="Impact">HIGH</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="Mitigation">Agree a firm delivery date and a penalty clause.</Field><Field Name="DueDate">2026-11-22T12:00:00Z</Field><Field Name="ProjectId">PROJ-DEMO-002</Field><Field Name="MeetingId">MEET-DEMO-001</Field></Row>
+          <Row><Field Name="Title">Users may resist the new laptops</Field><Field Name="RiskId">RISK-DEMO-002</Field><Field Name="Description">Sample risk: Users may resist the new laptops.</Field><Field Name="Status">MITIGATING</Field><Field Name="Probability">MEDIUM</Field><Field Name="Impact">MEDIUM</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="Mitigation">Run short demos in each department.</Field><Field Name="DueDate">2026-12-08T12:00:00Z</Field><Field Name="ProjectId">PROJ-DEMO-001</Field><Field Name="MeetingId">MEET-DEMO-001</Field></Row>
+          <Row><Field Name="Title">Licence renewal could be missed</Field><Field Name="RiskId">RISK-DEMO-003</Field><Field Name="Description">Sample risk: Licence renewal could be missed.</Field><Field Name="Status">ACCEPTED</Field><Field Name="Probability">LOW</Field><Field Name="Impact">MEDIUM</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="Mitigation">Calendar reminder 60 days before.</Field><Field Name="DueDate">2027-01-07T12:00:00Z</Field><Field Name="ProjectId"></Field><Field Name="MeetingId">MEET-DEMO-001</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
+  <ListInstance Title="IT_12_Decisions" Description="Decisions with their context and rationale" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_12_Decisions" CustomSchema="schema_decisions.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Buy laptops in two waves</Field><Field Name="DecisionId">DEC-DEMO-001</Field><Field Name="Description">Budget is released per wave.</Field><Field Name="Rationale">A single purchase would exceed the quarterly budget.</Field><Field Name="Status">DECIDED</Field><Field Name="ProjectId">PROJ-DEMO-001</Field><Field Name="MeetingId">MEET-DEMO-001</Field><Field Name="DecidedBy">demo.owner@example.com</Field><Field Name="DecisionDate">2026-11-05T12:00:00Z</Field></Row>
+          <Row><Field Name="Title">Move telephony to Teams Phone</Field><Field Name="DecisionId">DEC-DEMO-002</Field><Field Name="Description">Waiting for the licence quote.</Field><Field Name="Rationale">Removes the separate telephony contract.</Field><Field Name="Status">PROPOSED</Field><Field Name="ProjectId">PROJ-DEMO-002</Field><Field Name="MeetingId">MEET-DEMO-001</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
+  <ListInstance Title="IT_19_Reviews" Description="Periodic reviews of projects and initiatives" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_19_Reviews" CustomSchema="schema_reviews.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Telephony rollout: status review</Field><Field Name="ReviewId">REV-DEMO-001</Field><Field Name="ReviewType">STATUS</Field><Field Name="Status">COMPLETED</Field><Field Name="Health">AMBER</Field><Field Name="ReviewDate">2026-11-01T12:00:00Z</Field><Field Name="NextReviewDate">2026-11-15T12:00:00Z</Field><Field Name="Summary">Forecast is above budget; approval pending.</Field><Field Name="NextSteps">Decide on the budget increase.</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="ProjectId">PROJ-DEMO-002</Field></Row>
+          <Row><Field Name="Title">Laptop refresh: financial review</Field><Field Name="ReviewId">REV-DEMO-002</Field><Field Name="ReviewType">FINANCIAL</Field><Field Name="Status">SCHEDULED</Field><Field Name="Health">GREEN</Field><Field Name="ReviewDate">2026-11-22T12:00:00Z</Field><Field Name="NextReviewDate">2026-12-23T12:00:00Z</Field><Field Name="Summary"></Field><Field Name="NextSteps"></Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="ProjectId">PROJ-DEMO-001</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
+  <ListInstance Title="IT_20_LessonsLearned" Description="What was learned and what to do next time" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_20_LessonsLearned" CustomSchema="schema_lessons.xml">
+    <Data>
+      <Rows>
+          <Row><Field Name="Title">Confirm vendor lead times before committing a date</Field><Field Name="LessonId">LESS-DEMO-001</Field><Field Name="Description">The first telephony date was set before the vendor confirmed stock.</Field><Field Name="Recommendation">Get written lead times and add a margin.</Field><Field Name="Category">VENDOR</Field><Field Name="Status">NEW</Field><Field Name="OwnerUPN">demo.owner@example.com</Field><Field Name="ProjectId">PROJ-DEMO-002</Field><Field Name="MeetingId">MEET-DEMO-001</Field></Row>
+      </Rows>
+    </Data>
+  </ListInstance>
   <ListInstance Title="IT_21_Meetings" Description="Meetings imported from a transcript, with what was created from them" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_21_Meetings" CustomSchema="schema_meetings.xml">
     <Data>
       <Rows>

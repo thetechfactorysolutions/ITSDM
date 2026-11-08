@@ -1,4 +1,4 @@
-import { ActionItem, Idea, Initiative, Meeting, Note, Project } from '../models';
+import { ActionItem, Decision, Idea, Initiative, Lesson, Meeting, Note, Project, Review, Risk } from '../models';
 import { isValidDayKey } from './dates';
 
 /** Translation key of the error per field name (e.g. validation.titleRequired); a missing key means the field is valid. */
@@ -104,5 +104,47 @@ export const validateMeeting = (meeting: Meeting): ValidationErrors => {
   const errors: ValidationErrors = {};
   validateTitle(errors, meeting.title);
   validateOptionalDate(errors, 'meetingDate', meeting.meetingDate);
+  return errors;
+};
+
+/** An email is optional here; when given it must look like one. */
+const validateOptionalEmail = (errors: ValidationErrors, field: string, value: string | undefined, key: string): void => {
+  if (value && value.trim().length > 0 && !EMAIL_PATTERN.test(value.trim())) {
+    errors[field] = key;
+  }
+};
+
+export const validateRisk = (risk: Risk): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, risk.title);
+  validateOwner(errors, risk.ownerUpn);
+  validateOptionalDate(errors, 'dueDate', risk.dueDate);
+  return errors;
+};
+
+export const validateDecision = (decision: Decision): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, decision.title);
+  validateOptionalEmail(errors, 'decidedBy', decision.decidedBy, 'validation.deciderInvalid');
+  validateOptionalDate(errors, 'decisionDate', decision.decisionDate);
+  return errors;
+};
+
+export const validateLesson = (lesson: Lesson): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, lesson.title);
+  validateOptionalEmail(errors, 'ownerUpn', lesson.ownerUpn, 'validation.ownerInvalid');
+  return errors;
+};
+
+export const validateReview = (review: Review): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, review.title);
+  validateOwner(errors, review.ownerUpn);
+  validateOptionalDate(errors, 'reviewDate', review.reviewDate);
+  validateOptionalDate(errors, 'nextReviewDate', review.nextReviewDate);
+  if (!errors.reviewDate && !errors.nextReviewDate && review.reviewDate && review.nextReviewDate && review.nextReviewDate < review.reviewDate) {
+    errors.nextReviewDate = 'validation.nextBeforeReview';
+  }
   return errors;
 };
