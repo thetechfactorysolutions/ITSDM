@@ -49,77 +49,83 @@ Quedó fuera a propósito. Para retomarlo, pedir "retoma el roadmap".
 - **Datos de ejemplo opcionales** al instalar y paquetes separados para sandbox y producción.
 - **Llamada a una IA desde la propia app** (hoy solo se importa el resultado), si en el futuro hay un servicio aprobado.
 
-## Propuestas de mejora (sin priorizar, pendientes de decidir)
+## Propuestas de mejora, ordenadas en fases (pendientes de decidir)
 
-Lista de lo que falta y de ideas para mejorar la aplicación en todos los aspectos. Nada de esto está hecho. Cada punto indica, entre corchetes, el esfuerzo aproximado (**S** pequeño, **M** medio, **L** grande) y si depende del tenant (**T**). Los marcados con "(comprobado)" son carencias que se han verificado en el código; el resto son ideas.
+Nada de esto está hecho. Cada punto indica, entre corchetes, el esfuerzo aproximado (**S** pequeño, **M** medio, **L** grande) y si depende del tenant (**T**). Los marcados con "(comprobado)" son carencias verificadas en el código; el resto son ideas.
 
-### Comprobar lo ya hecho (antes de añadir más)
-- **Probar el paquete en el tenant real** [S, T]: instalar el `.sppkg` 1.7.0.0, quitarlo y volver a añadirlo sobre listas ya existentes, y comprobar personas, enlaces de email y de Teams, y las 22 listas. Todo se ha probado solo con jsdom y simulaciones.
-- **Prueba de principio a fin con un navegador** [M]: un guion que abra el elemento web en un sitio de pruebas y recorra crear, editar, aprobar e importar. Hoy ninguna prueba toca SharePoint de verdad.
-- **Probar los flujos de Power Automate** [S, T]: las expresiones de `docs/POWER_AUTOMATE.md` están escritas a mano y no se han ejecutado.
+**Criterio del orden:** primero lo que reduce el riesgo de lo ya hecho, después lo que más se nota en el uso diario, después los informes, después lo que prepara la aplicación para crecer, y al final lo que necesita decisiones de organización o permisos del tenant. Dentro de una fase el orden es orientativo. Una fase puede empezar sin haber terminado la anterior, salvo donde se indica una dependencia.
 
-### Datos y estructura
-- **Migración de esquemas** [L]: cambiar columnas de listas ya creadas sin borrarlas; hoy, si una versión nueva añade una columna, las listas existentes no la reciben.
-- **Columnas de persona y de búsqueda reales** [L]: hoy el responsable es un email en texto y los vínculos entre listas son identificadores de texto. Con columnas reales se podrían usar vistas y filtros nativos de SharePoint, pero obliga a migrar datos.
-- **Archivos adjuntos y enlaces a documentos** [M]: guardar el contrato, el acta o el presupuesto junto al elemento (comprobado: no hay adjuntos ni enlaces a documentos en ninguna pantalla).
-- **Historial de cambios visible** [M]: mostrar quién cambió qué y cuándo (hoy solo se ve la última modificación; el historial de versiones de SharePoint se activa con un botón de la Ayuda, pero no se consulta desde la app).
-- **Papelera y deshacer** [M]: recuperar un elemento borrado o deshacer el último cambio dentro de la app.
-- **Detección de duplicados** [S]: avisar al crear una idea, un proveedor o un artículo con un título casi igual a otro.
-- **Más de una moneda y tipo de cambio** [M]: hoy los importes no tienen divisa.
-- **Presupuesto por mes** [M]: repartir el plan y lo comprometido por mes, para ver el ritmo de gasto y no solo el total.
+### Fase A: validar y proteger lo hecho
+Todo es pequeño y reduce el riesgo antes de añadir más funciones.
+1. **Probar el paquete en el tenant real** [S, T]: instalar el `.sppkg` 1.7.0.0, quitarlo y volver a añadirlo sobre listas ya existentes, y comprobar personas, enlaces de email y de Teams y las 22 listas. Todo se ha probado solo con jsdom y simulaciones.
+2. **Probar los flujos de Power Automate** [S, T]: las expresiones de `docs/POWER_AUTOMATE.md` están escritas a mano y no se han ejecutado.
+3. **Aviso de error global** [S]: si un componente falla, no hay red de seguridad en pantalla (comprobado: no hay límite de errores de React).
+4. **Pruebas de carga con miles de filas** [S]: medir tiempos de tablas, búsquedas y panel; da la línea base para decidir la fase D.
+5. **Auditoría de accesibilidad con herramienta** [S]: pasar una revisión automática y una prueba con lector de pantalla (hay etiquetas y uso con teclado, pero no se ha medido).
+6. **Notas de cada versión** [S]: un archivo con lo que cambia en cada `.sppkg` y cómo actualizar.
+7. **Prueba de principio a fin con un navegador** [M]: un guion que abra el elemento web en un sitio de pruebas y recorra crear, editar, aprobar e importar. Hoy ninguna prueba toca SharePoint de verdad.
 
-### Panel, informes y búsqueda
-- **Búsqueda global** [M]: un cuadro que busque en todas las listas a la vez (hoy cada pantalla busca solo en la suya).
-- **Vistas guardadas y filtros por columna** [M]: guardar combinaciones de filtro y orden, y filtrar por responsable, fecha o prioridad (hoy solo hay búsqueda, estado y "mostrar cerrados").
-- **Edición en bloque** [M]: cambiar estado o responsable de varios elementos seleccionados.
-- **Panel configurable** [M]: elegir qué contadores y gráficos se ven y su orden; versiones por rol (dirección, responsable de proyecto, servicio).
-- **Informes imprimibles y exportación a Excel o PDF** [M]: informe de estado de un proyecto, resumen para el comité y cuadro de mando mensual (comprobado: solo hay exportación CSV, sin impresión).
-- **Línea de tiempo (Gantt) de proyectos e hitos** [L]: las fechas de inicio y fin ya existen; falta la vista.
-- **Calendario** [M]: vencimientos de acciones, renovaciones de contratos, revisiones y caducidades de certificaciones en un solo calendario.
-- **Mapa de riesgos (probabilidad x impacto)** [S]: la puntuación ya se calcula; falta la cuadrícula visual.
-- **Histórico de KPIs** [M]: guardar cada medición para dibujar la evolución (hoy solo se guarda el valor actual y el anterior).
-- **Cuadro de capacidad del equipo** [M]: cruzar habilidades, formación y carga de acciones por persona.
+### Fase B: uso diario (lo que más se nota)
+Mejoras de las pantallas actuales, casi todas sin cambiar la estructura de datos.
+1. **Mapa de riesgos (probabilidad x impacto)** [S]: la puntuación ya se calcula; falta la cuadrícula visual.
+2. **Detección de duplicados** [S]: avisar al crear una idea, un proveedor o un artículo con un título casi igual a otro.
+3. **Vistas guardadas y filtros por columna** [M]: guardar combinaciones de filtro y orden, y filtrar por responsable, fecha o prioridad (hoy solo hay búsqueda, estado y "mostrar cerrados").
+4. **Búsqueda global** [M]: un cuadro que busque en todas las listas a la vez (hoy cada pantalla busca solo en la suya).
+5. **Edición en bloque** [M]: cambiar estado o responsable de varios elementos seleccionados.
+6. **Calendario** [M]: vencimientos de acciones, renovaciones de contratos, revisiones y caducidades de certificaciones en un solo calendario.
+7. **Archivos adjuntos y enlaces a documentos** [M]: guardar el contrato, el acta o el presupuesto junto al elemento (comprobado: no hay adjuntos ni enlaces a documentos en ninguna pantalla).
+8. **Histórico de KPIs** [M]: guardar cada medición para dibujar la evolución (hoy solo se guarda el valor actual y el anterior).
+9. **Historial de aprobaciones** [S]: hoy cada elemento guarda una sola aprobación (la última); guardarlas todas permite ver qué regla bloqueó qué cambio y cuándo.
+10. **Umbrales y reglas editables desde la aplicación** [M]: hoy los plazos, los umbrales de aprobación y los días de aviso están en `AppConfig.ts` y requieren recompilar (comprobado: el panel de propiedades solo tiene descripción e idioma).
+11. **Uso en móvil** [M]: revisar tablas y paneles en pantallas pequeñas.
+12. **Tema de colores y modo oscuro** [S]: heredar el tema del sitio.
+13. **Más idiomas** [S]: francés u otros; el sistema de textos ya permite añadirlos.
 
-### Flujo de trabajo y colaboración
-- **Aprobaciones con varios aprobadores o en cadena** [L]: hoy hay un aprobador por elemento. Y delegar cuando alguien está de baja.
-- **Aprobar desde el email o desde Teams** [L, T]: con una tarjeta adaptable o un flujo de aprobación, en lugar de volver a la aplicación.
-- **Comentarios y menciones en cada elemento** [M]: conversación dentro del elemento en lugar de por email.
-- **Avisos dentro de la aplicación** [M]: una campana con lo que te han pedido o asignado, sin depender del email.
-- **Plantillas de proyecto** [M]: crear un proyecto con sus acciones, riesgos y revisiones típicas ya preparados.
-- **Elementos recurrentes** [M]: acciones o revisiones que se repiten cada semana o mes.
-- **Dependencias entre acciones y proyectos** [L]: "no puede empezar hasta que termine X" y aviso si se retrasa.
-- **Historial de aprobaciones** [S]: hoy cada elemento guarda una sola aprobación (la última); guardar todas permitiría ver qué regla bloqueó qué cambio y cuándo.
+### Fase C: informes y panel
+Lo que pide la dirección y los comités. Se apoya en los datos que ya existen.
+1. **Informes imprimibles y exportación a Excel o PDF** [M]: informe de estado de un proyecto, resumen para el comité y cuadro de mando mensual (comprobado: solo hay exportación CSV, sin impresión).
+2. **Panel configurable** [M]: elegir qué contadores y gráficos se ven y su orden; versiones por rol (dirección, responsable de proyecto, servicio).
+3. **Línea de tiempo (Gantt) de proyectos e hitos** [L]: las fechas de inicio y fin ya existen; falta la vista.
+4. **Presupuesto por mes** [M]: repartir el plan y lo comprometido por mes, para ver el ritmo de gasto y no solo el total.
+5. **Más de una moneda y tipo de cambio** [M]: hoy los importes no tienen divisa.
+6. **Cuadro de capacidad del equipo** [M]: cruzar habilidades, formación y carga de acciones por persona.
+7. **Historial de cambios visible** [M]: mostrar quién cambió qué y cuándo (hoy solo se ve la última modificación; el historial de versiones de SharePoint se activa con un botón de la Ayuda, pero no se consulta desde la app).
+8. **Papelera y deshacer** [M]: recuperar un elemento borrado o deshacer el último cambio dentro de la app.
 
-### Integraciones
-- **Planner** [M, T]: crear plan y tareas al activar iniciativas o proyectos (hay un diseño en `docs/PLANNER_INTEGRATION.md`; necesita permiso de Graph).
-- **Microsoft Graph** [M, T]: foto y perfil de las personas, y disponibilidad de calendario al asignar.
-- **Botón "enviar aviso ahora"** [M, T]: la aplicación dispara un flujo de Power Automate con disparador HTTP.
-- **Teams como pestaña o aplicación** [M, T]: abrir el elemento web dentro de Teams.
-- **Importar desde Excel** [M]: cargar una hoja de cálculo con validación previa (hoy solo CSV en cada pantalla y el resultado de una IA para reuniones).
-- **ServiceNow o Jira, solo lectura** [L, T]: traer incidentes o tareas externas como referencia.
-- **Llamada a una IA desde la propia app** [L, T]: hoy solo se importa el resultado; haría falta un servicio aprobado por la organización.
-- **Importación de reuniones más rica** [M]: reconocer también KPIs, incidentes, contratos y formaciones, y detectar duplicados de lo ya existente.
+### Fase D: cimientos para crecer
+Rendimiento y mantenimiento. Conviene decidir qué hacer a partir de los resultados de las pruebas de carga de la fase A. La migración de esquemas es requisito de las columnas reales de la fase F.
+1. **Carga bajo demanda y paginación en servidor** [M]: ahora el elemento web carga las 22 listas al abrirse (todos los elementos de cada una); con muchas filas conviene cargar por pestaña.
+2. **Caché y actualización en segundo plano** [M]: abrir rápido con lo último que se vio y refrescar después.
+3. **Migración de esquemas** [L]: cambiar columnas de listas ya creadas sin borrarlas; hoy, si una versión nueva añade una columna, las listas existentes no la reciben.
+4. **Paquetes separados para pruebas y producción, y datos de ejemplo opcionales** [M]: hoy las 22 listas se crean siempre con datos de ejemplo.
+5. **Despliegue automático** [M, T]: el flujo de CI (`.github/workflows/ci.yml`) ya prueba y empaqueta; falta subir el paquete al catálogo, que hoy se hace a mano.
+6. **Retención y borrado de datos** [S]: política de cuánto tiempo se guardan elementos cerrados y reuniones con transcripción (la transcripción puede contener datos personales).
 
-### Seguridad y gobierno
-- **Roles propios dentro de la aplicación** [L]: solo lectura, responsable de proyecto, aprobador, administrador; hoy mandan los permisos de SharePoint.
-- **Ocultar datos sensibles** [M]: importes y contratos solo para quien deba verlos.
-- **Registro de auditoría** [M]: quién aprobó, borró o exportó qué.
-- **Umbrales y reglas editables desde la aplicación** [M]: hoy los plazos, los umbrales de aprobación y los días de aviso están en `AppConfig.ts` y requieren recompilar (comprobado: el panel de propiedades solo tiene descripción e idioma).
-- **Retención y borrado de datos** [S]: política de cuánto tiempo se guardan elementos cerrados y reuniones con transcripción (la transcripción puede contener datos personales).
+### Fase E: colaboración y gobierno
+Cambian cómo trabaja el equipo. Antes de empezar hay que decidir quién puede ver y hacer qué. Los roles propios son requisito de ocultar datos y del registro de auditoría.
+1. **Roles propios dentro de la aplicación** [L]: solo lectura, responsable de proyecto, aprobador, administrador; hoy mandan los permisos de SharePoint.
+2. **Ocultar datos sensibles** [M]: importes y contratos solo para quien deba verlos.
+3. **Registro de auditoría** [M]: quién aprobó, borró o exportó qué.
+4. **Aprobaciones con varios aprobadores o en cadena** [L]: hoy hay un aprobador por elemento. Y delegar cuando alguien está de baja.
+5. **Comentarios y menciones en cada elemento** [M]: conversación dentro del elemento en lugar de por email.
+6. **Avisos dentro de la aplicación** [M]: una campana con lo que te han pedido o asignado, sin depender del email.
+7. **Plantillas de proyecto** [M]: crear un proyecto con sus acciones, riesgos y revisiones típicas ya preparados.
+8. **Elementos recurrentes** [M]: acciones o revisiones que se repiten cada semana o mes.
+9. **Dependencias entre acciones y proyectos** [L]: "no puede empezar hasta que termine X" y aviso si se retrasa.
+10. **Importar desde Excel** [M]: cargar una hoja de cálculo con validación previa (hoy solo CSV en cada pantalla y el resultado de una IA para reuniones).
+11. **Importación de reuniones más rica** [M]: reconocer también KPIs, incidentes, contratos y formaciones, y detectar duplicados de lo ya existente.
 
-### Calidad, rendimiento y mantenimiento
-- **Aviso de error global** [S]: si un componente falla, no hay red de seguridad en pantalla (comprobado: no hay límite de errores de React).
-- **Carga bajo demanda** [M]: ahora el elemento web carga las 22 listas al abrirse (todos los elementos de cada una); con muchas filas conviene cargar por pestaña y paginar en el servidor.
-- **Caché y actualización en segundo plano** [M]: abrir rápido con lo último que se vio y refrescar después.
-- **Auditoría de accesibilidad con herramienta** [S]: pasar una revisión automática y una prueba con lector de pantalla (hay etiquetas y uso con teclado, pero no se ha medido).
-- **Uso en móvil** [M]: revisar tablas y paneles en pantallas pequeñas.
-- **Tema de colores y modo oscuro** [S]: heredar el tema del sitio.
-- **Más idiomas** [S]: francés u otros; el sistema de textos ya permite añadirlos.
-- **Telemetría de uso, sin datos personales** [M, T]: saber qué pestañas se usan para decidir qué mejorar.
-- **Pruebas de carga con miles de filas** [S]: comprobar tiempos de tablas, búsquedas y panel.
-- **Notas de cada versión** [S]: un archivo con lo que cambia en cada `.sppkg` y cómo actualizar.
-- **Paquetes separados para pruebas y producción, y datos de ejemplo opcionales** [M]: hoy las 22 listas se crean siempre con datos de ejemplo.
-- **Despliegue automático** [M, T]: el flujo de CI (`.github/workflows/ci.yml`) ya prueba y empaqueta; falta subir el paquete al catálogo, que hoy se hace a mano.
+### Fase F: integraciones y decisiones de organización
+Dependen de permisos del tenant, de aprobaciones de seguridad o de un servicio externo. Se pueden adelantar si el administrador del tenant concede los permisos antes.
+1. **Planner** [M, T]: crear plan y tareas al activar iniciativas o proyectos (hay un diseño en `docs/PLANNER_INTEGRATION.md`; necesita permiso de Graph).
+2. **Microsoft Graph** [M, T]: foto y perfil de las personas, y disponibilidad de calendario al asignar.
+3. **Botón "enviar aviso ahora"** [M, T]: la aplicación dispara un flujo de Power Automate con disparador HTTP.
+4. **Aprobar desde el email o desde Teams** [L, T]: con una tarjeta adaptable o un flujo de aprobación, en lugar de volver a la aplicación.
+5. **Teams como pestaña o aplicación** [M, T]: abrir el elemento web dentro de Teams.
+6. **Columnas de persona y de búsqueda reales** [L]: hoy el responsable es un email en texto y los vínculos entre listas son identificadores de texto. Con columnas reales se podrían usar vistas y filtros nativos de SharePoint, pero obliga a migrar datos (requiere la migración de esquemas de la fase D).
+7. **Telemetría de uso, sin datos personales** [M, T]: saber qué pestañas se usan para decidir qué mejorar.
+8. **ServiceNow o Jira, solo lectura** [L, T]: traer incidentes o tareas externas como referencia.
+9. **Llamada a una IA desde la propia app** [L, T]: hoy solo se importa el resultado; haría falta un servicio aprobado por la organización.
 
 ## Alcance de la primera versión (histórico)
 La primera versión dejó fuera finanzas, proveedores, personas, operaciones, Genius Help Desk, ServiceNow y la IA. Todo menos Genius Help Desk, ServiceNow y la IA ya está hecho (ver "Hecho tras la ronda 2"); lo que sigue pendiente está en las secciones de arriba.
