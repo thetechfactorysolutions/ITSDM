@@ -26,7 +26,9 @@ const Help: React.FC = () => {
     for (const key of VERSIONED_LISTS) {
       const name = lists[key];
       try {
-        await service.enableVersioning(name);
+        if (service.enableVersioning) {
+          await service.enableVersioning(name);
+        }
         outcome.push({ list: name });
       } catch (err) {
         outcome.push({ list: name, error: err instanceof Error ? err.message : t('common.unknownError') });
@@ -93,7 +95,7 @@ const Help: React.FC = () => {
           <Link href="https://github.com/thetechfactorysolutions/ITSDM" target="_blank" rel="noopener noreferrer">GitHub</Link>
         </Text>
       </Section>
-      <Section title={t('help.historyTitle')}>
+      {service.capabilities.versioning && <Section title={t('help.historyTitle')}>
         <Text>{t('help.history1')}</Text>
         <Stack horizontal><DefaultButton text={t('help.historyButton')} disabled={busy} onClick={() => { enableHistory().catch(() => undefined); }} /></Stack>
         <div aria-live="polite">
@@ -103,7 +105,7 @@ const Help: React.FC = () => {
             </MessageBar>
           ))}
         </div>
-      </Section>
+      </Section>}
       <Section title={t('help.languageTitle')}><Text>{t('help.language1')}</Text></Section>
     </Stack>
   );

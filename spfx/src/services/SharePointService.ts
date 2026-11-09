@@ -7,26 +7,14 @@ import '@pnp/sp/lists';
 import '@pnp/sp/items';
 import '@pnp/sp/items/get-all';
 
-export interface IQueryOptions {
-  filter?: string;
-  select?: string[];
-  expand?: string[];
-  orderBy?: { field: string; ascending?: boolean };
-  top?: number;
-  skip?: number;
-}
+import { IDataStore, IPagedResult, IQueryOptions, IStoreCapabilities, IUserSuggestion } from '../data/IDataStore';
 
-export interface IUserSuggestion {
-  displayName: string;
-  email: string;
-}
+// Kept here so existing imports keep working.
+export type { IPagedResult, IQueryOptions, IUserSuggestion };
 
-export interface IPagedResult<T> {
-  items: T[];
-  hasNext: boolean;
-}
+export class SharePointService implements IDataStore {
+  public readonly capabilities: IStoreCapabilities = { versioning: true, userSearch: 'directory' };
 
-export class SharePointService {
   private readonly _sp: SPFI;
 
   public constructor(context: WebPartContext) {

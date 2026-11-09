@@ -35,3 +35,13 @@ jobs:
           name: itsdm-sppkg
           path: spfx/sharepoint/solution/itsdm.sppkg
           if-no-files-found: error
+
+      - name: Build the local (standalone) version
+        run: npm run standalone
+
+      - name: Keep the local version
+        uses: actions/upload-artifact@v4
+        with:
+          name: itsdm-standalone
+          path: spfx/dist-standalone
+          if-no-files-found: error

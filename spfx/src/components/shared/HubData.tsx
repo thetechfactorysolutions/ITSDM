@@ -1,20 +1,18 @@
 import * as React from 'react';
-import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { AppConfig } from '../../config/AppConfig';
 import { EXPAND_EDITOR, SELECT } from '../../entities/payloads';
 import { IListHookState, useListItems } from '../../hooks/useListItems';
-import { useSharePointService } from '../../hooks/useSharePointService';
 import {
   ActionItem, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../../models';
-import { IQueryOptions, SharePointService } from '../../services/SharePointService';
+import { IDataStore, IQueryOptions } from '../../data/IDataStore';
 import {
   mapAction, mapBudget, mapCapex, mapChange, mapContract, mapDecision, mapIdea, mapIncident, mapInitiative, mapInteraction, mapKpi, mapLesson, mapMeeting, mapNote, mapOpex, mapProject,
   mapArticle, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
 } from './mappers';
 
 export interface IHubData {
-  service: SharePointService;
+  service: IDataStore;
   userEmail: string;
   ideas: IListHookState<Idea>;
   initiatives: IListHookState<Initiative>;
@@ -43,7 +41,10 @@ export interface IHubData {
 export const HubDataContext = React.createContext<IHubData | undefined>(undefined);
 
 export interface IHubDataProviderProps {
-  context: WebPartContext;
+  /** Where the data lives: SharePoint lists, a JSON file... */
+  store: IDataStore;
+  /** Email of the person using the app. */
+  userEmail: string;
   children?: React.ReactNode;
 }
 
@@ -75,8 +76,8 @@ const ARTICLES_QUERY = query(SELECT.articles);
  * Loads each list once for the whole web part. Every tab reads the same state, so switching
  * tabs does not refetch and a change made in one tab shows up in the others.
  */
-export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ context, children }) => {
-  const service = useSharePointService(context);
+export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEmail, children }) => {
+  const service = store;
   const listNames = AppConfig.sharePoint.listNames;
   const ideas = useListItems<Idea>(service, listNames.ideas, mapIdea, IDEAS_QUERY);
   const initiatives = useListItems<Initiative>(service, listNames.initiatives, mapInitiative, INITIATIVES_QUERY);
@@ -103,7 +104,7 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ context, chil
 
   const value: IHubData = {
     service,
-    userEmail: context.pageContext.user.email,
+    userEmail,
     ideas,
     initiatives,
     projects,

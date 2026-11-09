@@ -1,0 +1,832 @@
+{
+ "IT_01_Ideas": [
+  {
+   "Title": "Automate new-joiner laptop provisioning",
+   "IdeaId": "IDEA-DEMO-001",
+   "Description": "Sample idea: Automate new-joiner laptop provisioning.",
+   "Status": "NEW",
+   "OwnerUPN": "demo.owner@example.com",
+   "SponsorUPN": "demo.owner@example.com",
+   "EstimatedValue": 40000,
+   "TargetDate": "@day:90",
+   "Tags": "automation,onboarding"
+  },
+  {
+   "Title": "Self-service password reset portal",
+   "IdeaId": "IDEA-DEMO-002",
+   "Description": "Sample idea: Self-service password reset portal.",
+   "Status": "DISCOVERY",
+   "OwnerUPN": "demo.owner@example.com",
+   "SponsorUPN": "demo.owner@example.com",
+   "EstimatedValue": 25000,
+   "TargetDate": "@day:60",
+   "Tags": "service-desk"
+  },
+  {
+   "Title": "Consolidate SaaS licences",
+   "IdeaId": "IDEA-DEMO-003",
+   "Description": "Sample idea: Consolidate SaaS licences.",
+   "Status": "VALIDATED",
+   "OwnerUPN": "demo.owner@example.com",
+   "SponsorUPN": "demo.owner@example.com",
+   "EstimatedValue": 120000,
+   "TargetDate": "@day:45",
+   "Tags": "cost,licences"
+  },
+  {
+   "Title": "Chatbot for first-line IT support",
+   "IdeaId": "IDEA-DEMO-004",
+   "Description": "Sample idea: Chatbot for first-line IT support.",
+   "Status": "PILOT",
+   "OwnerUPN": "demo.owner@example.com",
+   "SponsorUPN": "demo.owner@example.com",
+   "EstimatedValue": 80000,
+   "TargetDate": "@day:30",
+   "Tags": "ai,service-desk"
+  },
+  {
+   "Title": "On-premises file server migration",
+   "IdeaId": "IDEA-DEMO-005",
+   "Description": "Sample idea: On-premises file server migration.",
+   "Status": "REJECTED",
+   "OwnerUPN": "demo.owner@example.com",
+   "SponsorUPN": "demo.owner@example.com",
+   "EstimatedValue": 15000,
+   "TargetDate": "@day:10",
+   "Tags": "infrastructure"
+  }
+ ],
+ "IT_02_Initiatives": [
+  {
+   "Title": "Digital Workplace 2027",
+   "InitiativeId": "INIT-DEMO-001",
+   "Description": "Sample initiative: Digital Workplace 2027.",
+   "Status": "ACTIVE",
+   "OwnerUPN": "demo.owner@example.com",
+   "ProgressPct": 55,
+   "TargetDate": "@day:120"
+  },
+  {
+   "Title": "Cloud cost optimisation",
+   "InitiativeId": "INIT-DEMO-002",
+   "Description": "Sample initiative: Cloud cost optimisation.",
+   "Status": "BLOCKED",
+   "OwnerUPN": "demo.owner@example.com",
+   "ProgressPct": 30,
+   "TargetDate": "@day:75"
+  },
+  {
+   "Title": "Service desk modernisation",
+   "InitiativeId": "INIT-DEMO-003",
+   "Description": "Sample initiative: Service desk modernisation.",
+   "Status": "DRAFT",
+   "OwnerUPN": "demo.owner@example.com",
+   "ProgressPct": 0,
+   "TargetDate": "@day:150"
+  }
+ ],
+ "IT_03_Projects": [
+  {
+   "Title": "Laptop refresh wave 1",
+   "ProjectId": "PROJ-DEMO-001",
+   "InitiativeId": "INIT-DEMO-001",
+   "Description": "Sample project: Laptop refresh wave 1.",
+   "Status": "ACTIVE",
+   "OwnerUPN": "demo.owner@example.com",
+   "StartDate": "@day:-60",
+   "EndDate": "@day:60",
+   "BudgetAmount": 200000,
+   "ForecastAmount": 205000,
+   "RiskLevel": "LOW"
+  },
+  {
+   "Title": "Teams telephony rollout",
+   "ProjectId": "PROJ-DEMO-002",
+   "InitiativeId": "INIT-DEMO-001",
+   "Description": "Sample project: Teams telephony rollout.",
+   "Status": "ACTIVE",
+   "OwnerUPN": "demo.owner@example.com",
+   "StartDate": "@day:-30",
+   "EndDate": "@day:90",
+   "BudgetAmount": 100000,
+   "ForecastAmount": 128000,
+   "RiskLevel": "HIGH",
+   "ApprovalRule": "project.overBudget",
+   "ApprovalStatus": "PENDING",
+   "Approver": "demo.owner@example.com",
+   "ApprovalRequestedOn": "@day:-1"
+  },
+  {
+   "Title": "FinOps tooling",
+   "ProjectId": "PROJ-DEMO-003",
+   "InitiativeId": "INIT-DEMO-002",
+   "Description": "Sample project: FinOps tooling.",
+   "Status": "PLANNING",
+   "OwnerUPN": "demo.owner@example.com",
+   "StartDate": "@day:15",
+   "EndDate": "@day:120",
+   "BudgetAmount": 50000,
+   "ForecastAmount": 50000,
+   "RiskLevel": "MEDIUM"
+  }
+ ],
+ "IT_04_Actions": [
+  {
+   "Title": "Send procurement request",
+   "ActionId": "ACT-DEMO-001",
+   "Description": "Sample action: Send procurement request.",
+   "Status": "OPEN",
+   "Priority": "HIGH",
+   "OwnerUPN": "demo.owner@example.com",
+   "DueDate": "@day:-5"
+  },
+  {
+   "Title": "Review vendor contract",
+   "ActionId": "ACT-DEMO-002",
+   "Description": "Sample action: Review vendor contract.",
+   "Status": "IN_PROGRESS",
+   "Priority": "CRITICAL",
+   "OwnerUPN": "demo.owner@example.com",
+   "DueDate": "@day:-1"
+  },
+  {
+   "Title": "Prepare steering committee",
+   "ActionId": "ACT-DEMO-003",
+   "Description": "Sample action: Prepare steering committee.",
+   "Status": "OPEN",
+   "Priority": "MEDIUM",
+   "OwnerUPN": "demo.owner@example.com",
+   "DueDate": "@day:0"
+  },
+  {
+   "Title": "Test telephony failover",
+   "ActionId": "ACT-DEMO-004",
+   "Description": "Sample action: Test telephony failover.",
+   "Status": "OPEN",
+   "Priority": "HIGH",
+   "OwnerUPN": "demo.owner@example.com",
+   "DueDate": "@day:3"
+  },
+  {
+   "Title": "Update risk register",
+   "ActionId": "ACT-DEMO-005",
+   "Description": "Sample action: Update risk register.",
+   "Status": "BLOCKED",
+   "Priority": "MEDIUM",
+   "OwnerUPN": "demo.owner@example.com",
+   "DueDate": "@day:6"
+  },
+  {
+   "Title": "Plan wave 2 logistics",
+   "ActionId": "ACT-DEMO-006",
+   "Description": "Sample action: Plan wave 2 logistics.",
+   "Status": "OPEN",
+   "Priority": "LOW",
+   "OwnerUPN": "demo.owner@example.com",
+   "DueDate": "@day:21"
+  },
+  {
+   "Title": "Close wave 1 purchase order",
+   "ActionId": "ACT-DEMO-007",
+   "Description": "Sample action: Close wave 1 purchase order.",
+   "Status": "DONE",
+   "Priority": "LOW",
+   "OwnerUPN": "demo.owner@example.com",
+   "DueDate": "@day:-10",
+   "CompletedDate": "@day:-9"
+  }
+ ],
+ "IT_05_KPIs": [
+  {
+   "Title": "Average incident resolution time",
+   "KpiId": "KPI-DEMO-001",
+   "Description": "Sample indicator: Average incident resolution time.",
+   "Category": "SERVICE",
+   "Status": "ACTIVE",
+   "Unit": "days",
+   "Direction": "LOWER",
+   "Target": 3,
+   "CurrentValue": 3.2,
+   "PreviousValue": 4.1,
+   "MeasuredOn": "@day:-1",
+   "OwnerUPN": "demo.owner@example.com"
+  },
+  {
+   "Title": "First-contact resolution",
+   "KpiId": "KPI-DEMO-002",
+   "Description": "Sample indicator: First-contact resolution.",
+   "Category": "SERVICE",
+   "Status": "ACTIVE",
+   "Unit": "%",
+   "Direction": "HIGHER",
+   "Target": 80,
+   "CurrentValue": 65,
+   "PreviousValue": 62,
+   "MeasuredOn": "@day:-1",
+   "OwnerUPN": "demo.owner@example.com"
+  },
+  {
+   "Title": "Service availability",
+   "KpiId": "KPI-DEMO-003",
+   "Description": "Sample indicator: Service availability.",
+   "Category": "SERVICE",
+   "Status": "ACTIVE",
+   "Unit": "%",
+   "Direction": "HIGHER",
+   "Target": 99.5,
+   "CurrentValue": 99.7,
+   "PreviousValue": 99.6,
+   "MeasuredOn": "@day:-1",
+   "OwnerUPN": "demo.owner@example.com"
+  },
+  {
+   "Title": "Open critical incidents",
+   "KpiId": "KPI-DEMO-004",
+   "Description": "Sample indicator: Open critical incidents.",
+   "Category": "SERVICE",
+   "Status": "ACTIVE",
+   "Unit": "incidents",
+   "Direction": "LOWER",
+   "Target": 0,
+   "CurrentValue": 1,
+   "PreviousValue": 0,
+   "MeasuredOn": "@day:-1",
+   "OwnerUPN": "demo.owner@example.com"
+  }
+ ],
+ "IT_13_Incidents": [
+  {
+   "Title": "Email delivery delays",
+   "IncidentId": "INC-DEMO-001",
+   "Description": "Sample incident: Email delivery delays.",
+   "Status": "IN_PROGRESS",
+   "Severity": "CRITICAL",
+   "Category": "APPLICATION",
+   "ReportedBy": "demo.owner@example.com",
+   "AssignedTo": "demo.owner@example.com",
+   "ReportedOn": "@day:-2",
+   "VendorId": "VEN-DEMO-002"
+  },
+  {
+   "Title": "VPN drops for remote users",
+   "IncidentId": "INC-DEMO-002",
+   "Description": "Sample incident: VPN drops for remote users.",
+   "Status": "NEW",
+   "Severity": "MEDIUM",
+   "Category": "NETWORK",
+   "ReportedBy": "demo.owner@example.com",
+   "AssignedTo": "demo.owner@example.com",
+   "ReportedOn": "@day:-2",
+   "VendorId": ""
+  },
+  {
+   "Title": "Printer queue stuck",
+   "IncidentId": "INC-DEMO-003",
+   "Description": "Sample incident: Printer queue stuck.",
+   "Status": "RESOLVED",
+   "Severity": "LOW",
+   "Category": "INFRASTRUCTURE",
+   "ReportedBy": "demo.owner@example.com",
+   "AssignedTo": "demo.owner@example.com",
+   "ReportedOn": "@day:-10",
+   "VendorId": "",
+   "ResolvedOn": "@day:-8",
+   "Resolution": "Restarted the print spooler.",
+   "RootCause": "A driver update left the spooler hanging."
+  }
+ ],
+ "IT_14_Interactions": [
+  {
+   "Title": "Quarterly review with Fabrikam",
+   "InteractionId": "INT-DEMO-001",
+   "InteractionType": "MEETING",
+   "Status": "FOLLOW_UP",
+   "InteractionDate": "@day:-10",
+   "ContactName": "Sam Rivera",
+   "Organization": "Fabrikam Telecom",
+   "Summary": "Reviewed delivery dates for the telephony rollout.",
+   "NextSteps": "Send the updated delivery plan.",
+   "OwnerUPN": "demo.owner@example.com",
+   "VendorId": "VEN-DEMO-002",
+   "FollowUpDate": "@day:-3"
+  },
+  {
+   "Title": "Licence question",
+   "InteractionId": "INT-DEMO-002",
+   "InteractionType": "CALL",
+   "Status": "DONE",
+   "InteractionDate": "@day:-5",
+   "ContactName": "Alex Morgan",
+   "Organization": "Contoso Hardware",
+   "Summary": "Clarified the warranty terms.",
+   "NextSteps": "",
+   "OwnerUPN": "demo.owner@example.com",
+   "VendorId": "VEN-DEMO-001"
+  },
+  {
+   "Title": "Steering committee preparation",
+   "InteractionId": "INT-DEMO-003",
+   "InteractionType": "WORKSHOP",
+   "Status": "LOGGED",
+   "InteractionDate": "@day:-1",
+   "ContactName": "Jo Bennett",
+   "Organization": "Northwind Cloud",
+   "Summary": "Agreed the agenda.",
+   "NextSteps": "",
+   "OwnerUPN": "demo.owner@example.com",
+   "VendorId": "VEN-DEMO-003"
+  }
+ ],
+ "IT_15_ChangeRequests": [
+  {
+   "Title": "Upgrade the core network switch",
+   "ChangeId": "CHG-DEMO-001",
+   "Description": "Sample change: Upgrade the core network switch.",
+   "Reason": "Replace the end-of-life switch in the data room.",
+   "Status": "SUBMITTED",
+   "ChangeType": "NORMAL",
+   "Risk": "HIGH",
+   "PlannedDate": "@day:14",
+   "BackoutPlan": "Restore the previous configuration and cable.",
+   "OwnerUPN": "demo.owner@example.com",
+   "ApprovalRule": "change.approve",
+   "ApprovalStatus": "PENDING",
+   "Approver": "demo.owner@example.com",
+   "ApprovalRequestedOn": "@day:-1"
+  },
+  {
+   "Title": "Rotate service-account passwords",
+   "ChangeId": "CHG-DEMO-002",
+   "Description": "Sample change: Rotate service-account passwords.",
+   "Reason": "Quarterly security hygiene.",
+   "Status": "APPROVED",
+   "ChangeType": "STANDARD",
+   "Risk": "LOW",
+   "PlannedDate": "@day:3",
+   "BackoutPlan": "Restore the previous secrets from the vault.",
+   "OwnerUPN": "demo.owner@example.com"
+  },
+  {
+   "Title": "Emergency security patch",
+   "ChangeId": "CHG-DEMO-003",
+   "Description": "Sample change: Emergency security patch.",
+   "Reason": "Actively exploited vulnerability.",
+   "Status": "IMPLEMENTED",
+   "ChangeType": "EMERGENCY",
+   "Risk": "MEDIUM",
+   "PlannedDate": "@day:-6",
+   "BackoutPlan": "Roll the patch back.",
+   "OwnerUPN": "demo.owner@example.com",
+   "ImplementedDate": "@day:-5"
+  }
+ ],
+ "IT_06_Budgets": [
+  {
+   "Title": "IT Infrastructure 2026",
+   "BudgetId": "BUD-DEMO-001",
+   "FiscalYear": 2026,
+   "Description": "Laptops, telephony, licences and support for the year.",
+   "Status": "APPROVED",
+   "PlannedAmount": 500000,
+   "OwnerUPN": "demo.owner@example.com"
+  },
+  {
+   "Title": "Cloud hosting 2026",
+   "BudgetId": "BUD-DEMO-002",
+   "FiscalYear": 2026,
+   "Description": "Cloud platform costs for the year.",
+   "Status": "APPROVED",
+   "PlannedAmount": 60000,
+   "OwnerUPN": "demo.owner@example.com"
+  }
+ ],
+ "IT_07_CAPEX": [
+  {
+   "Title": "Laptops, wave 1",
+   "CapexId": "CAPEX-DEMO-001",
+   "Description": "Sample investment: Laptops, wave 1.",
+   "Status": "COMMITTED",
+   "Amount": 205000,
+   "ExpenseDate": "@day:-20",
+   "OwnerUPN": "demo.owner@example.com",
+   "BudgetId": "BUD-DEMO-001",
+   "ProjectId": "PROJ-DEMO-001",
+   "VendorId": "VEN-DEMO-001"
+  },
+  {
+   "Title": "Telephony hardware",
+   "CapexId": "CAPEX-DEMO-002",
+   "Description": "Sample investment: Telephony hardware.",
+   "Status": "PLANNED",
+   "Amount": 90000,
+   "ExpenseDate": "@day:30",
+   "OwnerUPN": "demo.owner@example.com",
+   "BudgetId": "BUD-DEMO-001",
+   "ProjectId": "PROJ-DEMO-002",
+   "VendorId": "VEN-DEMO-002"
+  },
+  {
+   "Title": "Meeting-room equipment",
+   "CapexId": "CAPEX-DEMO-003",
+   "Description": "Sample investment: Meeting-room equipment.",
+   "Status": "PLANNED",
+   "Amount": 80000,
+   "ExpenseDate": "@day:45",
+   "OwnerUPN": "demo.owner@example.com",
+   "BudgetId": "BUD-DEMO-001",
+   "ProjectId": "",
+   "VendorId": "VEN-DEMO-001",
+   "ApprovalRule": "capex.commit",
+   "ApprovalStatus": "PENDING",
+   "Approver": "demo.owner@example.com",
+   "ApprovalRequestedOn": "@day:-1"
+  }
+ ],
+ "IT_08_OPEX": [
+  {
+   "Title": "Microsoft 365 licences",
+   "OpexId": "OPEX-DEMO-001",
+   "Description": "Sample recurring cost: Microsoft 365 licences.",
+   "Status": "COMMITTED",
+   "Amount": 8000,
+   "Frequency": "MONTHLY",
+   "ExpenseDate": "@day:-60",
+   "OwnerUPN": "demo.owner@example.com",
+   "BudgetId": "BUD-DEMO-001",
+   "ProjectId": "",
+   "VendorId": "",
+   "ContractId": ""
+  },
+  {
+   "Title": "Cloud hosting",
+   "OpexId": "OPEX-DEMO-002",
+   "Description": "Sample recurring cost: Cloud hosting.",
+   "Status": "COMMITTED",
+   "Amount": 6500,
+   "Frequency": "MONTHLY",
+   "ExpenseDate": "@day:-90",
+   "OwnerUPN": "demo.owner@example.com",
+   "BudgetId": "BUD-DEMO-002",
+   "ProjectId": "",
+   "VendorId": "VEN-DEMO-003",
+   "ContractId": "CON-DEMO-002"
+  },
+  {
+   "Title": "Support retainer",
+   "OpexId": "OPEX-DEMO-003",
+   "Description": "Sample recurring cost: Support retainer.",
+   "Status": "PLANNED",
+   "Amount": 3000,
+   "Frequency": "QUARTERLY",
+   "ExpenseDate": "@day:15",
+   "OwnerUPN": "demo.owner@example.com",
+   "BudgetId": "BUD-DEMO-001",
+   "ProjectId": "",
+   "VendorId": "VEN-DEMO-001",
+   "ContractId": ""
+  }
+ ],
+ "IT_09_Vendors": [
+  {
+   "Title": "Contoso Hardware",
+   "VendorId": "VEN-DEMO-001",
+   "Description": "Laptops, screens and room equipment.",
+   "Status": "ACTIVE",
+   "Category": "HARDWARE",
+   "ContactName": "Alex Morgan",
+   "ContactEmail": "alex.morgan@example.com",
+   "Website": "https://example.com",
+   "OwnerUPN": "demo.owner@example.com"
+  },
+  {
+   "Title": "Fabrikam Telecom",
+   "VendorId": "VEN-DEMO-002",
+   "Description": "Telephony and connectivity.",
+   "Status": "ACTIVE",
+   "Category": "TELECOM",
+   "ContactName": "Sam Rivera",
+   "ContactEmail": "sam.rivera@example.com",
+   "Website": "https://example.com",
+   "OwnerUPN": "demo.owner@example.com"
+  },
+  {
+   "Title": "Northwind Cloud",
+   "VendorId": "VEN-DEMO-003",
+   "Description": "Cloud hosting platform.",
+   "Status": "UNDER_REVIEW",
+   "Category": "CLOUD",
+   "ContactName": "Jo Bennett",
+   "ContactEmail": "jo.bennett@example.com",
+   "Website": "https://example.com",
+   "OwnerUPN": "demo.owner@example.com"
+  }
+ ],
+ "IT_10_Contracts": [
+  {
+   "Title": "Hardware supply agreement",
+   "ContractId": "CON-DEMO-001",
+   "Description": "Sample contract: Hardware supply agreement.",
+   "Status": "ACTIVE",
+   "VendorId": "VEN-DEMO-001",
+   "StartDate": "@day:-300",
+   "EndDate": "@day:400",
+   "NoticeDays": 90,
+   "AnnualValue": 120000,
+   "AutoRenew": "NO",
+   "OwnerUPN": "demo.owner@example.com"
+  },
+  {
+   "Title": "Cloud hosting contract",
+   "ContractId": "CON-DEMO-002",
+   "Description": "Sample contract: Cloud hosting contract.",
+   "Status": "ACTIVE",
+   "VendorId": "VEN-DEMO-003",
+   "StartDate": "@day:-325",
+   "EndDate": "@day:40",
+   "NoticeDays": 90,
+   "AnnualValue": 78000,
+   "AutoRenew": "YES",
+   "OwnerUPN": "demo.owner@example.com"
+  },
+  {
+   "Title": "Telephony service",
+   "ContractId": "CON-DEMO-003",
+   "Description": "Sample contract: Telephony service.",
+   "Status": "DRAFT",
+   "VendorId": "VEN-DEMO-002",
+   "StartDate": "@day:30",
+   "EndDate": "@day:395",
+   "NoticeDays": 60,
+   "AnnualValue": 60000,
+   "AutoRenew": "NO",
+   "OwnerUPN": "demo.owner@example.com"
+  }
+ ],
+ "IT_11_Risks": [
+  {
+   "Title": "Telephony vendor may deliver late",
+   "RiskId": "RISK-DEMO-001",
+   "Description": "Sample risk: Telephony vendor may deliver late.",
+   "Status": "OPEN",
+   "Probability": "HIGH",
+   "Impact": "HIGH",
+   "OwnerUPN": "demo.owner@example.com",
+   "Mitigation": "Agree a firm delivery date and a penalty clause.",
+   "DueDate": "@day:14",
+   "ProjectId": "PROJ-DEMO-002",
+   "MeetingId": "MEET-DEMO-001"
+  },
+  {
+   "Title": "Users may resist the new laptops",
+   "RiskId": "RISK-DEMO-002",
+   "Description": "Sample risk: Users may resist the new laptops.",
+   "Status": "MITIGATING",
+   "Probability": "MEDIUM",
+   "Impact": "MEDIUM",
+   "OwnerUPN": "demo.owner@example.com",
+   "Mitigation": "Run short demos in each department.",
+   "DueDate": "@day:30",
+   "ProjectId": "PROJ-DEMO-001",
+   "MeetingId": "MEET-DEMO-001"
+  },
+  {
+   "Title": "Licence renewal could be missed",
+   "RiskId": "RISK-DEMO-003",
+   "Description": "Sample risk: Licence renewal could be missed.",
+   "Status": "ACCEPTED",
+   "Probability": "LOW",
+   "Impact": "MEDIUM",
+   "OwnerUPN": "demo.owner@example.com",
+   "Mitigation": "Calendar reminder 60 days before.",
+   "DueDate": "@day:60",
+   "ProjectId": "",
+   "MeetingId": "MEET-DEMO-001"
+  }
+ ],
+ "IT_12_Decisions": [
+  {
+   "Title": "Buy laptops in two waves",
+   "DecisionId": "DEC-DEMO-001",
+   "Description": "Budget is released per wave.",
+   "Rationale": "A single purchase would exceed the quarterly budget.",
+   "Status": "DECIDED",
+   "ProjectId": "PROJ-DEMO-001",
+   "MeetingId": "MEET-DEMO-001",
+   "DecidedBy": "demo.owner@example.com",
+   "DecisionDate": "@day:-3"
+  },
+  {
+   "Title": "Move telephony to Teams Phone",
+   "DecisionId": "DEC-DEMO-002",
+   "Description": "Waiting for the licence quote.",
+   "Rationale": "Removes the separate telephony contract.",
+   "Status": "PROPOSED",
+   "ProjectId": "PROJ-DEMO-002",
+   "MeetingId": "MEET-DEMO-001"
+  }
+ ],
+ "IT_16_TeamSkills": [
+  {
+   "Title": "Microsoft 365 administration",
+   "SkillId": "SKL-DEMO-001",
+   "PersonUPN": "demo.owner@example.com",
+   "Category": "TOOLING",
+   "Level": "ADVANCED",
+   "TargetLevel": "ADVANCED",
+   "Status": "ACTIVE",
+   "LastAssessed": "@day:-30",
+   "Notes": "Sample skill record.",
+   "Certification": "MS-102",
+   "CertificationExpiry": "@day:200"
+  },
+  {
+   "Title": "Azure infrastructure",
+   "SkillId": "SKL-DEMO-002",
+   "PersonUPN": "demo.owner@example.com",
+   "Category": "TECHNICAL",
+   "Level": "INTERMEDIATE",
+   "TargetLevel": "ADVANCED",
+   "Status": "ACTIVE",
+   "LastAssessed": "@day:-45",
+   "Notes": "Sample skill record.",
+   "Certification": "AZ-104",
+   "CertificationExpiry": "@day:30"
+  },
+  {
+   "Title": "Incident management",
+   "SkillId": "SKL-DEMO-003",
+   "PersonUPN": "demo.owner@example.com",
+   "Category": "PROCESS",
+   "Level": "BASIC",
+   "TargetLevel": "INTERMEDIATE",
+   "Status": "ACTIVE",
+   "LastAssessed": "@day:-60",
+   "Notes": "Sample skill record."
+  }
+ ],
+ "IT_17_TrainingPlans": [
+  {
+   "Title": "Renew the Azure administrator certification",
+   "TrainingId": "TRN-DEMO-001",
+   "Status": "IN_PROGRESS",
+   "TrainingType": "CERTIFICATION",
+   "PersonUPN": "demo.owner@example.com",
+   "Provider": "Microsoft Learn",
+   "SkillId": "SKL-DEMO-002",
+   "StartDate": "@day:-10",
+   "DueDate": "@day:20",
+   "Cost": 165,
+   "Notes": "Sample training plan."
+  },
+  {
+   "Title": "ITIL foundations course",
+   "TrainingId": "TRN-DEMO-002",
+   "Status": "PLANNED",
+   "TrainingType": "COURSE",
+   "PersonUPN": "demo.owner@example.com",
+   "Provider": "Northwind Training",
+   "SkillId": "SKL-DEMO-003",
+   "StartDate": "@day:-20",
+   "DueDate": "@day:-3",
+   "Cost": 450,
+   "Notes": "Sample training plan."
+  },
+  {
+   "Title": "Mentoring on the service desk",
+   "TrainingId": "TRN-DEMO-003",
+   "Status": "COMPLETED",
+   "TrainingType": "MENTORING",
+   "PersonUPN": "demo.owner@example.com",
+   "Provider": "Internal",
+   "SkillId": "SKL-DEMO-003",
+   "StartDate": "@day:-60",
+   "DueDate": "@day:-30",
+   "Cost": 0,
+   "Notes": "Sample training plan.",
+   "CompletedDate": "@day:-32"
+  }
+ ],
+ "IT_18_KnowledgeBase": [
+  {
+   "Title": "Reset a user password",
+   "ArticleId": "KB-DEMO-001",
+   "Summary": "How the service desk resets a password.",
+   "Body": "1. Verify the identity. 2. Reset in the admin centre. 3. Ask the user to change it at sign-in.",
+   "Category": "HOW_TO",
+   "Status": "PUBLISHED",
+   "OwnerUPN": "demo.owner@example.com",
+   "Tags": "password, service desk",
+   "IncidentId": "",
+   "PublishedOn": "@day:-185",
+   "ReviewDate": "@day:-5"
+  },
+  {
+   "Title": "Restart the print spooler",
+   "ArticleId": "KB-DEMO-002",
+   "Summary": "Fix for a stuck print queue.",
+   "Body": "Restart the Print Spooler service and clear the queue folder.",
+   "Category": "RUNBOOK",
+   "Status": "PUBLISHED",
+   "OwnerUPN": "demo.owner@example.com",
+   "Tags": "printer",
+   "IncidentId": "INC-DEMO-003",
+   "PublishedOn": "@day:-30",
+   "ReviewDate": "@day:150"
+  },
+  {
+   "Title": "Acceptable use policy",
+   "ArticleId": "KB-DEMO-003",
+   "Summary": "What staff may do with company devices.",
+   "Body": "Draft text of the policy.",
+   "Category": "POLICY",
+   "Status": "IN_REVIEW",
+   "OwnerUPN": "demo.owner@example.com",
+   "Tags": "policy, security",
+   "IncidentId": "",
+   "ApprovalRule": "article.publishPolicy",
+   "ApprovalStatus": "PENDING",
+   "Approver": "demo.owner@example.com",
+   "ApprovalRequestedOn": "@day:-1"
+  }
+ ],
+ "IT_19_Reviews": [
+  {
+   "Title": "Telephony rollout: status review",
+   "ReviewId": "REV-DEMO-001",
+   "ReviewType": "STATUS",
+   "Status": "COMPLETED",
+   "Health": "AMBER",
+   "ReviewDate": "@day:-7",
+   "NextReviewDate": "@day:7",
+   "Summary": "Forecast is above budget; approval pending.",
+   "NextSteps": "Decide on the budget increase.",
+   "OwnerUPN": "demo.owner@example.com",
+   "ProjectId": "PROJ-DEMO-002"
+  },
+  {
+   "Title": "Laptop refresh: financial review",
+   "ReviewId": "REV-DEMO-002",
+   "ReviewType": "FINANCIAL",
+   "Status": "SCHEDULED",
+   "Health": "GREEN",
+   "ReviewDate": "@day:14",
+   "NextReviewDate": "@day:45",
+   "Summary": "",
+   "NextSteps": "",
+   "OwnerUPN": "demo.owner@example.com",
+   "ProjectId": "PROJ-DEMO-001"
+  }
+ ],
+ "IT_20_LessonsLearned": [
+  {
+   "Title": "Confirm vendor lead times before committing a date",
+   "LessonId": "LESS-DEMO-001",
+   "Description": "The first telephony date was set before the vendor confirmed stock.",
+   "Recommendation": "Get written lead times and add a margin.",
+   "Category": "VENDOR",
+   "Status": "NEW",
+   "OwnerUPN": "demo.owner@example.com",
+   "ProjectId": "PROJ-DEMO-002",
+   "MeetingId": "MEET-DEMO-001"
+  }
+ ],
+ "IT_21_Meetings": [
+  {
+   "Title": "Weekly IT sync",
+   "MeetingId": "MEET-DEMO-001",
+   "MeetingDate": "@day:-3",
+   "Summary": "Laptop refresh wave 1 and the telephony rollout were reviewed.",
+   "Attendees": "ana@example.com; luis@example.com",
+   "ImportedItems": "Sample meeting: its notes below are linked to it."
+  }
+ ],
+ "IT_22_Notes": [
+  {
+   "Title": "Budget approved for wave 1",
+   "NoteId": "NOTE-DEMO-001",
+   "Body": "Finance confirmed the budget for the first laptop wave.",
+   "Category": "DECISION",
+   "Status": "ACTIVE",
+   "MeetingId": "MEET-DEMO-001",
+   "ProjectId": "PROJ-DEMO-001"
+  },
+  {
+   "Title": "Telephony vendor may delay delivery",
+   "NoteId": "NOTE-DEMO-002",
+   "Body": "The vendor warned of a possible two-week delay.",
+   "Category": "RISK",
+   "Status": "ACTIVE",
+   "MeetingId": "MEET-DEMO-001",
+   "ProjectId": "PROJ-DEMO-002"
+  },
+  {
+   "Title": "Share the new service catalogue with the team",
+   "NoteId": "NOTE-DEMO-003",
+   "Body": "Pending: send it before the next sync.",
+   "Category": "FOLLOW_UP",
+   "Status": "ACTIVE",
+   "MeetingId": "MEET-DEMO-001",
+   "ProjectId": ""
+  }
+ ]
+}

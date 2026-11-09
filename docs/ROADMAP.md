@@ -40,6 +40,8 @@ Diseño en `docs/superpowers/specs/2026-11-08-ronda-2-diseno.md`: vínculos con 
 
 - **Power Automate (avisos automáticos):** recetas paso a paso para seis flujos (acciones vencidas por responsable, proyectos en riesgo, incidentes fuera de plazo, aprobaciones sin decidir, contratos por renovar y resumen semanal), con los filtros y expresiones exactos (`docs/POWER_AUTOMATE.md`). Los flujos se crean en el tenant: no van en el paquete y no se han podido probar allí.
 
+- **Modo local (prototipo):** versión independiente de la aplicación, una página web que guarda los datos en un archivo JSON de OneDrive, con almacenamiento intercambiable (`IDataStore`, `DocumentStore`) pensado para añadir después Azure Blob, una API con SQL o publicarla (`docs/MODO_LOCAL.md`, diseño en `docs/superpowers/specs/2026-11-09-modo-local-diseno.md`). Probado con jsdom y en un navegador; falta probarlo con el OneDrive y la política de la empresa.
+
 ## Aplazado tras la ronda 2 (pendiente de retomar)
 Quedó fuera a propósito. Para retomarlo, pedir "retoma el roadmap".
 - **Integraciones:** Planner (crear plan/tarea al activar iniciativas y proyectos), Power Automate (ya documentado como recetas; falta, si se quiere, un botón en la app que dispare un flujo) y Microsoft Graph (perfil, foto, calendario). Necesitan permisos y flujos del tenant.
@@ -57,7 +59,7 @@ Nada de esto está hecho. Cada punto indica, entre corchetes, el esfuerzo aproxi
 
 ### Fase A: validar y proteger lo hecho
 Todo es pequeño y reduce el riesgo antes de añadir más funciones.
-1. **Probar el paquete en el tenant real** [S, T]: instalar el `.sppkg` 1.7.0.0, quitarlo y volver a añadirlo sobre listas ya existentes, y comprobar personas, enlaces de email y de Teams y las 22 listas. Todo se ha probado solo con jsdom y simulaciones.
+1. **Probar el paquete en el tenant real** [S, T] y **probar el modo local con tu OneDrive y la política de la empresa** [S, T]: instalar el `.sppkg` 1.7.0.0, quitarlo y volver a añadirlo sobre listas ya existentes, y comprobar personas, enlaces de email y de Teams y las 22 listas. Todo se ha probado solo con jsdom y simulaciones.
 2. **Probar los flujos de Power Automate** [S, T]: las expresiones de `docs/POWER_AUTOMATE.md` están escritas a mano y no se han ejecutado.
 3. **Aviso de error global** [S]: si un componente falla, no hay red de seguridad en pantalla (comprobado: no hay límite de errores de React).
 4. **Pruebas de carga con miles de filas** [S]: medir tiempos de tablas, búsquedas y panel; da la línea base para decidir la fase D.
@@ -93,6 +95,7 @@ Lo que pide la dirección y los comités. Se apoya en los datos que ya existen.
 8. **Papelera y deshacer** [M]: recuperar un elemento borrado o deshacer el último cambio dentro de la app.
 
 ### Fase D: cimientos para crecer
+Además de lo de abajo, el modo local abre estos pasos (ver `docs/MODO_LOCAL.md`): **informe estático de solo lectura** [M] para que otras personas vean el panel sin editar, **`BlobPersistence`** [M, T] para guardar en Azure Blob con control de versión real, **`HttpStore` y una API delante de SQL** [L, T] si hace falta edición simultánea, y **publicar la versión independiente** [M, T] en un sitio estático aprobado con autenticación de Entra ID.
 Rendimiento y mantenimiento. Conviene decidir qué hacer a partir de los resultados de las pruebas de carga de la fase A. La migración de esquemas es requisito de las columnas reales de la fase F.
 1. **Carga bajo demanda y paginación en servidor** [M]: ahora el elemento web carga las 22 listas al abrirse (todos los elementos de cada una); con muchas filas conviene cargar por pestaña.
 2. **Caché y actualización en segundo plano** [M]: abrir rápido con lo último que se vio y refrescar después.

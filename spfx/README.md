@@ -26,6 +26,10 @@ Despliegue: `npm run package` → subir `sharepoint/solution/itsdm.sppkg` al cat
 
 > Las listas solo se crean al **añadir la app al sitio**. Si actualizas una versión ya instalada y faltan listas, quita la app del sitio y vuelve a añadirla, o usa los scripts de `scripts/`. Los datos de ejemplo tienen IDs `…-DEMO-…` y un responsable de ejemplo (`demo.owner@example.com`); bórralos o edítalos cuando quieras.
 
+## Modo local (sin SharePoint)
+
+`npm run standalone` genera `dist-standalone/` (`index.html` y `app.js`), una página que guarda sus datos en un archivo JSON que eliges. `npm run standalone:serve` la sirve en `http://localhost:4173` y `npm run standalone:watch` la recompila al cambiar el código. Ver `../docs/MODO_LOCAL.md`.
+
 ## Estructura
 
 ```

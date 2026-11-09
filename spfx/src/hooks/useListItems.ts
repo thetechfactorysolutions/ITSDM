@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { IQueryOptions, SharePointService } from '../services/SharePointService';
+import { IDataStore, IQueryOptions } from '../data/IDataStore';
 
 export interface IListHookState<T> {
   items: T[];
@@ -16,7 +16,7 @@ const toErrorMessage = (err: unknown, fallback: string): string => {
 };
 
 export const useListItems = <T>(
-  service: SharePointService,
+  service: IDataStore,
   listName: string,
   mapItem: (input: Record<string, unknown>) => T,
   options?: IQueryOptions

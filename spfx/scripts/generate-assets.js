@@ -460,4 +460,16 @@ ${LISTS.map(instanceXml).join('\n')}
 </Elements>
 `, 'utf8');
 
+// ---------- sample data for the local mode ----------
+// Same rows as above, with each date written as "@day:<offset>" (days from today). The local app
+// resolves them when it creates the data (src/data/seed.ts), so they never go stale.
+if (process.env.ITSDM_SEED_OUT) {
+  const seed = {};
+  for (const list of LISTS) {
+    seed[list.title] = list.rows((offset) => `@day:${offset}`);
+  }
+  fs.mkdirSync(path.dirname(process.env.ITSDM_SEED_OUT), { recursive: true });
+  fs.writeFileSync(process.env.ITSDM_SEED_OUT, JSON.stringify(seed, null, 1) + '\n', 'utf8');
+}
+
 console.log(`Generated ${LISTS.length + 1} files in ${path.relative(process.cwd(), OUT_DIR)}`);

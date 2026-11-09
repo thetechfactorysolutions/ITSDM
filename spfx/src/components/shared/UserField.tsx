@@ -1,21 +1,21 @@
 import * as React from 'react';
 import { IPersonaProps, Label, NormalPeoplePicker, Text } from '@fluentui/react';
 import { useT } from '../../i18n/I18n';
-import { SharePointService } from '../../services/SharePointService';
+import { IDataStore } from '../../data/IDataStore';
 
 export interface IUserFieldProps {
   label: string;
   /** Email (UPN) of the selected user, or empty. */
   value: string | undefined;
   onChange: (email: string) => void;
-  service: SharePointService;
+  service: IDataStore;
   required?: boolean;
   errorMessage?: string;
 }
 
 const toPersona = (email: string): IPersonaProps => ({ text: email, secondaryText: email, id: email });
 
-/** Single-user picker backed by the SharePoint people search. Stores the user's email. */
+/** Single-user picker backed by the store's people search (the directory in SharePoint, names already in the data otherwise). Stores the user's email. */
 const UserField: React.FC<IUserFieldProps> = ({ label, value, onChange, service, required, errorMessage }) => {
   const t = useT();
   const [searchError, setSearchError] = React.useState<string | undefined>();

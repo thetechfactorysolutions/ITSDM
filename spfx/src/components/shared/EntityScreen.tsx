@@ -7,7 +7,7 @@ import { buildApprovalPayload } from '../../entities/payloads';
 import { useT } from '../../i18n/I18n';
 import { IListHookState } from '../../hooks/useListItems';
 import { ApprovalStatus, IApprovalState } from '../../models';
-import { SharePointService } from '../../services/SharePointService';
+import { IDataStore } from '../../data/IDataStore';
 import { ApprovalEntity, decideApproval, EMPTY_APPROVAL, evaluateAnyChange, getApproval, IGateResult, requestApproval } from '../../rules/approvals';
 import { ICsvColumn, toCsv } from '../../rules/csv';
 import { applyView, DEFAULT_VIEW, ITableView } from '../../rules/tableView';
@@ -42,14 +42,14 @@ export interface IFormContext<T> {
   errors: ValidationErrors;
   original: T | undefined;
   isEdit: boolean;
-  service: SharePointService;
+  service: IDataStore;
 }
 
 export interface IEntityScreenProps<T extends IEntityBase> {
   /** Translation key prefix for the screen texts, e.g. "ideas" -> ideas.title, ideas.new, ideas.empty. */
   textKey: string;
   state: IListHookState<T>;
-  service: SharePointService;
+  service: IDataStore;
   statuses: string[];
   getStatus: (item: T) => string;
   getTitle: (item: T) => string;

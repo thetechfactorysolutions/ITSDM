@@ -31,6 +31,7 @@
 
 ## Integrations
 - Current: SharePoint Online lists (via the signed-in user, no custom auth).
+- **Data layer:** screens depend on the `IDataStore` contract (`src/data/IDataStore.ts`), not on SharePoint. `SharePointService` implements it for the web part; `DocumentStore` keeps the whole database as one JSON document behind an `IDocumentPersistence` (a file in OneDrive, memory...) for the local mode. A future Azure Blob or SQL (through an API) store only has to implement the same contract. See `MODO_LOCAL.md`.
 - Not implemented (see `ROADMAP.md`): Planner, Power Automate, Microsoft Graph.
 - The app never calls an AI service. The text an AI produced from a transcript is pasted by the user and interpreted locally.
 

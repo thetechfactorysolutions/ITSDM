@@ -4,7 +4,7 @@ import { useT } from '../../i18n/I18n';
 import { ApprovalStatus, IApprovalState } from '../../models';
 import { buildApprovalMessage } from '../../rules/approvalMessage';
 import { ApprovalEntity, findRule, IApprovalRule, IGateResult } from '../../rules/approvals';
-import { SharePointService } from '../../services/SharePointService';
+import { IDataStore } from '../../data/IDataStore';
 import ApprovalDecisionDialog from './ApprovalDecisionDialog';
 import { DetailFields } from './DetailSection';
 import UserField from './UserField';
@@ -35,7 +35,7 @@ export interface IApprovalSectionProps {
   approval: IApprovalState;
   /** Set when the last save was blocked by a rule. */
   gate?: IGateResult;
-  service: SharePointService;
+  service: IDataStore;
   userEmail: string;
   onRequest: (ruleId: string, approver: string) => Promise<void>;
   onDecide: (status: ApprovalStatus.APPROVED | ApprovalStatus.REJECTED, comment: string) => Promise<void>;

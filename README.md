@@ -16,6 +16,7 @@ ITSDM is a SharePoint Framework (SPFx) web part for IT Service Delivery Manageme
 - **Import from a meeting:** copy an instruction, run it with your own AI on the transcript, paste the result, review a preview and confirm. The app never calls an AI service (see `docs/IMPORTAR_REUNIONES.md`).
 - **Full-width section** support, **English and Spanish**, keyboard and screen-reader friendly.
 - Lists and sample data are created when the app is added to a site.
+- **Local mode (prototype):** the same app as a plain web page that keeps its data in a JSON file you choose, for example in your OneDrive folder, with no SharePoint and no installation (`docs/MODO_LOCAL.md`, `npm run standalone` in `spfx/`).
 
 Not implemented yet (see `docs/ROADMAP.md`): Planner and Graph integrations (automatic alerts are documented as Power Automate recipes in `docs/POWER_AUTOMATE.md`), app-level roles, automatic schema migration. All 22 lists have their screen.
 
