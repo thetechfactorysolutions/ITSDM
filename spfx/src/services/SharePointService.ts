@@ -6,14 +6,15 @@ import '@pnp/sp/webs';
 import '@pnp/sp/lists';
 import '@pnp/sp/items';
 import '@pnp/sp/items/get-all';
+import '@pnp/sp/attachments';
 
-import { IDataStore, IPagedResult, IQueryOptions, IStoreCapabilities, IUserSuggestion } from '../data/IDataStore';
+import { IAttachment, IDataStore, IPagedResult, IQueryOptions, IStoreCapabilities, IUserSuggestion } from '../data/IDataStore';
 
 // Kept here so existing imports keep working.
-export type { IPagedResult, IQueryOptions, IUserSuggestion };
+export type { IAttachment, IPagedResult, IQueryOptions, IUserSuggestion };
 
 export class SharePointService implements IDataStore {
-  public readonly capabilities: IStoreCapabilities = { versioning: true, userSearch: 'directory' };
+  public readonly capabilities: IStoreCapabilities = { versioning: true, userSearch: 'directory', attachments: true };
 
   private readonly _sp: SPFI;
 
@@ -108,6 +109,42 @@ export class SharePointService implements IDataStore {
       await this._sp.web.lists.getByTitle(listName).update({ EnableVersioning: true });
     } catch (error) {
       throw this._toServiceError('Failed to enable version history', listName, error);
+    }
+  }
+
+  /** The files attached to an item. */
+  public async listAttachments(listName: string, id: number): Promise<IAttachment[]> {
+    try {
+      const files = await this._sp.web.lists.getByTitle(listName).items.getById(id).attachmentFiles();
+      return files.map(file => ({ fileName: file.FileName, url: file.ServerRelativeUrl }));
+    } catch (error) {
+      throw this._toServiceError('Failed to read the attachments', listName, error);
+    }
+  }
+
+  /** Attaches a file to an item. The list must have attachments turned on. */
+  public async addAttachment(listName: string, id: number, fileName: string, content: ArrayBuffer): Promise<void> {
+    try {
+      await this._sp.web.lists.getByTitle(listName).items.getById(id).attachmentFiles.add(fileName, content);
+    } catch (error) {
+      throw this._toServiceError('Failed to attach the file', listName, error);
+    }
+  }
+
+  public async deleteAttachment(listName: string, id: number, fileName: string): Promise<void> {
+    try {
+      await this._sp.web.lists.getByTitle(listName).items.getById(id).attachmentFiles.getByName(fileName).delete();
+    } catch (error) {
+      throw this._toServiceError('Failed to remove the attachment', listName, error);
+    }
+  }
+
+  /** Turns attachments on for a list that was created without them. Needs permission to manage the list. */
+  public async enableAttachments(listName: string): Promise<void> {
+    try {
+      await this._sp.web.lists.getByTitle(listName).update({ EnableAttachments: true });
+    } catch (error) {
+      throw this._toServiceError('Failed to turn on attachments', listName, error);
     }
   }
 

@@ -3,12 +3,12 @@ import { AppConfig } from '../../config/AppConfig';
 import { EXPAND_EDITOR, SELECT } from '../../entities/payloads';
 import { IListHookState, useListItems } from '../../hooks/useListItems';
 import {
-  ActionItem, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../../models';
 import { IDataStore, IQueryOptions } from '../../data/IDataStore';
 import {
   mapAction, mapBudget, mapCapex, mapChange, mapContract, mapDecision, mapIdea, mapIncident, mapInitiative, mapInteraction, mapKpi, mapLesson, mapMeeting, mapNote, mapOpex, mapProject,
-  mapArticle, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
+  mapArea, mapArticle, mapEntitlement, mapLink, mapMatter, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
 } from './mappers';
 
 export interface IHubData {
@@ -36,6 +36,10 @@ export interface IHubData {
   skills: IListHookState<Skill>;
   trainings: IListHookState<Training>;
   articles: IListHookState<Article>;
+  matters: IListHookState<Matter>;
+  areas: IListHookState<Area>;
+  links: IListHookState<LinkItem>;
+  entitlements: IListHookState<Entitlement>;
 }
 
 export const HubDataContext = React.createContext<IHubData | undefined>(undefined);
@@ -71,6 +75,10 @@ const KPIS_QUERY = query(SELECT.kpis);
 const SKILLS_QUERY = query(SELECT.skills);
 const TRAININGS_QUERY = query(SELECT.trainings);
 const ARTICLES_QUERY = query(SELECT.articles);
+const MATTERS_QUERY = query(SELECT.matters);
+const AREAS_QUERY = query(SELECT.areas);
+const LINKS_QUERY = query(SELECT.links);
+const ENTITLEMENTS_QUERY = query(SELECT.entitlements);
 
 /**
  * Loads each list once for the whole web part. Every tab reads the same state, so switching
@@ -101,6 +109,10 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEm
   const skills = useListItems<Skill>(service, listNames.teamSkills, mapSkill, SKILLS_QUERY);
   const trainings = useListItems<Training>(service, listNames.trainingPlans, mapTraining, TRAININGS_QUERY);
   const articles = useListItems<Article>(service, listNames.knowledgeBase, mapArticle, ARTICLES_QUERY);
+  const matters = useListItems<Matter>(service, listNames.matters, mapMatter, MATTERS_QUERY);
+  const areas = useListItems<Area>(service, listNames.areas, mapArea, AREAS_QUERY);
+  const links = useListItems<LinkItem>(service, listNames.links, mapLink, LINKS_QUERY);
+  const entitlements = useListItems<Entitlement>(service, listNames.entitlements, mapEntitlement, ENTITLEMENTS_QUERY);
 
   const value: IHubData = {
     service,
@@ -126,7 +138,11 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEm
     kpis,
     skills,
     trainings,
-    articles
+    articles,
+    matters,
+    areas,
+    links,
+    entitlements
   };
 
   return <HubDataContext.Provider value={value}>{children}</HubDataContext.Provider>;

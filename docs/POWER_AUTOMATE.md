@@ -96,11 +96,66 @@ Combina los pasos de arriba en un solo flujo, sin los bucles por responsable, y 
 - Proyectos en riesgo (flujo 2).
 - Incidentes fuera de plazo (flujo 3).
 - Aprobaciones pendientes (flujo 4).
-- Contratos por renovar (flujo 5).
+- Contratos por renovar (flujo 5) y garantías o licencias por renovar (la variante de arriba).
+- Elementos en la bandeja, con cuántos llevan más de 3 días (flujo 9).
 - Certificaciones por caducar (`IT_16_TeamSkills`, filtro `Status eq 'ACTIVE' and CertificationExpiry le '@{addDays(utcNow(), 60, 'yyyy-MM-dd')}T12:00:00Z'`; los 60 días son `AppConfig.people.certificationWarningDays`).
 - Artículos por revisar (`IT_18_KnowledgeBase`, filtro `Status eq 'PUBLISHED' and ReviewDate lt '@{concat(utcNow('yyyy-MM-dd'), 'T00:00:00Z')}'`).
 
 Termina con un enlace a la pestaña **Panel** de la aplicación, que muestra lo mismo con más detalle.
+
+## Flujo 7: correo marcado → bandeja
+
+**Cuándo:** el disparador de Outlook **Cuando se marca un correo electrónico** (o, si prefieres, **Cuando llega un correo nuevo** limitado a una carpeta `ITSDM` a la que una regla de Outlook mueve lo que te interesa). Mi propuesta es **no** recoger todo el correo: solo lo que marcas o mueves, para que la bandeja no se llene de ruido.
+**Qué hace:** crea un asunto en `IT_23_Matters` con estado `INBOX`, sin área, para que lo clasifiques en la aplicación. Si el correo tiene ficheros, los adjunta al asunto.
+
+1. **Redactar** (`asuntoLimpio`): `replace(triggerOutputs()?['body/subject'], '''', '''''')` (dobla los apóstrofos para el filtro OData).
+2. **Obtener elementos** de `IT_23_Matters`, *Recuento superior* 1, filtro, para **no duplicar** el mismo correo si lo vuelves a marcar:
+   `Title eq '@{outputs('Redactar')}' and Sender eq '@{triggerOutputs()?['body/from']}' and ReceivedOn eq '@{concat(formatDateTime(triggerOutputs()?['body/receivedDateTime'], 'yyyy-MM-dd'), 'T12:00:00Z')}'`
+   (`SourceRef` es de texto largo y no se puede filtrar, por eso se compara por asunto, remitente y día).
+3. **Condición:** `length(outputs('Obtener_elementos')?['body/value'])` es igual a 0. Si no, el flujo termina.
+4. En la rama **Sí**, **Crear elemento** en `IT_23_Matters`:
+   - `Title`: `substring(triggerOutputs()?['body/subject'], 0, min(length(triggerOutputs()?['body/subject']), 250))`
+   - `MatterId`: `concat('ASU-', utcNow('yyyyMMdd'), '-', toUpper(substring(replace(guid(), '-', ''), 0, 6)))`
+   - `Description`: la vista previa del cuerpo (*Body Preview*).
+   - `Status`: `INBOX` · `Priority`: `MEDIUM` (o `HIGH` si la importancia del correo es alta) · `Source`: `EMAIL`
+   - `Sender`: el remitente (*From*).
+   - `ReceivedOn`: `concat(formatDateTime(triggerOutputs()?['body/receivedDateTime'], 'yyyy-MM-dd'), 'T12:00:00Z')`
+   - `SourceRef`: el enlace al mensaje. Si el conector lo ofrece, úsalo; si no, `concat('https://outlook.office.com/owa/?ItemID=', encodeUriComponent(triggerOutputs()?['body/id']), '&exvsurl=1&viewmodel=ReadMessageItem')`.
+   - `OwnerUPN`: tu correo. `AreaId`: vacío (ver las reglas de abajo).
+5. **Adjuntos** (solo si el correo los tiene): **Aplicar a cada uno** sobre los adjuntos del correo → SharePoint **Agregar archivo adjunto** con el *Id* del elemento creado, el nombre del fichero y su contenido. La lista debe tener los adjuntos activados (botón de la pestaña Ayuda).
+
+**Reglas de clasificación (opcional).** Antes del paso 4, un **Redactar** que adivine el área por el remitente o el asunto:
+`if(contains(toLower(triggerOutputs()?['body/subject']), 'budget'), 'AREA-DEMO-001', if(contains(toLower(triggerOutputs()?['body/from']), '@lenovo.com'), 'AREA-DEMO-010', ''))`
+Usa como `AreaId` ese resultado y como `Status`: `if(empty(outputs('Redactar_2')), 'INBOX', 'OPEN')`. Los identificadores de área son los de la pestaña *Áreas* (campo "ID del área"). Lo que no encaje cae en la bandeja, sin área.
+
+## Flujo 8: mensaje de Teams → bandeja
+
+**Cuándo:** el disparador de Teams **Para un mensaje seleccionado**. Aparece en Teams, en el menú ··· del mensaje → **Más acciones**, con el nombre del flujo.
+**Qué hace:** guarda ese mensaje en la bandeja. Solo recoge lo que eliges, no todo Teams.
+
+1. **Crear elemento** en `IT_23_Matters`:
+   - `Title`: los primeros 120 caracteres del texto del mensaje (`substring(text, 0, min(length(text), 120))`).
+   - `MatterId`: la misma expresión que en el flujo 7.
+   - `Description`: el texto completo. `Status`: `INBOX` · `Priority`: `MEDIUM` · `Source`: `TEAMS`
+   - `Sender`: quien lo escribió. `ReceivedOn`: `concat(utcNow('yyyy-MM-dd'), 'T12:00:00Z')`
+   - `SourceRef`: el enlace al mensaje (*Message link*). `OwnerUPN`: tu correo.
+2. Opcional: **Publicar una tarjeta/mensaje** de vuelta al chat diciendo "Guardado en la bandeja".
+
+*Los nombres exactos de los campos del disparador los ves en el contenido dinámico; no los he podido probar en tu tenant.*
+
+## Flujo 9: la bandeja se acumula
+
+**Cuándo:** Recurrencia, cada día laborable a las 08:30.
+**Regla:** un elemento de la bandeja es antiguo si lleva más de 3 días sin clasificar (`AppConfig.matters.inboxStaleDays`).
+
+1. **Obtener elementos** de `IT_23_Matters`, filtro: `Status eq 'INBOX'`.
+2. **Condición:** hay más de 0. Si no, termina.
+3. **Filtrar matriz** sobre `body/value`: `@less(ticks(item()?['ReceivedOn']), ticks(addDays(utcNow(), -3)))` (los antiguos).
+4. Correo a ti con *"Tienes N elementos en la bandeja, M con más de 3 días"* y una **tabla HTML** (`Title`, `Sender`, `ReceivedOn`), más el enlace a la aplicación.
+
+## Garantías y licencias por renovar
+
+Es el **flujo 5** cambiando la lista a `IT_26_Entitlements`, el filtro a `Status eq 'ACTIVE'` y el título del correo ("garantías y licencias por renovar"). La expresión de *Filtrar matriz* es la misma, porque `EndDate` y `NoticeDays` se llaman igual.
 
 ## Prueba antes de fiarte
 

@@ -828,5 +828,309 @@
    "MeetingId": "MEET-DEMO-001",
    "ProjectId": ""
   }
+ ],
+ "IT_23_Matters": [
+  {
+   "Title": "Quarterly budget forecast requested by Europe",
+   "MatterId": "ASU-DEMO-001",
+   "Description": "Sample matter: Quarterly budget forecast requested by Europe.",
+   "Status": "INBOX",
+   "Priority": "MEDIUM",
+   "AreaId": "",
+   "Source": "EMAIL",
+   "Sender": "finance.europe@example.com",
+   "ReceivedOn": "@day:-1",
+   "OwnerUPN": "demo.owner@example.com",
+   "ContractId": "",
+   "IncidentId": "",
+   "VendorId": ""
+  },
+  {
+   "Title": "Network incident reported by the Paris office",
+   "MatterId": "ASU-DEMO-002",
+   "Description": "Sample matter: Network incident reported by the Paris office.",
+   "Status": "INBOX",
+   "Priority": "HIGH",
+   "AreaId": "",
+   "Source": "TEAMS",
+   "Sender": "corporate.network@example.com",
+   "ReceivedOn": "@day:-5",
+   "OwnerUPN": "demo.owner@example.com",
+   "ContractId": "",
+   "IncidentId": "",
+   "VendorId": ""
+  },
+  {
+   "Title": "Renew the help desk licences",
+   "MatterId": "ASU-DEMO-003",
+   "Description": "Sample matter: Renew the help desk licences.",
+   "Status": "OPEN",
+   "Priority": "HIGH",
+   "AreaId": "AREA-DEMO-003",
+   "Source": "MANUAL",
+   "Sender": "",
+   "ReceivedOn": "@day:-8",
+   "OwnerUPN": "demo.owner@example.com",
+   "ContractId": "CON-DEMO-001",
+   "IncidentId": "",
+   "VendorId": "VEN-DEMO-001",
+   "DueDate": "@day:20",
+   "Notes": "Ask for two quotes before the notice date."
+  },
+  {
+   "Title": "Locker management app requested by facilities",
+   "MatterId": "ASU-DEMO-004",
+   "Description": "Sample matter: Locker management app requested by facilities.",
+   "Status": "IN_PROGRESS",
+   "Priority": "MEDIUM",
+   "AreaId": "AREA-DEMO-009",
+   "Source": "EMAIL",
+   "Sender": "facilities@example.com",
+   "ReceivedOn": "@day:-12",
+   "OwnerUPN": "demo.owner@example.com",
+   "ContractId": "",
+   "IncidentId": "",
+   "VendorId": "",
+   "DueDate": "@day:14"
+  },
+  {
+   "Title": "Orange logistics: delivery slots for the retail stores",
+   "MatterId": "ASU-DEMO-005",
+   "Description": "Sample matter: Orange logistics: delivery slots for the retail stores.",
+   "Status": "WAITING",
+   "Priority": "MEDIUM",
+   "AreaId": "AREA-DEMO-005",
+   "Source": "EMAIL",
+   "Sender": "logistics@example.com",
+   "ReceivedOn": "@day:-9",
+   "OwnerUPN": "demo.owner@example.com",
+   "ContractId": "",
+   "IncidentId": "",
+   "VendorId": "",
+   "DueDate": "@day:-2"
+  },
+  {
+   "Title": "Approve the quarterly budget transfer",
+   "MatterId": "ASU-DEMO-006",
+   "Description": "Sample matter: Approve the quarterly budget transfer.",
+   "Status": "DONE",
+   "Priority": "MEDIUM",
+   "AreaId": "AREA-DEMO-001",
+   "Source": "EMAIL",
+   "Sender": "finance@example.com",
+   "ReceivedOn": "@day:-14",
+   "OwnerUPN": "demo.owner@example.com",
+   "ContractId": "",
+   "IncidentId": "",
+   "VendorId": "",
+   "DueDate": "@day:-6",
+   "ClosedOn": "@day:-4"
+  },
+  {
+   "Title": "Duplicate request from the building team",
+   "MatterId": "ASU-DEMO-007",
+   "Description": "Sample matter: Duplicate request from the building team.",
+   "Status": "DISCARDED",
+   "Priority": "LOW",
+   "AreaId": "AREA-DEMO-004",
+   "Source": "EMAIL",
+   "Sender": "building@example.com",
+   "ReceivedOn": "@day:-10",
+   "OwnerUPN": "demo.owner@example.com",
+   "ContractId": "",
+   "IncidentId": "",
+   "VendorId": "",
+   "ClosedOn": "@day:-7"
+  }
+ ],
+ "IT_24_Areas": [
+  {
+   "Title": "Budget",
+   "AreaId": "AREA-DEMO-001",
+   "Description": "Forecasts, transfers and spending questions.",
+   "Status": "ACTIVE",
+   "SortOrder": 10
+  },
+  {
+   "Title": "User requests",
+   "AreaId": "AREA-DEMO-002",
+   "Description": "Requests from users that are not incidents.",
+   "Status": "ACTIVE",
+   "SortOrder": 20
+  },
+  {
+   "Title": "Renewals",
+   "AreaId": "AREA-DEMO-003",
+   "Description": "Contracts, licences and support that end on a date.",
+   "Status": "ACTIVE",
+   "SortOrder": 30
+  },
+  {
+   "Title": "Building requests",
+   "AreaId": "AREA-DEMO-004",
+   "Description": "Requests about the building: cabling, rooms, equipment.",
+   "Status": "ACTIVE",
+   "SortOrder": 40
+  },
+  {
+   "Title": "Orange logistics",
+   "AreaId": "AREA-DEMO-005",
+   "Description": "Logistics and service for Orange.",
+   "Status": "ACTIVE",
+   "SortOrder": 50
+  },
+  {
+   "Title": "Retail",
+   "AreaId": "AREA-DEMO-006",
+   "Description": "Retail stores and their equipment.",
+   "Status": "ACTIVE",
+   "SortOrder": 60
+  },
+  {
+   "Title": "Europe and corporate",
+   "AreaId": "AREA-DEMO-007",
+   "Description": "What Europe or the corporation asks for.",
+   "Status": "ACTIVE",
+   "SortOrder": 70
+  },
+  {
+   "Title": "Network incidents",
+   "AreaId": "AREA-DEMO-008",
+   "Description": "Incidents and changes on the network.",
+   "Status": "ACTIVE",
+   "SortOrder": 80
+  },
+  {
+   "Title": "Projects and ideas",
+   "AreaId": "AREA-DEMO-009",
+   "Description": "New projects, ideas and apps for other teams.",
+   "Status": "ACTIVE",
+   "SortOrder": 90
+  },
+  {
+   "Title": "Vendors",
+   "AreaId": "AREA-DEMO-010",
+   "Description": "Vendor contacts, quotes and orders.",
+   "Status": "ACTIVE",
+   "SortOrder": 100
+  }
+ ],
+ "IT_25_Links": [
+  {
+   "Title": "Lenovo support",
+   "LinkId": "LNK-DEMO-001",
+   "Url": "https://support.lenovo.com",
+   "Category": "Vendors",
+   "Description": "Sample link: Lenovo support.",
+   "Pinned": "YES",
+   "Status": "ACTIVE",
+   "VendorId": "VEN-DEMO-001"
+  },
+  {
+   "Title": "Oracle support",
+   "LinkId": "LNK-DEMO-002",
+   "Url": "https://support.oracle.com",
+   "Category": "Vendors",
+   "Description": "Sample link: Oracle support.",
+   "Pinned": "YES",
+   "Status": "ACTIVE",
+   "VendorId": ""
+  },
+  {
+   "Title": "Microsoft 365 admin centre",
+   "LinkId": "LNK-DEMO-003",
+   "Url": "https://admin.microsoft.com",
+   "Category": "Cloud",
+   "Description": "Sample link: Microsoft 365 admin centre.",
+   "Pinned": "YES",
+   "Status": "ACTIVE",
+   "VendorId": ""
+  },
+  {
+   "Title": "Azure portal",
+   "LinkId": "LNK-DEMO-004",
+   "Url": "https://portal.azure.com",
+   "Category": "Cloud",
+   "Description": "Sample link: Azure portal.",
+   "Pinned": "NO",
+   "Status": "ACTIVE",
+   "VendorId": "VEN-DEMO-003"
+  },
+  {
+   "Title": "Power Automate",
+   "LinkId": "LNK-DEMO-005",
+   "Url": "https://make.powerautomate.com",
+   "Category": "Tools",
+   "Description": "Sample link: Power Automate.",
+   "Pinned": "NO",
+   "Status": "ACTIVE",
+   "VendorId": ""
+  }
+ ],
+ "IT_26_Entitlements": [
+  {
+   "Title": "Laptop wave 1 warranty",
+   "EntitlementId": "ENT-DEMO-001",
+   "EntitlementType": "WARRANTY",
+   "Status": "ACTIVE",
+   "Product": "ThinkPad T14, wave 1",
+   "Reference": "",
+   "Quantity": 120,
+   "StartDate": "@day:-700",
+   "EndDate": "@day:25",
+   "NoticeDays": 60,
+   "AnnualCost": 0,
+   "VendorId": "VEN-DEMO-001",
+   "OwnerUPN": "demo.owner@example.com",
+   "Notes": "Sample record."
+  },
+  {
+   "Title": "Database support",
+   "EntitlementId": "ENT-DEMO-002",
+   "EntitlementType": "SUPPORT",
+   "Status": "ACTIVE",
+   "Product": "Oracle Database Standard",
+   "Reference": "",
+   "Quantity": 2,
+   "StartDate": "@day:-165",
+   "EndDate": "@day:200",
+   "NoticeDays": 90,
+   "AnnualCost": 18000,
+   "VendorId": "",
+   "OwnerUPN": "demo.owner@example.com",
+   "Notes": "Sample record."
+  },
+  {
+   "Title": "Help desk software licences",
+   "EntitlementId": "ENT-DEMO-003",
+   "EntitlementType": "LICENSE",
+   "Status": "ACTIVE",
+   "Product": "Ticketing tool, agent seats",
+   "Reference": "",
+   "Quantity": 15,
+   "StartDate": "@day:-370",
+   "EndDate": "@day:-5",
+   "NoticeDays": 60,
+   "AnnualCost": 5400,
+   "VendorId": "",
+   "OwnerUPN": "demo.owner@example.com",
+   "Notes": "Sample record."
+  },
+  {
+   "Title": "Previous backup subscription",
+   "EntitlementId": "ENT-DEMO-004",
+   "EntitlementType": "SUBSCRIPTION",
+   "Status": "RENEWED",
+   "Product": "Backup service, previous plan",
+   "Reference": "",
+   "Quantity": 1,
+   "StartDate": "@day:-760",
+   "EndDate": "@day:-40",
+   "NoticeDays": 60,
+   "AnnualCost": 3200,
+   "VendorId": "VEN-DEMO-003",
+   "OwnerUPN": "demo.owner@example.com",
+   "Notes": "Sample record."
+  }
  ]
 }

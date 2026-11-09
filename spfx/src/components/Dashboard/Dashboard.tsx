@@ -4,6 +4,8 @@ import { useT } from '../../i18n/I18n';
 import { buildApprovalPayload } from '../../entities/payloads';
 import { ActionItem, ActionStatus, ApprovalStatus, IApprovalState, IdeaStatus, Initiative, InitiativeStatus, ProjectStatus } from '../../models';
 import { budgetFigures, contractAlert, isLiveBudget, needsContractAttention } from '../../rules/finance';
+import { entitlementAlert, isInbox, isInboxStale, isMatterOpen, isMatterOverdue, needsEntitlementAttention } from '../../rules/matters';
+import { AppConfig } from '../../config/AppConfig';
 import { isHighActiveRisk } from '../../rules/governance';
 import { certificationAlert, hasSkillGap, isReviewDue, isTrainingOverdue, needsCertificationAttention } from '../../rules/people';
 import { isActiveKpi, isFollowUpOverdue, isIncidentOpen, isIncidentOverdue, kpiHealth } from '../../rules/operations';
@@ -14,6 +16,7 @@ import ApprovalDecisionDialog from '../shared/ApprovalDecisionDialog';
 import BarChart from '../shared/Charts';
 import { useHubData } from '../shared/HubData';
 import KpiTile from '../shared/KpiTile';
+import QuickLinks from '../Links/QuickLinks';
 
 interface IPendingApproval {
   key: string;
@@ -29,7 +32,8 @@ const Dashboard: React.FC = () => {
   const theme = getTheme();
   const { userEmail, ideas: ideasState, initiatives: initiativesState, projects: projectsState, actions: actionsState, risks: risksState,
     budgets: budgetsState, capex: capexState, opex: opexState, contracts: contractsState,
-    incidents: incidentsState, changes: changesState, interactions: interactionsState, kpis: kpisState, skills: skillsState, trainings: trainingsState, articles: articlesState } = useHubData();
+    incidents: incidentsState, changes: changesState, interactions: interactionsState, kpis: kpisState, skills: skillsState, trainings: trainingsState, articles: articlesState,
+    matters: mattersState, entitlements: entitlementsState, links: linksState } = useHubData();
   const [actionError, setActionError] = React.useState<string | undefined>();
   const [deciding, setDeciding] = React.useState<{ row: IPendingApproval; decision: ApprovalStatus.APPROVED | ApprovalStatus.REJECTED } | undefined>();
 
@@ -73,6 +77,13 @@ const Dashboard: React.FC = () => {
   const overBudgets = liveBudgets.filter(x => x.figures.level === 'OVER');
   const nearBudgets = liveBudgets.filter(x => x.figures.level === 'NEAR');
   const openInitiatives = initiativesState.items.filter(item => item.status !== InitiativeStatus.COMPLETED && item.status !== InitiativeStatus.CANCELLED);
+  const inboxItems = mattersState.items.filter(isInbox);
+  const staleInbox = inboxItems.filter(m => isInboxStale(m, now));
+  const openMatters = mattersState.items.filter(isMatterOpen);
+  const overdueMatters = mattersState.items.filter(m => isMatterOverdue(m, now));
+  const entitlementsToAttend = entitlementsState.items.filter(e => needsEntitlementAttention(e, now));
+  const lapsedEntitlements = entitlementsToAttend.filter(e => entitlementAlert(e, now).alert === 'LAPSED');
+  const pinnedLinks = linksState.items.filter(l => l.pinned);
 
   const initiativeColumns: IColumn[] = [
     { key: 'title', name: t('field.initiative'), fieldName: 'title', minWidth: 180, isResizable: true },
@@ -145,6 +156,18 @@ const Dashboard: React.FC = () => {
   }));
 
   const attention: string[] = [];
+  if (inboxItems.length > 0) {
+    attention.push(t('dashboard.attentionInbox', { count: inboxItems.length }));
+  }
+  if (staleInbox.length > 0) {
+    attention.push(t('dashboard.attentionInboxStale', { count: staleInbox.length, days: AppConfig.matters.inboxStaleDays }));
+  }
+  if (overdueMatters.length > 0) {
+    attention.push(t('dashboard.attentionMatters', { count: overdueMatters.length }));
+  }
+  if (entitlementsToAttend.length > 0) {
+    attention.push(t('dashboard.attentionEntitlements', { count: entitlementsToAttend.length }));
+  }
   if (overdueActions.length > 0) {
     attention.push(t('dashboard.attentionOverdue', { count: overdueActions.length }));
   }
@@ -186,7 +209,7 @@ const Dashboard: React.FC = () => {
   }
 
   const hasLoading = ideasState.loading || initiativesState.loading || projectsState.loading || actionsState.loading || risksState.loading || budgetsState.loading || contractsState.loading || incidentsState.loading || kpisState.loading;
-  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, actionError].filter(Boolean);
+  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, mattersState.error, entitlementsState.error, linksState.error, actionError].filter(Boolean);
 
   return (
     <Stack tokens={{ childrenGap: 20 }}>
@@ -198,6 +221,10 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
+        <KpiTile label={t('dashboard.inbox')} value={inboxItems.length} tone={staleInbox.length > 0 ? 'danger' : inboxItems.length > 0 ? 'warning' : 'good'} />
+        <KpiTile label={t('dashboard.openMatters')} value={openMatters.length} tone="info" />
+        <KpiTile label={t('dashboard.mattersOverdue')} value={overdueMatters.length} tone={overdueMatters.length > 0 ? 'danger' : 'good'} />
+        <KpiTile label={t('dashboard.entitlementsToRenew')} value={entitlementsToAttend.length} tone={lapsedEntitlements.length > 0 ? 'danger' : entitlementsToAttend.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.activeIdeas')} value={activeIdeas} tone="info" />
         <KpiTile label={t('dashboard.activeInitiatives')} value={activeInitiatives} tone="info" />
         <KpiTile label={t('dashboard.activeProjects')} value={activeProjectsList.length} tone="info" />
@@ -217,6 +244,11 @@ const Dashboard: React.FC = () => {
         <KpiTile label={t('dashboard.highRisks')} value={highRisks.length} tone={highRisks.length > 0 ? 'danger' : 'good'} />
         <KpiTile label={t('dashboard.projectsAtRisk')} value={projectsAtRisk.length} tone={projectsAtRisk.length > 0 ? 'danger' : 'good'} />
       </div>
+
+      <Stack tokens={{ childrenGap: 4 }}>
+        <Text variant="large" as="h3">{t('dashboard.quickLinks')}</Text>
+        {pinnedLinks.length === 0 ? <Text>{t('dashboard.quickLinksNone')}</Text> : <QuickLinks links={pinnedLinks} />}
+      </Stack>
 
       <Stack>
         <Text variant="large" as="h3">{t('dashboard.attention')}</Text>

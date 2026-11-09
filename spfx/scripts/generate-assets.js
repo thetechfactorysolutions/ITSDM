@@ -326,6 +326,68 @@ const LISTS = [
     ].map(([t, id, body, category, project]) => ({
       Title: t, NoteId: id, Body: body, Category: category, Status: 'ACTIVE', MeetingId: 'MEET-DEMO-001', ProjectId: project
     }))
+  },
+  {
+    title: 'IT_23_Matters', file: 'schema_matters.xml', description: 'Everything that asks for attention: the inbox, open matters and their history',
+    fields: [T('MatterId'), N('Description'), N('Notes'), C('Status', ['INBOX', 'OPEN', 'IN_PROGRESS', 'WAITING', 'DONE', 'DISCARDED']), C('Priority', LEVELS), T('AreaId'),
+      C('Source', ['MANUAL', 'EMAIL', 'TEAMS', 'OTHER']), N('SourceRef'), T('Sender'), D('ReceivedOn'), D('DueDate'), D('ClosedOn'), T('OwnerUPN'),
+      T('ProjectId'), T('ContractId'), T('IncidentId'), T('VendorId')],
+    rows: (day) => [
+      ['Quarterly budget forecast requested by Europe', 'ASU-DEMO-001', 'INBOX', 'MEDIUM', '', 'EMAIL', 'finance.europe@example.com', -1, null, null, '', '', ''],
+      ['Network incident reported by the Paris office', 'ASU-DEMO-002', 'INBOX', 'HIGH', '', 'TEAMS', 'corporate.network@example.com', -5, null, null, '', '', ''],
+      ['Renew the help desk licences', 'ASU-DEMO-003', 'OPEN', 'HIGH', 'AREA-DEMO-003', 'MANUAL', '', -8, 20, null, 'CON-DEMO-001', '', 'VEN-DEMO-001'],
+      ['Locker management app requested by facilities', 'ASU-DEMO-004', 'IN_PROGRESS', 'MEDIUM', 'AREA-DEMO-009', 'EMAIL', 'facilities@example.com', -12, 14, null, '', '', ''],
+      ['Orange logistics: delivery slots for the retail stores', 'ASU-DEMO-005', 'WAITING', 'MEDIUM', 'AREA-DEMO-005', 'EMAIL', 'logistics@example.com', -9, -2, null, '', '', ''],
+      ['Approve the quarterly budget transfer', 'ASU-DEMO-006', 'DONE', 'MEDIUM', 'AREA-DEMO-001', 'EMAIL', 'finance@example.com', -14, -6, -4, '', '', ''],
+      ['Duplicate request from the building team', 'ASU-DEMO-007', 'DISCARDED', 'LOW', 'AREA-DEMO-004', 'EMAIL', 'building@example.com', -10, null, -7, '', '', '']
+    ].map(([t, id, st, pr, area, src, sender, received, due, closed, con, inc, ven]) => {
+      const row = { Title: t, MatterId: id, Description: `Sample matter: ${t}.`, Status: st, Priority: pr, AreaId: area, Source: src, Sender: sender, ReceivedOn: day(received), OwnerUPN: SAMPLE_OWNER, ContractId: con, IncidentId: inc, VendorId: ven };
+      if (due !== null) { row.DueDate = day(due); }
+      if (closed !== null) { row.ClosedOn = day(closed); }
+      if (id === 'ASU-DEMO-003') { row.Notes = 'Ask for two quotes before the notice date.'; }
+      return row;
+    })
+  },
+  {
+    title: 'IT_24_Areas', file: 'schema_areas.xml', description: 'Topics that matters are grouped by; editable in the app',
+    fields: [T('AreaId'), N('Description'), C('Status', ['ACTIVE', 'ARCHIVED']), NUM('SortOrder')],
+    rows: () => [
+      ['Budget', 'Forecasts, transfers and spending questions.'],
+      ['User requests', 'Requests from users that are not incidents.'],
+      ['Renewals', 'Contracts, licences and support that end on a date.'],
+      ['Building requests', 'Requests about the building: cabling, rooms, equipment.'],
+      ['Orange logistics', 'Logistics and service for Orange.'],
+      ['Retail', 'Retail stores and their equipment.'],
+      ['Europe and corporate', 'What Europe or the corporation asks for.'],
+      ['Network incidents', 'Incidents and changes on the network.'],
+      ['Projects and ideas', 'New projects, ideas and apps for other teams.'],
+      ['Vendors', 'Vendor contacts, quotes and orders.']
+    ].map(([t, d], i) => ({ Title: t, AreaId: 'AREA-DEMO-' + String(i + 1).padStart(3, '0'), Description: d, Status: 'ACTIVE', SortOrder: (i + 1) * 10 }))
+  },
+  {
+    title: 'IT_25_Links', file: 'schema_links.xml', description: 'Pages used often, grouped by category; pinned ones show on the dashboard',
+    fields: [T('LinkId'), N('Url'), T('Category'), N('Description'), C('Pinned', ['NO', 'YES']), C('Status', ['ACTIVE', 'ARCHIVED']), T('VendorId')],
+    rows: () => [
+      ['Lenovo support', 'LNK-DEMO-001', 'https://support.lenovo.com', 'Vendors', 'YES', 'VEN-DEMO-001'],
+      ['Oracle support', 'LNK-DEMO-002', 'https://support.oracle.com', 'Vendors', 'YES', ''],
+      ['Microsoft 365 admin centre', 'LNK-DEMO-003', 'https://admin.microsoft.com', 'Cloud', 'YES', ''],
+      ['Azure portal', 'LNK-DEMO-004', 'https://portal.azure.com', 'Cloud', 'NO', 'VEN-DEMO-003'],
+      ['Power Automate', 'LNK-DEMO-005', 'https://make.powerautomate.com', 'Tools', 'NO', '']
+    ].map(([t, id, url, cat, pinned, ven]) => ({ Title: t, LinkId: id, Url: url, Category: cat, Description: `Sample link: ${t}.`, Pinned: pinned, Status: 'ACTIVE', VendorId: ven }))
+  },
+  {
+    title: 'IT_26_Entitlements', file: 'schema_entitlements.xml', description: 'Warranties, licences, support and subscriptions that end on a date',
+    fields: [T('EntitlementId'), C('EntitlementType', ['WARRANTY', 'LICENSE', 'SUPPORT', 'SUBSCRIPTION']), C('Status', ['ACTIVE', 'EXPIRED', 'RENEWED', 'CANCELLED']), T('Product'), T('Reference'),
+      NUM('Quantity'), D('StartDate'), D('EndDate'), NUM('NoticeDays', 'Min="0" Max="365"'), NUM('AnnualCost'), T('VendorId'), T('ContractId'), T('OwnerUPN'), N('Notes')],
+    rows: (day) => [
+      ['Laptop wave 1 warranty', 'ENT-DEMO-001', 'WARRANTY', 'ACTIVE', 'ThinkPad T14, wave 1', 120, -700, 25, 60, 0, 'VEN-DEMO-001'],
+      ['Database support', 'ENT-DEMO-002', 'SUPPORT', 'ACTIVE', 'Oracle Database Standard', 2, -165, 200, 90, 18000, ''],
+      ['Help desk software licences', 'ENT-DEMO-003', 'LICENSE', 'ACTIVE', 'Ticketing tool, agent seats', 15, -370, -5, 60, 5400, ''],
+      ['Previous backup subscription', 'ENT-DEMO-004', 'SUBSCRIPTION', 'RENEWED', 'Backup service, previous plan', 1, -760, -40, 60, 3200, 'VEN-DEMO-003']
+    ].map(([t, id, type, st, product, qty, sd, ed, notice, cost, ven]) => ({
+      Title: t, EntitlementId: id, EntitlementType: type, Status: st, Product: product, Reference: '', Quantity: qty, StartDate: day(sd), EndDate: day(ed),
+      NoticeDays: notice, AnnualCost: cost, VendorId: ven, OwnerUPN: SAMPLE_OWNER, Notes: 'Sample record.'
+    }))
   }
 ];
 

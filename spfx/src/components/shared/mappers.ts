@@ -1,4 +1,5 @@
 import {
+  Area, AreaStatus, Entitlement, EntitlementStatus, EntitlementType, LinkItem, LinkStatus, Matter, MatterPriority, MatterSource, MatterStatus,
   ActionItem, ActionPriority, ActionStatus, Article, ArticleCategory, ArticleStatus, Skill, SkillCategory, SkillLevel, SkillStatus, Training, TrainingStatus, TrainingType, ApprovalStatus, AutoRenew, ChangeRequest, ChangeStatus, ChangeType, Incident, IncidentCategory, IncidentSeverity, IncidentStatus,
   Interaction, InteractionStatus, InteractionType, Kpi, KpiCategory, KpiDirection, KpiStatus, Budget, BudgetStatus, CapexItem, Contract, ContractStatus, ExpenseStatus, OpexFrequency, OpexItem, Vendor, VendorCategory, VendorStatus, Decision, DecisionStatus, IApprovalState, Idea, Lesson, LessonCategory, LessonStatus, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
   Project, ProjectRiskLevel, ProjectStatus, Review, ReviewHealth, ReviewStatus, ReviewType, Risk, RiskScale, RiskStatus
@@ -458,4 +459,78 @@ export const mapArticle = (item: Record<string, unknown>): Article => ({
   modified: readString(item, 'Modified'),
   editor: readExpandedTitle(item, 'Editor'),
   approval: readApproval(item)
+});
+
+export const mapMatter = (item: Record<string, unknown>): Matter => ({
+  id: readId(item),
+  matterId: readString(item, 'MatterId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  notes: readString(item, 'Notes'),
+  status: readEnum(item, 'Status', enumValues(MatterStatus), MatterStatus.INBOX),
+  priority: readEnum(item, 'Priority', enumValues(MatterPriority), MatterPriority.MEDIUM),
+  areaId: readString(item, 'AreaId'),
+  source: readEnum(item, 'Source', enumValues(MatterSource), MatterSource.MANUAL),
+  sourceRef: readString(item, 'SourceRef'),
+  sender: readString(item, 'Sender'),
+  receivedOn: readDate(item, 'ReceivedOn'),
+  dueDate: readDate(item, 'DueDate'),
+  closedOn: readDate(item, 'ClosedOn'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  projectId: readString(item, 'ProjectId'),
+  contractId: readString(item, 'ContractId'),
+  incidentId: readString(item, 'IncidentId'),
+  vendorId: readString(item, 'VendorId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapArea = (item: Record<string, unknown>): Area => ({
+  id: readId(item),
+  areaId: readString(item, 'AreaId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  status: readEnum(item, 'Status', enumValues(AreaStatus), AreaStatus.ACTIVE),
+  sortOrder: readNumber(item, 'SortOrder'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapLink = (item: Record<string, unknown>): LinkItem => ({
+  id: readId(item),
+  linkId: readString(item, 'LinkId'),
+  title: readString(item, 'Title'),
+  url: readString(item, 'Url'),
+  category: readString(item, 'Category'),
+  description: readString(item, 'Description'),
+  pinned: readString(item, 'Pinned') === 'YES',
+  status: readEnum(item, 'Status', enumValues(LinkStatus), LinkStatus.ACTIVE),
+  vendorId: readString(item, 'VendorId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapEntitlement = (item: Record<string, unknown>): Entitlement => ({
+  id: readId(item),
+  entitlementId: readString(item, 'EntitlementId'),
+  title: readString(item, 'Title'),
+  type: readEnum(item, 'EntitlementType', enumValues(EntitlementType), EntitlementType.WARRANTY),
+  status: readEnum(item, 'Status', enumValues(EntitlementStatus), EntitlementStatus.ACTIVE),
+  product: readString(item, 'Product'),
+  reference: readString(item, 'Reference'),
+  quantity: readNumber(item, 'Quantity'),
+  startDate: readDate(item, 'StartDate'),
+  endDate: readDate(item, 'EndDate'),
+  noticeDays: item.NoticeDays === undefined || item.NoticeDays === null ? 60 : readNumber(item, 'NoticeDays'),
+  annualCost: readNumber(item, 'AnnualCost'),
+  vendorId: readString(item, 'VendorId'),
+  contractId: readString(item, 'ContractId'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  notes: readString(item, 'Notes'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
 });

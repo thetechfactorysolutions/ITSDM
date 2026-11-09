@@ -35,7 +35,7 @@ const render = (Screen: React.FC, data: IData, created: Array<Record<string, unk
   });
   const none = (): never => list([]) as never;
   const hub: IHubData = {
-    service: { searchUsers: async () => [] } as unknown as IHubData['service'], userEmail: 'me@x.com',
+    service: { capabilities: { versioning: false, userSearch: 'known', attachments: false }, searchUsers: async () => [] } as unknown as IHubData['service'], userEmail: 'me@x.com',
     budgets: list(data.budgets ?? []), capex: list(data.capex ?? []), opex: list(data.opex ?? []), contracts: list(data.contracts ?? []),
     vendors: none(), projects: none(), initiatives: none(), meetings: none(), ideas: none(), actions: none(), notes: none(), risks: none(), decisions: none(), lessons: none(), reviews: none()
   };

@@ -1,5 +1,5 @@
 import {
-  ActionItem, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
@@ -340,6 +340,64 @@ export const buildArticlePayload = (article: Article): Record<string, unknown> =
   ...buildApprovalPayload(getApproval(article))
 });
 
+export const buildMatterPayload = (matter: Matter): Record<string, unknown> => ({
+  Title: matter.title.trim(),
+  MatterId: matter.matterId,
+  Description: matter.description,
+  Notes: matter.notes,
+  Status: matter.status,
+  Priority: matter.priority,
+  AreaId: matter.areaId ?? '',
+  Source: matter.source,
+  SourceRef: matter.sourceRef,
+  Sender: matter.sender,
+  ReceivedOn: dayKeyToSharePoint(matter.receivedOn),
+  DueDate: dayKeyToSharePoint(matter.dueDate),
+  ClosedOn: dayKeyToSharePoint(matter.closedOn),
+  OwnerUPN: matter.ownerUpn,
+  ProjectId: matter.projectId ?? '',
+  ContractId: matter.contractId ?? '',
+  IncidentId: matter.incidentId ?? '',
+  VendorId: matter.vendorId ?? ''
+});
+
+export const buildAreaPayload = (area: Area): Record<string, unknown> => ({
+  Title: area.title.trim(),
+  AreaId: area.areaId,
+  Description: area.description,
+  Status: area.status,
+  SortOrder: area.sortOrder
+});
+
+export const buildLinkPayload = (link: LinkItem): Record<string, unknown> => ({
+  Title: link.title.trim(),
+  LinkId: link.linkId,
+  Url: link.url.trim(),
+  Category: link.category.trim(),
+  Description: link.description,
+  Pinned: link.pinned ? 'YES' : 'NO',
+  Status: link.status,
+  VendorId: link.vendorId ?? ''
+});
+
+export const buildEntitlementPayload = (entitlement: Entitlement): Record<string, unknown> => ({
+  Title: entitlement.title.trim(),
+  EntitlementId: entitlement.entitlementId,
+  EntitlementType: entitlement.type,
+  Status: entitlement.status,
+  Product: entitlement.product,
+  Reference: entitlement.reference,
+  Quantity: entitlement.quantity,
+  StartDate: dayKeyToSharePoint(entitlement.startDate),
+  EndDate: dayKeyToSharePoint(entitlement.endDate),
+  NoticeDays: entitlement.noticeDays,
+  AnnualCost: entitlement.annualCost,
+  VendorId: entitlement.vendorId ?? '',
+  ContractId: entitlement.contractId ?? '',
+  OwnerUPN: entitlement.ownerUpn,
+  Notes: entitlement.notes
+});
+
 export const SELECT = {
   ideas: ['Id', 'Title', 'IdeaId', 'Description', 'Status', 'OwnerUPN', 'SponsorUPN', 'EstimatedValue', 'TargetDate', 'Tags', 'ConvertedInitiativeId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   initiatives: ['Id', 'Title', 'InitiativeId', 'Description', 'Status', 'OwnerUPN', 'ProgressPct', 'TargetDate', 'SourceIdeaId', 'PlannerPlanId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
@@ -362,7 +420,11 @@ export const SELECT = {
   skills: ['Id', 'Title', 'SkillId', 'PersonUPN', 'Category', 'Level', 'TargetLevel', 'Status', 'LastAssessed', 'Certification', 'CertificationExpiry', 'Notes', 'Created', 'Modified', 'Editor/Title'],
   trainings: ['Id', 'Title', 'TrainingId', 'Status', 'TrainingType', 'PersonUPN', 'Provider', 'SkillId', 'VendorId', 'StartDate', 'DueDate', 'CompletedDate', 'Cost', 'Notes', 'Created', 'Modified', 'Editor/Title'],
   articles: ['Id', 'Title', 'ArticleId', 'Summary', 'Body', 'Category', 'Status', 'OwnerUPN', 'Tags', 'PublishedOn', 'ReviewDate', 'ProjectId', 'VendorId', 'IncidentId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
-  notes: ['Id', 'Title', 'NoteId', 'Body', 'Category', 'Status', 'MeetingId', 'InitiativeId', 'ProjectId', 'Created', 'Modified', 'Editor/Title']
+  notes: ['Id', 'Title', 'NoteId', 'Body', 'Category', 'Status', 'MeetingId', 'InitiativeId', 'ProjectId', 'Created', 'Modified', 'Editor/Title'],
+  matters: ['Id', 'Title', 'MatterId', 'Description', 'Notes', 'Status', 'Priority', 'AreaId', 'Source', 'SourceRef', 'Sender', 'ReceivedOn', 'DueDate', 'ClosedOn', 'OwnerUPN', 'ProjectId', 'ContractId', 'IncidentId', 'VendorId', 'Created', 'Modified', 'Editor/Title'],
+  areas: ['Id', 'Title', 'AreaId', 'Description', 'Status', 'SortOrder', 'Created', 'Modified', 'Editor/Title'],
+  links: ['Id', 'Title', 'LinkId', 'Url', 'Category', 'Description', 'Pinned', 'Status', 'VendorId', 'Created', 'Modified', 'Editor/Title'],
+  entitlements: ['Id', 'Title', 'EntitlementId', 'EntitlementType', 'Status', 'Product', 'Reference', 'Quantity', 'StartDate', 'EndDate', 'NoticeDays', 'AnnualCost', 'VendorId', 'ContractId', 'OwnerUPN', 'Notes', 'Created', 'Modified', 'Editor/Title']
 };
 
 export const EXPAND_EDITOR = ['Editor'];

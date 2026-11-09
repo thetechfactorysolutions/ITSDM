@@ -73,7 +73,7 @@ const PERSON_COLUMNS = ['AssignedTo', 'ReportedBy', 'Approver', 'ApprovalDecided
 const isPersonColumn = (key: string): boolean => /UPN$/.test(key) || PERSON_COLUMNS.indexOf(key) > -1;
 
 export class DocumentStore implements IDataStore {
-  public readonly capabilities: IStoreCapabilities = { versioning: false, userSearch: 'known' };
+  public readonly capabilities: IStoreCapabilities = { versioning: false, userSearch: 'known', attachments: false };
 
   private _cache: IPersistenceSnapshot | undefined;
   private _loading: Promise<IPersistenceSnapshot> | undefined;

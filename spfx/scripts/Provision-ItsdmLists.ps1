@@ -257,6 +257,30 @@ $lessons = @(
   @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' }, @{ Name = 'MeetingId'; Type = 'Text' }
 )
 
+$matters = @(
+  @{ Name = 'MatterId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' }, @{ Name = 'Notes'; Type = 'Note' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'INBOX', 'OPEN', 'IN_PROGRESS', 'WAITING', 'DONE', 'DISCARDED' },
+  @{ Name = 'Priority'; Type = 'Choice'; Choices = $level }, @{ Name = 'AreaId'; Type = 'Text' },
+  @{ Name = 'Source'; Type = 'Choice'; Choices = 'MANUAL', 'EMAIL', 'TEAMS', 'OTHER' }, @{ Name = 'SourceRef'; Type = 'Note' }, @{ Name = 'Sender'; Type = 'Text' },
+  @{ Name = 'ReceivedOn'; Type = 'Date' }, @{ Name = 'DueDate'; Type = 'Date' }, @{ Name = 'ClosedOn'; Type = 'Date' }, @{ Name = 'OwnerUPN'; Type = 'Text' },
+  @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'ContractId'; Type = 'Text' }, @{ Name = 'IncidentId'; Type = 'Text' }, @{ Name = 'VendorId'; Type = 'Text' }
+)
+$areas = @(
+  @{ Name = 'AreaId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'ACTIVE', 'ARCHIVED' }, @{ Name = 'SortOrder'; Type = 'Number' }
+)
+$links = @(
+  @{ Name = 'LinkId'; Type = 'Text' }, @{ Name = 'Url'; Type = 'Note' }, @{ Name = 'Category'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' },
+  @{ Name = 'Pinned'; Type = 'Choice'; Choices = 'NO', 'YES' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'ACTIVE', 'ARCHIVED' }, @{ Name = 'VendorId'; Type = 'Text' }
+)
+$entitlements = @(
+  @{ Name = 'EntitlementId'; Type = 'Text' }, @{ Name = 'EntitlementType'; Type = 'Choice'; Choices = 'WARRANTY', 'LICENSE', 'SUPPORT', 'SUBSCRIPTION' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'ACTIVE', 'EXPIRED', 'RENEWED', 'CANCELLED' }, @{ Name = 'Product'; Type = 'Text' }, @{ Name = 'Reference'; Type = 'Text' },
+  @{ Name = 'Quantity'; Type = 'Number' }, @{ Name = 'StartDate'; Type = 'Date' }, @{ Name = 'EndDate'; Type = 'Date' },
+  @{ Name = 'NoticeDays'; Type = 'Number'; Extra = 'Min="0" Max="365"' }, @{ Name = 'AnnualCost'; Type = 'Number' },
+  @{ Name = 'VendorId'; Type = 'Text' }, @{ Name = 'ContractId'; Type = 'Text' }, @{ Name = 'OwnerUPN'; Type = 'Text' }, @{ Name = 'Notes'; Type = 'Note' }
+)
+
 # Same seven approval columns on the four main lists (see src/rules/approvals.ts).
 $approval = @(
   @{ Name = 'ApprovalRule'; Type = 'Text' },
@@ -298,6 +322,10 @@ Initialize-ItsdmList -Title 'IT_19_Reviews'     -Fields $reviews
 Initialize-ItsdmList -Title 'IT_20_LessonsLearned' -Fields $lessons
 Initialize-ItsdmList -Title 'IT_21_Meetings'    -Fields $meetings
 Initialize-ItsdmList -Title 'IT_22_Notes'       -Fields $notes
+Initialize-ItsdmList -Title 'IT_23_Matters'     -Fields $matters
+Initialize-ItsdmList -Title 'IT_24_Areas'       -Fields $areas
+Initialize-ItsdmList -Title 'IT_25_Links'       -Fields $links
+Initialize-ItsdmList -Title 'IT_26_Entitlements' -Fields $entitlements
 
 # ---------- sample data ----------
 if ($SkipSampleData) {
@@ -374,6 +402,19 @@ if ($SkipSampleData) {
       Add-PnPListItem -List 'IT_04_Actions' -Values $values | Out-Null
     }
     Write-Host '  8 sample actions (overdue, due today, this week, later, done and someone else''s)'
+  }
+
+  # The areas are what matters are classified by, so they are worth having from the start.
+  if ((Get-ListItemCount 'IT_24_Areas') -eq 0) {
+    $areaNames = 'Budget', 'User requests', 'Renewals', 'Building requests', 'Orange logistics', 'Retail', 'Europe and corporate', 'Network incidents', 'Projects and ideas', 'Vendors'
+    $n = 1
+    foreach ($name in $areaNames) {
+      Add-PnPListItem -List 'IT_24_Areas' -Values @{
+        Title = $name; AreaId = ('AREA-DEMO-{0:000}' -f $n); Description = "Sample area: $name."; Status = 'ACTIVE'; SortOrder = ($n * 10)
+      } | Out-Null
+      $n++
+    }
+    Write-Host '  10 sample areas (rename, archive or add your own in the app)'
   }
 }
 

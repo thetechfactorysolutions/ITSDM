@@ -3,7 +3,8 @@ import * as cp from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { mapArticle, mapBudget, mapCapex, mapChange, mapContract, mapIncident, mapInteraction, mapKpi, mapOpex, mapSkill, mapTraining } from '../src/components/shared/mappers';
+import { mapArea, mapArticle, mapBudget, mapCapex, mapChange, mapContract, mapEntitlement, mapIncident, mapInteraction, mapKpi, mapLink, mapMatter, mapOpex, mapSkill, mapTraining } from '../src/components/shared/mappers';
+import { entitlementAlert, isInbox, isInboxStale, isMatterClosed, isMatterOpen, isMatterOverdue, isSafeUrl, needsEntitlementAttention } from '../src/rules/matters';
 import { APPROVAL_RULES } from '../src/rules/approvals';
 import { budgetFigures, contractAlert } from '../src/rules/finance';
 import { certificationAlert, hasSkillGap, isReviewDue, isTrainingOverdue } from '../src/rules/people';
@@ -63,7 +64,8 @@ const testEveryListAndSample = (): void => {
     'IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_06_Budgets', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_09_Vendors', 'IT_10_Contracts',
     'IT_05_KPIs', 'IT_13_Incidents', 'IT_14_Interactions', 'IT_15_ChangeRequests',
     'IT_16_TeamSkills', 'IT_17_TrainingPlans', 'IT_18_KnowledgeBase',
-    'IT_11_Risks', 'IT_12_Decisions', 'IT_19_Reviews', 'IT_20_LessonsLearned', 'IT_21_Meetings', 'IT_22_Notes'
+    'IT_11_Risks', 'IT_12_Decisions', 'IT_19_Reviews', 'IT_20_LessonsLearned', 'IT_21_Meetings', 'IT_22_Notes',
+    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements'
   ];
   assert.deepEqual(instances.map(i => i.title).sort(), expected.sort(), 'every list is in the package');
 
@@ -163,6 +165,32 @@ const testSamplesShowTheirCases = (): void => {
   assert.equal(policy.approval?.status, 'PENDING', 'a policy waits for approval before it is published');
   assert.equal(policy.approval?.ruleId, 'article.publishPolicy');
   assert.equal(policy.category, 'POLICY');
+
+  const areas = rowsOf('IT_24_Areas').map(mapArea);
+  assert.equal(areas.length, 10, 'ten areas to classify by');
+  assert.ok(areas.every(a => a.status === 'ACTIVE' && a.title), 'every area is active and named');
+  assert.equal(new Set(areas.map(a => a.areaId)).size, areas.length, 'area ids are unique');
+
+  const matters = rowsOf('IT_23_Matters').map(mapMatter);
+  assert.deepEqual(matters.filter(isInbox).map(m => m.matterId), ['ASU-DEMO-001', 'ASU-DEMO-002'], 'two items wait in the inbox');
+  assert.ok(matters.filter(isInbox).every(m => !m.areaId), 'and they have no area yet');
+  assert.deepEqual(matters.filter(m => isInboxStale(m)).map(m => m.matterId), ['ASU-DEMO-002'], 'one has waited too long');
+  assert.deepEqual(matters.filter(isMatterOpen).map(m => m.matterId), ['ASU-DEMO-003', 'ASU-DEMO-004', 'ASU-DEMO-005'], 'three are being worked on');
+  assert.deepEqual(matters.filter(m => isMatterOverdue(m)).map(m => m.matterId), ['ASU-DEMO-005'], 'one is past its due date');
+  assert.deepEqual(matters.filter(isMatterClosed).map(m => m.matterId), ['ASU-DEMO-006', 'ASU-DEMO-007'], 'and two are in the history');
+  assert.ok(matters.filter(isMatterClosed).every(m => !!m.closedOn), 'closed ones have their closing date');
+  assert.ok(matters.filter(m => !isInbox(m)).every(m => areas.some(a => a.areaId === m.areaId)), 'every classified matter has a real area');
+  assert.ok(matters.every(m => !m.contractId || rowsOf('IT_10_Contracts').some(c => c.ContractId === m.contractId)), 'matters point to real contracts');
+  assert.ok(matters.every(m => !m.vendorId || rowsOf('IT_09_Vendors').some(v => v.VendorId === m.vendorId)), 'and real vendors');
+
+  const links = rowsOf('IT_25_Links').map(mapLink);
+  assert.ok(links.length >= 3 && links.every(l => isSafeUrl(l.url)), 'sample links are plain web addresses');
+  assert.equal(links.filter(l => l.pinned).length, 3, 'three are pinned for the dashboard');
+
+  const entitlements = rowsOf('IT_26_Entitlements').map(mapEntitlement);
+  const alertOf = (id: string): string => entitlementAlert(entitlements.filter(e => e.entitlementId === id)[0]).alert;
+  assert.deepEqual(['ENT-DEMO-001', 'ENT-DEMO-002', 'ENT-DEMO-003', 'ENT-DEMO-004'].map(alertOf), ['RENEWAL', 'NONE', 'LAPSED', 'NONE'], 'one to renew, one lapsed, two fine or closed');
+  assert.equal(entitlements.filter(e => needsEntitlementAttention(e)).length, 2);
 
   const project = byId('IT_03_Projects', 'ProjectId', 'PROJ-DEMO-002');
   assert.equal(project.ApprovalStatus, 'PENDING', 'a project also waits for approval, from the earlier round');

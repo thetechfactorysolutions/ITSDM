@@ -154,7 +154,14 @@
       C('Status', ['NEW', 'REVIEWED', 'APPLIED']), T('OwnerUPN'), T('ProjectId'), T('InitiativeId'), T('MeetingId')],
     IT_21_Meetings: [T('MeetingId'), D('MeetingDate'), N('Summary'), N('Attendees'), N('Transcript'), N('ImportedItems')],
     IT_22_Notes: [T('NoteId'), N('Body'), C('Category', ['DECISION', 'RISK', 'INFO', 'FOLLOW_UP']), C('Status', ['ACTIVE', 'ARCHIVED']),
-      T('MeetingId'), T('InitiativeId'), T('ProjectId')]
+      T('MeetingId'), T('InitiativeId'), T('ProjectId')],
+    IT_23_Matters: [T('MatterId'), N('Description'), N('Notes'), C('Status', ['INBOX', 'OPEN', 'IN_PROGRESS', 'WAITING', 'DONE', 'DISCARDED']), C('Priority', level), T('AreaId'),
+      C('Source', ['MANUAL', 'EMAIL', 'TEAMS', 'OTHER']), N('SourceRef'), T('Sender'), D('ReceivedOn'), D('DueDate'), D('ClosedOn'), T('OwnerUPN'),
+      T('ProjectId'), T('ContractId'), T('IncidentId'), T('VendorId')],
+    IT_24_Areas: [T('AreaId'), N('Description'), C('Status', ['ACTIVE', 'ARCHIVED']), NUM('SortOrder')],
+    IT_25_Links: [T('LinkId'), N('Url'), T('Category'), N('Description'), C('Pinned', ['NO', 'YES']), C('Status', ['ACTIVE', 'ARCHIVED']), T('VendorId')],
+    IT_26_Entitlements: [T('EntitlementId'), C('EntitlementType', ['WARRANTY', 'LICENSE', 'SUPPORT', 'SUBSCRIPTION']), C('Status', ['ACTIVE', 'EXPIRED', 'RENEWED', 'CANCELLED']), T('Product'), T('Reference'),
+      NUM('Quantity'), D('StartDate'), D('EndDate'), NUM('NoticeDays', 'Min="0" Max="365"'), NUM('AnnualCost'), T('VendorId'), T('ContractId'), T('OwnerUPN'), N('Notes')]
   };
 
   // Same seven approval columns on the four main lists (see src/rules/approvals.ts).
@@ -209,6 +216,13 @@
       return row;
     }));
     log("  8 sample actions (overdue, due today, this week, later, done, and someone else's)");
+  }
+
+  // The areas are what matters are classified by, so they are worth having from the start.
+  if (await isEmpty('IT_24_Areas')) {
+    await addItems('IT_24_Areas', ['Budget', 'User requests', 'Renewals', 'Building requests', 'Orange logistics', 'Retail', 'Europe and corporate', 'Network incidents', 'Projects and ideas', 'Vendors']
+      .map((name, i) => ({ Title: name, AreaId: 'AREA-DEMO-' + String(i + 1).padStart(3, '0'), Description: `Sample area: ${name}.`, Status: 'ACTIVE', SortOrder: (i + 1) * 10 })));
+    log('  10 sample areas (rename, archive or add your own in the app)');
   }
 
   log('Done. Refresh the page with the IT Management Hub web part.');

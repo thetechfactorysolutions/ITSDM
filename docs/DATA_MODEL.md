@@ -62,6 +62,13 @@
 - **Article:** Draft ⇄ In review → Published → In review or Archived (an archived one can return to Draft). Publishing fills the publication date (today) and a review date (today + 180 days, `AppConfig.knowledge.reviewDays`) if empty. A published article whose review date has passed is **due for review**. **Publishing a policy needs an approval** (rule `article.publishPolicy`).
 - Closed statuses (hidden by default) include Archived, Completed and Cancelled for these lists.
 
+## Matters, areas, links and warranties
+- **Matter:** one thing that asks for attention. Inbox (unclassified) → Open / In progress / Waiting → Done or Discarded. Leaving the inbox needs an **area**. Done or Discarded fills the closing date (today) and reopening clears it. **Overdue** = open (not in the inbox, not closed) with a due date before today. An inbox item is **stale** after `AppConfig.matters.inboxStaleDays` (3) days.
+- **Area:** Active or Archived; an editable topic that matters are grouped by.
+- **Link:** a web address, http or https only; pinned links show on the dashboard.
+- **Warranty or licence (entitlement):** Active → Expired, Renewed or Cancelled. Same warning as contracts: renewal inside the notice days, lapsed when it ended and is still Active.
+- **Agenda:** every date of every open item, in date order (`src/rules/agenda.ts`). Contracts and entitlements give two dates: the decision to renew (end date minus the notice) and the end.
+
 ## Approvals
 Ideas, initiatives, projects and actions carry one active approval (`ApprovalRule`, `ApprovalStatus` NONE/PENDING/APPROVED/REJECTED, `Approver`, `ApprovalRequestedOn`, `ApprovalDecidedOn`, `ApprovalDecidedBy`, `ApprovalComment`). Which changes need one is defined as data in `src/rules/approvals.ts`; see `APROBACIONES.md`.
 

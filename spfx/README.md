@@ -62,7 +62,7 @@ tests/             Reglas, validación, ids, importación, idiomas, hook, pantal
 
 ## Listas de SharePoint
 
-Se crean solas al añadir la app. Su definición está en `scripts/generate-assets.js` y el esquema documentado en `../docs/SHAREPOINT_SCHEMA.md`: `IT_01_Ideas`, `IT_02_Initiatives`, `IT_03_Projects`, `IT_04_Actions`, `IT_05_KPIs`, `IT_06_Budgets`, `IT_07_CAPEX`, `IT_08_OPEX`, `IT_09_Vendors`, `IT_10_Contracts`, `IT_11_Risks`, `IT_12_Decisions`, `IT_13_Incidents`, `IT_14_Interactions`, `IT_15_ChangeRequests`, `IT_19_Reviews`, `IT_20_LessonsLearned`, `IT_21_Meetings` e `IT_22_Notes`. Los nombres están en `src/config/AppConfig.ts`.
+Se crean solas al añadir la app. Su definición está en `scripts/generate-assets.js` y el esquema documentado en `../docs/SHAREPOINT_SCHEMA.md`: `IT_01_Ideas`, `IT_02_Initiatives`, `IT_03_Projects`, `IT_04_Actions`, `IT_05_KPIs`, `IT_06_Budgets`, `IT_07_CAPEX`, `IT_08_OPEX`, `IT_09_Vendors`, `IT_10_Contracts`, `IT_11_Risks`, `IT_12_Decisions`, `IT_13_Incidents`, `IT_14_Interactions`, `IT_15_ChangeRequests`, `IT_19_Reviews`, `IT_20_LessonsLearned`, `IT_21_Meetings`, `IT_22_Notes`, `IT_23_Matters`, `IT_24_Areas`, `IT_25_Links` e `IT_26_Entitlements`. Los nombres están en `src/config/AppConfig.ts`.
 
 ## Reglas de negocio
 

@@ -72,6 +72,19 @@ Title, MeetingId (Text), MeetingDate (Date), Summary (Multiple lines), Attendees
 ### IT_22_Notes
 Title, NoteId (Text), Body (Multiple lines), Category (Choice: DECISION, RISK, INFO, FOLLOW_UP), Status (Choice: ACTIVE, ARCHIVED), MeetingId (Text), InitiativeId (Text), ProjectId (Text)
 
+### IT_23_Matters
+Title, MatterId (Text), Description (Multiple lines), Notes (Multiple lines), Status (Choice: INBOX, OPEN, IN_PROGRESS, WAITING, DONE, DISCARDED), Priority (Choice: LOW, MEDIUM, HIGH, CRITICAL), AreaId (Text, the AreaId of an area; empty while in the inbox), Source (Choice: MANUAL, EMAIL, TEAMS, OTHER), SourceRef (Multiple lines, link to the original message), Sender (Text), ReceivedOn (Date), DueDate (Date), ClosedOn (Date), OwnerUPN (Text), ProjectId (Text), ContractId (Text), IncidentId (Text), VendorId (Text). The inbox is this list with Status = INBOX. Attachments are the list's own attachments.
+
+### IT_24_Areas
+Title, AreaId (Text), Description (Multiple lines), Status (Choice: ACTIVE, ARCHIVED), SortOrder (Number)
+
+### IT_25_Links
+Title, LinkId (Text), Url (Multiple lines; only http and https are accepted by the app), Category (Text), Description (Multiple lines), Pinned (Choice: NO, YES), Status (Choice: ACTIVE, ARCHIVED), VendorId (Text)
+
+### IT_26_Entitlements
+Title, EntitlementId (Text), EntitlementType (Choice: WARRANTY, LICENSE, SUPPORT, SUBSCRIPTION), Status (Choice: ACTIVE, EXPIRED, RENEWED, CANCELLED), Product (Text), Reference (Text, a serial or order reference, never a licence key), Quantity (Number), StartDate (Date), EndDate (Date), NoticeDays (Number 0-365), AnnualCost (Number), VendorId (Text), ContractId (Text), OwnerUPN (Text), Notes (Multiple lines). Renewal warning: same rule as contracts.
+
 ## Notes
+- Attachments use the list attachments of SharePoint; the Help tab has a button that turns them on for lists that were created without them.
 - Changing the columns of a list that already exists is not automated (see `ROADMAP.md`).
 - Version history is not on by default; the Help tab has a button that turns it on for the lists (needs permission to manage them).

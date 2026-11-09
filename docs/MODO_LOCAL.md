@@ -74,6 +74,7 @@ Lo que hay que comprobar con tu empresa antes de usarlo con datos reales:
 | Historial de versiones y papelera | De SharePoint | No (usa copias del archivo) |
 | Flujos de Power Automate (`POWER_AUTOMATE.md`) | Sí | No sirven (leen listas de SharePoint) |
 | Enlaces de aprobación a la aplicación | Sí | No: el mensaje de email o Teams se redacta igual, pero el enlace no lleva a la página |
+| Adjuntos en los elementos (`ASUNTOS.md`) | Sí (adjuntos de la lista) | No: la sección no aparece |
 | Instalación | Catálogo de aplicaciones | Abrir un HTML |
 
 ## Cómo está hecho

@@ -21,6 +21,10 @@ export interface ISharePointListMap {
   lessonsLearned: string;
   meetings: string;
   notes: string;
+  matters: string;
+  areas: string;
+  links: string;
+  entitlements: string;
 }
 
 export interface IAppConfig {
@@ -42,6 +46,14 @@ export interface IAppConfig {
   knowledge: {
     /** Days after publishing until an article should be read again. */
     reviewDays: number;
+  };
+  matters: {
+    /** An inbox item that waits longer than this many days without being classified is flagged. */
+    inboxStaleDays: number;
+  };
+  entitlements: {
+    /** Notice days given to a new warranty or licence. */
+    defaultNoticeDays: number;
   };
   approvals: {
     /** A project whose forecast exceeds its budget by more than this ratio needs approval. */
@@ -79,7 +91,11 @@ export const AppConfig: IAppConfig = {
       reviews: 'IT_19_Reviews',
       lessonsLearned: 'IT_20_LessonsLearned',
       meetings: 'IT_21_Meetings',
-      notes: 'IT_22_Notes'
+      notes: 'IT_22_Notes',
+      matters: 'IT_23_Matters',
+      areas: 'IT_24_Areas',
+      links: 'IT_25_Links',
+      entitlements: 'IT_26_Entitlements'
     }
   },
   service: {
@@ -91,6 +107,12 @@ export const AppConfig: IAppConfig = {
   },
   knowledge: {
     reviewDays: 180
+  },
+  matters: {
+    inboxStaleDays: 3
+  },
+  entitlements: {
+    defaultNoticeDays: 60
   },
   approvals: {
     overBudgetRatio: 0.1,

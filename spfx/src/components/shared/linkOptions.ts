@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { activeAreas } from '../../rules/matters';
 import { ILinkOption } from './LinkField';
 import { useHubData } from './HubData';
 
@@ -64,4 +65,23 @@ export const usePeopleLinkOptions = (): IPeopleLinkOptions => {
   const projectOptions = React.useMemo(() => projects.items.map(p => ({ id: p.projectId, title: p.title })), [projects.items]);
   const incidentOptions = React.useMemo(() => incidents.items.map(i => ({ id: i.incidentId, title: i.title })), [incidents.items]);
   return { skillOptions, vendorOptions, projectOptions, incidentOptions };
+};
+
+export interface IMatterLinkOptions {
+  areaOptions: ILinkOption[];
+  projectOptions: ILinkOption[];
+  contractOptions: ILinkOption[];
+  incidentOptions: ILinkOption[];
+  vendorOptions: ILinkOption[];
+}
+
+/** The choices for the pickers of a matter: the active areas, and what a matter can point to. */
+export const useMatterLinkOptions = (): IMatterLinkOptions => {
+  const { areas, projects, contracts, incidents, vendors } = useHubData();
+  const areaOptions = React.useMemo(() => activeAreas(areas.items).map(a => ({ id: a.areaId, title: a.title })), [areas.items]);
+  const projectOptions = React.useMemo(() => projects.items.map(p => ({ id: p.projectId, title: p.title })), [projects.items]);
+  const contractOptions = React.useMemo(() => contracts.items.map(c => ({ id: c.contractId, title: c.title })), [contracts.items]);
+  const incidentOptions = React.useMemo(() => incidents.items.map(i => ({ id: i.incidentId, title: i.title })), [incidents.items]);
+  const vendorOptions = React.useMemo(() => vendors.items.map(v => ({ id: v.vendorId, title: v.title })), [vendors.items]);
+  return { areaOptions, projectOptions, contractOptions, incidentOptions, vendorOptions };
 };

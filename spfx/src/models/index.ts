@@ -20,3 +20,7 @@ export * from './Kpi';
 export * from './Skill';
 export * from './Training';
 export * from './Article';
+export * from './Matter';
+export * from './Area';
+export * from './LinkItem';
+export * from './Entitlement';

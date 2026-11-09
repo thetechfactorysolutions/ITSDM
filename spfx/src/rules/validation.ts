@@ -1,7 +1,8 @@
 import {
-  ActionItem, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Idea, Incident, Initiative, Interaction, Kpi, Lesson, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, MatterStatus, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { isValidDayKey } from './dates';
+import { isSafeUrl } from './matters';
 
 /** Translation key of the error per field name (e.g. validation.titleRequired); a missing key means the field is valid. */
 export type ValidationErrors = Record<string, string | undefined>;
@@ -291,5 +292,56 @@ export const validateArticle = (article: Article): ValidationErrors => {
   validateOwner(errors, article.ownerUpn);
   validateOptionalDate(errors, 'publishedOn', article.publishedOn);
   validateOptionalDate(errors, 'reviewDate', article.reviewDate);
+  return errors;
+};
+
+export const validateMatter = (matter: Matter): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, matter.title);
+  validateOwner(errors, matter.ownerUpn);
+  validateOptionalDate(errors, 'receivedOn', matter.receivedOn);
+  validateOptionalDate(errors, 'dueDate', matter.dueDate);
+  validateOptionalDate(errors, 'closedOn', matter.closedOn);
+  // Only the inbox may hold a matter without an area: classifying it means choosing one.
+  if (matter.status !== MatterStatus.INBOX && !(matter.areaId && matter.areaId.trim())) {
+    errors.areaId = 'validation.areaRequired';
+  }
+  return errors;
+};
+
+export const validateArea = (area: Area): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, area.title);
+  if (!isFinite(area.sortOrder)) {
+    errors.sortOrder = 'validation.mustBeNumber';
+  }
+  return errors;
+};
+
+export const validateLink = (link: LinkItem): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, link.title);
+  if (link.url.trim().length === 0) {
+    errors.url = 'validation.urlRequired';
+  } else if (!isSafeUrl(link.url)) {
+    errors.url = 'validation.urlInvalid';
+  }
+  return errors;
+};
+
+export const validateEntitlement = (entitlement: Entitlement): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, entitlement.title);
+  validateOwner(errors, entitlement.ownerUpn);
+  validateOptionalDate(errors, 'startDate', entitlement.startDate);
+  validateOptionalDate(errors, 'endDate', entitlement.endDate);
+  if (!errors.startDate && !errors.endDate && entitlement.startDate && entitlement.endDate && entitlement.endDate < entitlement.startDate) {
+    errors.endDate = 'validation.endBeforeStart';
+  }
+  validateNonNegative(errors, 'quantity', entitlement.quantity);
+  validateNonNegative(errors, 'annualCost', entitlement.annualCost);
+  if (!isFinite(entitlement.noticeDays) || Math.floor(entitlement.noticeDays) !== entitlement.noticeDays || entitlement.noticeDays < 0 || entitlement.noticeDays > 365) {
+    errors.noticeDays = 'validation.noticeDaysRange';
+  }
   return errors;
 };

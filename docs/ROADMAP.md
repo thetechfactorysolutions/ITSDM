@@ -42,6 +42,8 @@ Diseño en `docs/superpowers/specs/2026-11-08-ronda-2-diseno.md`: vínculos con 
 
 - **Modo local (prototipo):** versión independiente de la aplicación, una página web que guarda los datos en un archivo JSON de OneDrive, con almacenamiento intercambiable (`IDataStore`, `DocumentStore`) pensado para añadir después Azure Blob, una API con SQL o publicarla (`docs/MODO_LOCAL.md`, diseño en `docs/superpowers/specs/2026-11-09-modo-local-diseno.md`). Probado con jsdom y en un navegador; falta probarlo con el OneDrive y la política de la empresa.
 
+- **Asuntos, bandeja y panel conectado:** bandeja de entrada con áreas editables, asuntos con histórico, directorio de enlaces, garantías y licencias, agenda única con calendario, añadir rápido, adjuntos en cualquier lista, plantillas de proyecto (helpdesk al estilo de un servicio de referencia, app para otro equipo, renovación) y recetas de flujos para meter correo y Teams en la bandeja (`docs/ASUNTOS.md`, diseño en `docs/superpowers/specs/2026-11-09-asuntos-bandeja-diseno.md`). Paquete 1.8.0.0, 26 listas. Probado con jsdom; falta probarlo en el tenant y crear los flujos.
+
 ## Aplazado tras la ronda 2 (pendiente de retomar)
 Quedó fuera a propósito. Para retomarlo, pedir "retoma el roadmap".
 - **Integraciones:** Planner (crear plan/tarea al activar iniciativas y proyectos), Power Automate (ya documentado como recetas; falta, si se quiere, un botón en la app que dispare un flujo) y Microsoft Graph (perfil, foto, calendario). Necesitan permisos y flujos del tenant.
@@ -74,8 +76,8 @@ Mejoras de las pantallas actuales, casi todas sin cambiar la estructura de datos
 3. **Vistas guardadas y filtros por columna** [M]: guardar combinaciones de filtro y orden, y filtrar por responsable, fecha o prioridad (hoy solo hay búsqueda, estado y "mostrar cerrados").
 4. **Búsqueda global** [M]: un cuadro que busque en todas las listas a la vez (hoy cada pantalla busca solo en la suya).
 5. **Edición en bloque** [M]: cambiar estado o responsable de varios elementos seleccionados.
-6. **Calendario** [M]: vencimientos de acciones, renovaciones de contratos, revisiones y caducidades de certificaciones en un solo calendario.
-7. **Archivos adjuntos y enlaces a documentos** [M]: guardar el contrato, el acta o el presupuesto junto al elemento (comprobado: no hay adjuntos ni enlaces a documentos en ninguna pantalla).
+6. ~~**Calendario**~~ **Hecho** (pestaña Agenda): falta abrir el elemento al pulsarlo en el calendario.
+7. ~~**Archivos adjuntos y enlaces a documentos**~~ **Hecho** (adjuntos de SharePoint en el panel de edición de cada lista). Pendiente: adjuntos en el modo local y vista previa del fichero.
 8. **Histórico de KPIs** [M]: guardar cada medición para dibujar la evolución (hoy solo se guarda el valor actual y el anterior).
 9. **Historial de aprobaciones** [S]: hoy cada elemento guarda una sola aprobación (la última); guardarlas todas permite ver qué regla bloqueó qué cambio y cuándo.
 10. **Umbrales y reglas editables desde la aplicación** [M]: hoy los plazos, los umbrales de aprobación y los días de aviso están en `AppConfig.ts` y requieren recompilar (comprobado: el panel de propiedades solo tiene descripción e idioma).
@@ -112,7 +114,7 @@ Cambian cómo trabaja el equipo. Antes de empezar hay que decidir quién puede v
 4. **Aprobaciones con varios aprobadores o en cadena** [L]: hoy hay un aprobador por elemento. Y delegar cuando alguien está de baja.
 5. **Comentarios y menciones en cada elemento** [M]: conversación dentro del elemento en lugar de por email.
 6. **Avisos dentro de la aplicación** [M]: una campana con lo que te han pedido o asignado, sin depender del email.
-7. **Plantillas de proyecto** [M]: crear un proyecto con sus acciones, riesgos y revisiones típicas ya preparados.
+7. **Plantillas de proyecto** [M]: **hecho en parte** (tres plantillas con proyecto y acciones, en código). Pendiente: riesgos y revisiones típicos, y editarlas dentro de la aplicación.
 8. **Elementos recurrentes** [M]: acciones o revisiones que se repiten cada semana o mes.
 9. **Dependencias entre acciones y proyectos** [L]: "no puede empezar hasta que termine X" y aviso si se retrasa.
 10. **Importar desde Excel** [M]: cargar una hoja de cálculo con validación previa (hoy solo CSV en cada pantalla y el resultado de una IA para reuniones).
@@ -129,6 +131,13 @@ Dependen de permisos del tenant, de aprobaciones de seguridad o de un servicio e
 7. **Telemetría de uso, sin datos personales** [M, T]: saber qué pestañas se usan para decidir qué mejorar.
 8. **ServiceNow o Jira, solo lectura** [L, T]: traer incidentes o tareas externas como referencia.
 9. **Llamada a una IA desde la propia app** [L, T]: hoy solo se importa el resultado; haría falta un servicio aprobado por la organización.
+
+### Siguientes pasos de la bandeja y la agenda (pendientes de decidir)
+- Abrir el elemento desde la agenda y desde las líneas de "Atención" del Panel.
+- Reglas de clasificación editables en la aplicación (hoy van dentro del flujo).
+- Leer correo y Teams con Microsoft Graph si TI concede un registro de aplicación (hoy: flujos de Power Automate).
+- Informe de solo lectura para compartir el budget sin dar acceso a la lista.
+- Asuntos recurrentes (el budget de cada mes, revisiones periódicas).
 
 ## Alcance de la primera versión (histórico)
 La primera versión dejó fuera finanzas, proveedores, personas, operaciones, Genius Help Desk, ServiceNow y la IA. Todo menos Genius Help Desk, ServiceNow y la IA ya está hecho (ver "Hecho tras la ronda 2"); lo que sigue pendiente está en las secciones de arriba.

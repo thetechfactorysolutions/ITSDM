@@ -68,6 +68,7 @@ const testStartScreenAndDemo = async (): Promise<void> => {
   assert.ok(text().indexOf('Teams telephony rollout') > -1 || text().indexOf('Pending approvals') > -1, 'it shows the sample data');
   assert.ok(/Pending approvals\s*4/.test(text()), 'the four sample approvals are counted');
   assert.ok(/Late trainings\s*1/.test(text()), 'the new people lists are in the dashboard too');
+  assert.ok(/Inbox\s*2/.test(text()) && /Open matters\s*3/.test(text()), 'the inbox and the open matters are in the dashboard');
 
   const saved = JSON.parse(window.localStorage.getItem('itsdm.settings') ?? '{}') as { email: string };
   assert.equal(saved.email, 'me@x.com', 'the email is remembered for next time');
@@ -105,7 +106,7 @@ const testCreateAndResume = async (): Promise<void> => {
   assert.equal(files.remembered, file, 'the file is remembered for next time');
   const saved = JSON.parse(file.text) as IDatabase;
   assert.equal(saved.format, 1);
-  assert.equal(Object.keys(saved.lists).length, 22, 'all 22 lists were written');
+  assert.equal(Object.keys(saved.lists).length, 26, 'all 26 lists were written');
   assert.equal(saved.lists.IT_04_Actions.items[0].OwnerUPN, 'me@x.com');
 
   // a change made in the app is written to the file

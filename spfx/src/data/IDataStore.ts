@@ -28,11 +28,20 @@ export interface IPagedResult<T> {
   hasNext: boolean;
 }
 
+/** A file attached to an item. */
+export interface IAttachment {
+  fileName: string;
+  /** Where to open it. */
+  url: string;
+}
+
 export interface IStoreCapabilities {
   /** The store can turn on a change history for a list (SharePoint version history). */
   versioning: boolean;
   /** Where people suggestions come from: the organisation's directory, or only names already in the data. */
   userSearch: 'directory' | 'known';
+  /** Items can carry attached files (SharePoint list attachments). */
+  attachments: boolean;
 }
 
 export interface IDataStore {
@@ -45,4 +54,9 @@ export interface IDataStore {
   searchUsers(query: string, maxResults?: number): Promise<IUserSuggestion[]>;
   /** Only when `capabilities.versioning` is true. */
   enableVersioning?(listName: string): Promise<void>;
+  /** The next four only when `capabilities.attachments` is true. */
+  listAttachments?(listName: string, id: number): Promise<IAttachment[]>;
+  addAttachment?(listName: string, id: number, fileName: string, content: ArrayBuffer): Promise<void>;
+  deleteAttachment?(listName: string, id: number, fileName: string): Promise<void>;
+  enableAttachments?(listName: string): Promise<void>;
 }

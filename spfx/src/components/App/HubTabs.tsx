@@ -9,6 +9,10 @@ import Ideas from '../Ideas/Ideas';
 import Import from '../Import/Import';
 import Initiatives from '../Initiatives/Initiatives';
 import Actions from '../Actions/Actions';
+import Agenda from '../Agenda/Agenda';
+import Links from '../Links/Links';
+import MattersTab from '../Matters/MattersTab';
+import QuickAdd from '../Matters/QuickAdd';
 import Notes from '../Notes/Notes';
 import Operations from '../Operations/Operations';
 import PeopleTab from '../People/PeopleTab';
@@ -22,12 +26,18 @@ const HubTabs: React.FC<{ description: string }> = ({ description }) => {
 
   return (
     <Stack tokens={{ childrenGap: 12 }}>
-      <Text variant="xxLarge" as="h1">{AppConfig.appName}</Text>
+      <Stack horizontal wrap verticalAlign="center" tokens={{ childrenGap: 16 }}>
+        <Text variant="xxLarge" as="h1">{AppConfig.appName}</Text>
+        <QuickAdd />
+      </Stack>
       <Text variant="large">{t('app.tagline')}</Text>
       {description && <Text>{description}</Text>}
 
       <Pivot overflowBehavior="menu" overflowAriaLabel={t('nav.more')} aria-label={AppConfig.appName}>
         <PivotItem headerText={t('nav.dashboard')}><Dashboard /></PivotItem>
+        <PivotItem headerText={t('nav.matters')}><MattersTab /></PivotItem>
+        <PivotItem headerText={t('nav.agenda')}><Agenda /></PivotItem>
+        <PivotItem headerText={t('nav.links')}><Links /></PivotItem>
         <PivotItem headerText={t('nav.ideas')}><Ideas /></PivotItem>
         <PivotItem headerText={t('nav.initiatives')}><Initiatives /></PivotItem>
         <PivotItem headerText={t('nav.projects')}><Projects /></PivotItem>

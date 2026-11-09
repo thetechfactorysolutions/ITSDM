@@ -19,6 +19,7 @@ const Help: React.FC = () => {
   const lists = AppConfig.sharePoint.listNames;
   const [versioning, setVersioning] = React.useState<Array<{ list: string; error?: string }> | undefined>();
   const [busy, setBusy] = React.useState<boolean>(false);
+  const [attachments, setAttachments] = React.useState<Array<{ list: string; error?: string }> | undefined>();
 
   const enableHistory = async (): Promise<void> => {
     setBusy(true);
@@ -35,6 +36,23 @@ const Help: React.FC = () => {
       }
     }
     setVersioning(outcome);
+    setBusy(false);
+  };
+
+  const enableAttachments = async (): Promise<void> => {
+    setBusy(true);
+    const outcome: Array<{ list: string; error?: string }> = [];
+    for (const key of Object.keys(lists) as Array<keyof typeof lists>) {
+      try {
+        if (service.enableAttachments) {
+          await service.enableAttachments(lists[key]);
+        }
+        outcome.push({ list: lists[key] });
+      } catch (err) {
+        outcome.push({ list: lists[key], error: err instanceof Error ? err.message : t('common.unknownError') });
+      }
+    }
+    setAttachments(outcome);
     setBusy(false);
   };
 
@@ -75,6 +93,15 @@ const Help: React.FC = () => {
         <Text>{t('help.people1')}</Text>
         <Text>{t('help.people2')}</Text>
       </Section>
+      <Section title={t('help.mattersTitle')}>
+        <Text>{t('help.matters1')}</Text>
+        <Text>{t('help.matters2')}</Text>
+      </Section>
+      <Section title={t('help.linksTitle')}>
+        <Text>{t('help.links1')}</Text>
+        <Text>{t('help.links2')}</Text>
+      </Section>
+      <Section title={t('help.templatesTitle')}><Text>{t('help.templates1')}</Text></Section>
       <Section title={t('help.financeTitle')}>
         <Text>{t('help.finance1')}</Text>
         <Text>{t('help.finance2')}</Text>
@@ -95,6 +122,17 @@ const Help: React.FC = () => {
           <Link href="https://github.com/thetechfactorysolutions/ITSDM" target="_blank" rel="noopener noreferrer">GitHub</Link>
         </Text>
       </Section>
+      {service.capabilities.attachments && <Section title={t('help.attachmentsTitle')}>
+        <Text>{t('help.attachments1')}</Text>
+        <Stack horizontal><DefaultButton text={t('help.attachmentsButton')} disabled={busy} onClick={() => { enableAttachments().catch(() => undefined); }} /></Stack>
+        <div aria-live="polite">
+          {attachments && attachments.map(row => (
+            <MessageBar key={row.list} messageBarType={row.error ? MessageBarType.error : MessageBarType.success}>
+              {row.list}: {row.error ? row.error : t('help.attachmentsEnabled')}
+            </MessageBar>
+          ))}
+        </div>
+      </Section>}
       {service.capabilities.versioning && <Section title={t('help.historyTitle')}>
         <Text>{t('help.history1')}</Text>
         <Stack horizontal><DefaultButton text={t('help.historyButton')} disabled={busy} onClick={() => { enableHistory().catch(() => undefined); }} /></Stack>

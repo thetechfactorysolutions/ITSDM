@@ -14,6 +14,7 @@ import { applyView, DEFAULT_VIEW, ITableView } from '../../rules/tableView';
 import { hasErrors, ValidationErrors } from '../../rules/validation';
 import { downloadTextFile } from '../../utils/download';
 import ApprovalSection from './ApprovalSection';
+import AttachmentsSection from './AttachmentsSection';
 import ConfirmDialog from './ConfirmDialog';
 import CsvImportPanel from './CsvImportPanel';
 import { FormGrid } from './FormGrid';
@@ -81,6 +82,16 @@ export interface IEntityScreenProps<T extends IEntityBase> {
   extraContent?: React.ReactNode;
   approval?: IApprovalConfig<T>;
   listName: string;
+  /** Shows only the items it accepts (the inbox, the open matters, the history are views of one list). */
+  scope?: (item: T) => boolean;
+  /** Filters the table starts with, e.g. `{ showClosed: true }` for a history. */
+  initialView?: Partial<ITableView>;
+  /** Hides the attachments in the edit panel for lists where they make no sense. */
+  hideAttachments?: boolean;
+  /** Hides the "New" command, for views of a list that cannot create what they show (a history). */
+  hideNew?: boolean;
+  /** Hides the "Show closed" switch, for views whose scope already decides what is closed. */
+  hideClosedToggle?: boolean;
 }
 
 function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): React.ReactElement {
@@ -88,7 +99,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   const { userEmail } = useHubData();
   const { textKey, state, service, statuses, getStatus, columns, sortAccessors, searchFields } = props;
 
-  const [view, setView] = React.useState<ITableView>(DEFAULT_VIEW);
+  const [view, setView] = React.useState<ITableView>({ ...DEFAULT_VIEW, ...props.initialView });
   const [selectedId, setSelectedId] = React.useState<number | undefined>();
   const [isFormOpen, setIsFormOpen] = React.useState<boolean>(false);
   const [isDetailOpen, setIsDetailOpen] = React.useState<boolean>(false);
@@ -115,9 +126,14 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     [state.items, selectedId]
   );
 
+  const scoped = React.useMemo(
+    () => (props.scope ? state.items.filter(props.scope) : state.items),
+    [state.items, props.scope]
+  );
+
   const visible = React.useMemo(
-    () => applyView(state.items, view, getStatus, searchFields, sortAccessors),
-    [state.items, view, getStatus, searchFields, sortAccessors]
+    () => applyView(scoped, view, getStatus, searchFields, sortAccessors),
+    [scoped, view, getStatus, searchFields, sortAccessors]
   );
 
   const errors: ValidationErrors = submitted ? props.validate(form) : {};
@@ -320,10 +336,10 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     };
   });
 
-  const commandItems: ICommandBarItemProps[] = [
-    { key: 'new', text: t(`${textKey}.new`), iconProps: { iconName: 'Add' }, onClick: openCreate },
-    { key: 'edit', text: t('common.edit'), iconProps: { iconName: 'Edit' }, disabled: !selected, onClick: () => openEdit(selected) }
+  const commandItems: ICommandBarItemProps[] = props.hideNew ? [] : [
+    { key: 'new', text: t(`${textKey}.new`), iconProps: { iconName: 'Add' }, onClick: openCreate }
   ];
+  commandItems.push({ key: 'edit', text: t('common.edit'), iconProps: { iconName: 'Edit' }, disabled: !selected, onClick: () => openEdit(selected) });
   if (props.renderDetail) {
     commandItems.push({ key: 'details', text: t('common.details'), iconProps: { iconName: 'Info' }, disabled: !selected, onClick: () => setIsDetailOpen(true) });
   }
@@ -341,7 +357,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     { key: 'import', text: t('common.importCsv'), iconProps: { iconName: 'Upload' }, onClick: () => setIsCsvOpen(true) }
   ];
 
-  const hasAnyItems = state.items.length > 0;
+  const hasAnyItems = scoped.length > 0;
 
   return (
     <Stack tokens={{ childrenGap: 12 }}>
@@ -368,7 +384,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
             onChange={(_, option) => setView(prev => ({ ...prev, status: option ? String(option.key) : '' }))}
           />
         )}
-        {statuses.length > 0 && (
+        {statuses.length > 0 && !props.hideClosedToggle && (
           <Toggle
             label={t('common.showClosed')}
             inlineLabel
@@ -430,6 +446,9 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
           )}
           {props.approval && !selected && gate && gate.needsExistingItem && (
             <MessageBar messageBarType={MessageBarType.warning}>{t('approval.createFirst', { rule: t(gate.blockedBy[0].titleKey) })}</MessageBar>
+          )}
+          {service.capabilities.attachments && !props.hideAttachments && (
+            <AttachmentsSection service={service} listName={props.listName} itemId={selected ? selected.id : undefined} />
           )}
           {selected && (selected.modified || selected.editor) && (
             <Text variant="small">{t('common.lastModified', { date: (selected.modified ?? '').slice(0, 10), user: selected.editor || '—' })}</Text>

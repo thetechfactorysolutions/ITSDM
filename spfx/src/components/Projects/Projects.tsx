@@ -20,6 +20,7 @@ import { useHubData } from '../shared/HubData';
 import LinkField from '../shared/LinkField';
 import { toOptions } from '../shared/options';
 import UserField from '../shared/UserField';
+import TemplatePanel from './TemplatePanel';
 
 const STATUSES = enumValues(ProjectStatus);
 
@@ -69,6 +70,7 @@ const Projects: React.FC = () => {
   const t = useT();
   const { service, userEmail, projects: state, initiatives, actions, notes, risks, decisions, lessons, reviews, capex, opex } = useHubData();
   const columns = React.useMemo(() => makeColumns(t), [t]);
+  const [templateOpen, setTemplateOpen] = React.useState<boolean>(false);
 
   const initiativeOptions = React.useMemo(() => initiatives.items.map(i => ({ id: i.initiativeId, title: i.title })), [initiatives.items]);
 
@@ -184,6 +186,8 @@ const Projects: React.FC = () => {
       quickStatuses={p => getAllowedProjectStatuses(p.status)}
       archiveStatus={ProjectStatus.CANCELLED}
       canArchive={p => getAllowedProjectStatuses(p.status).indexOf(ProjectStatus.CANCELLED) > -1 && p.status !== ProjectStatus.CANCELLED}
+      extraCommands={() => [{ key: 'template', text: t('projects.fromTemplate'), iconProps: { iconName: 'Copy' }, onClick: () => setTemplateOpen(true) }]}
+      extraContent={<TemplatePanel isOpen={templateOpen} onDismiss={() => setTemplateOpen(false)} />}
       csvFileName="projects.csv"
       csvColumns={csvColumns}
       csvFromRow={csvFromRow}

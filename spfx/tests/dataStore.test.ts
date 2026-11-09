@@ -8,7 +8,7 @@ import { FakeFile } from './helpers/fakeFile';
 import { databaseFromSeed, SeedRows } from '../src/data/seed';
 import {
   mapAction, mapArticle, mapBudget, mapCapex, mapChange, mapContract, mapDecision, mapIdea, mapIncident, mapInitiative, mapInteraction, mapKpi, mapLesson,
-  mapMeeting, mapNote, mapOpex, mapProject, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
+  mapArea, mapEntitlement, mapLink, mapMatter, mapMeeting, mapNote, mapOpex, mapProject, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
 } from '../src/components/shared/mappers';
 import seedJson from '../src/standalone/seed.json';
 
@@ -191,7 +191,8 @@ const testSeed = async (): Promise<void> => {
     IT_01_Ideas: mapIdea, IT_02_Initiatives: mapInitiative, IT_03_Projects: mapProject, IT_04_Actions: mapAction, IT_05_KPIs: mapKpi, IT_06_Budgets: mapBudget,
     IT_07_CAPEX: mapCapex, IT_08_OPEX: mapOpex, IT_09_Vendors: mapVendor, IT_10_Contracts: mapContract, IT_11_Risks: mapRisk, IT_12_Decisions: mapDecision,
     IT_13_Incidents: mapIncident, IT_14_Interactions: mapInteraction, IT_15_ChangeRequests: mapChange, IT_16_TeamSkills: mapSkill, IT_17_TrainingPlans: mapTraining,
-    IT_18_KnowledgeBase: mapArticle, IT_19_Reviews: mapReview, IT_20_LessonsLearned: mapLesson, IT_21_Meetings: mapMeeting, IT_22_Notes: mapNote
+    IT_18_KnowledgeBase: mapArticle, IT_19_Reviews: mapReview, IT_20_LessonsLearned: mapLesson, IT_21_Meetings: mapMeeting, IT_22_Notes: mapNote,
+    IT_23_Matters: mapMatter, IT_24_Areas: mapArea, IT_25_Links: mapLink, IT_26_Entitlements: mapEntitlement
   };
   assert.deepEqual(Object.keys(mappers).sort(), names.sort(), 'this test covers every list');
   for (const list of Object.keys(mappers)) {

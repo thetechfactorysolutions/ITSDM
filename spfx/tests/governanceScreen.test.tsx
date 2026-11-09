@@ -19,7 +19,7 @@ const render = (items: Risk[], created: Array<Record<string, unknown>>, language
   });
   const none = (): never => list([]) as never;
   const hub: IHubData = {
-    service: { searchUsers: async () => [] } as unknown as IHubData['service'], userEmail: 'me@x.com',
+    service: { capabilities: { versioning: false, userSearch: 'known', attachments: false }, searchUsers: async () => [] } as unknown as IHubData['service'], userEmail: 'me@x.com',
     risks: list(items), projects: none(), initiatives: none(), meetings: none(), ideas: none(), actions: none(), notes: none(), decisions: none(), lessons: none(), reviews: none()
   };
   return React.createElement(I18nProvider, { language }, React.createElement(HubDataContext.Provider, { value: hub }, React.createElement(Risks)));
