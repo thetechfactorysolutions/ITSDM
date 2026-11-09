@@ -70,6 +70,21 @@ const testStartScreenAndDemo = async (): Promise<void> => {
   assert.ok(/Late trainings\s*1/.test(text()), 'the new people lists are in the dashboard too');
   assert.ok(/Inbox\s*2/.test(text()) && /Open matters\s*3/.test(text()), 'the inbox and the open matters are in the dashboard');
 
+  assert.ok(/Good (morning|afternoon|evening), Me/.test(text()), 'the dashboard greets the person by the name in the email');
+  assert.ok(/\d+ thing\(s\) need your attention/.test(text()), 'the header counts what needs attention');
+
+  // pressing a card opens the tab where that is handled
+  const card = Array.from(document.body.querySelectorAll('button')).filter(b => b.getAttribute('aria-label') === 'Inbox: 2')[0] as HTMLButtonElement;
+  assert.ok(card, 'the Inbox card is a button');
+  await click(card);
+  await settle(100);
+  assert.equal(text().indexOf('Good morning, Me') + text().indexOf('Good afternoon, Me') + text().indexOf('Good evening, Me'), -3, 'the dashboard is closed');
+  assert.ok(/Matters/.test(text()), 'the matters tab is open');
+  const dashboardTab = Array.from(document.body.querySelectorAll('[role="tab"]')).filter(b => (b.textContent ?? '').trim() === 'Dashboard')[0] as HTMLElement;
+  await click(dashboardTab);
+  await settle(100);
+  assert.ok(text().indexOf('Management dashboard') > -1, 'and the dashboard tab brings it back');
+
   const saved = JSON.parse(window.localStorage.getItem('itsdm.settings') ?? '{}') as { email: string };
   assert.equal(saved.email, 'me@x.com', 'the email is remembered for next time');
 

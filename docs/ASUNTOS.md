@@ -19,6 +19,10 @@ Cada asunto tiene prioridad, origen (manual, correo, Teams, otro), remitente, fe
 
 **Añadir rápido** (botón de la cabecera, en cualquier pestaña): título, área, fecha y notas. Sin área va a la bandeja; con área, directo a abiertos.
 
+## El panel
+
+Arriba, un saludo con la fecha y cuántas cosas piden tu atención. Debajo, **Requiere atención**: una tarjeta por cada aviso, los más graves primero (rojo, naranja, azul); **al pulsar una, se abre la pestaña donde se resuelve**. Después, las cifras agrupadas en *Hoy*, *Servicio y operaciones*, *Dinero y proveedores*, *Proyectos y estrategia* y *Equipo y conocimiento*; cada tarjeta con enlace también abre su pestaña. Más abajo: enlaces rápidos, aprobaciones, tu trabajo y los gráficos. Los colores salen del tema de SharePoint, así que se adapta al modo oscuro.
+
 ## Agenda
 
 La pestaña **Agenda** reúne todas las fechas de la aplicación: asuntos, acciones, plazos de incidencias, **decisión de renovar y fin** de contratos y de garantías o licencias, seguimientos, revisiones, riesgos, cambios previstos, fines de proyecto, formaciones, certificaciones y artículos por revisar. Arriba, lo atrasado, lo de hoy y los próximos 7 días; debajo, un calendario del mes (pulsa un día para ver qué vence) y lo que viene después. El desplegable filtra por tipo. Lo cerrado no aparece.
@@ -54,10 +58,7 @@ Otras vías: el botón **Exportar CSV** de cada pantalla, o un informe de solo l
 
 ## Cómo actualizar una instalación que ya tienes
 
-Las listas nuevas (`IT_23_Matters`, `IT_24_Areas`, `IT_25_Links`, `IT_26_Entitlements`) solo se crean al **añadir la aplicación al sitio**:
-
-1. Sube el `.sppkg` 1.8.0.0 al catálogo y **quita la aplicación del sitio y vuelve a añadirla**. Las listas que ya existen se respetan; no está comprobado en tu tenant qué hace con los datos de las existentes, así que haz antes una copia (CSV de cada lista, o una plantilla del sitio).
-2. O ejecuta `scripts/Provision-ItsdmLists.ps1` o pega `scripts/provision-lists.browser.js` en la consola de una página del sitio: crean solo lo que falta y añaden las diez áreas de ejemplo si la lista de áreas está vacía.
+Desde la versión 1.10 **no hace falta quitar la aplicación ni borrar listas**. Sube el `.sppkg` al catálogo (reemplazando el anterior) y abre la aplicación: si faltan listas, un aviso arriba ofrece **Crear las listas que faltan**. Solo crea lo que no existe, con todas sus columnas, y no toca nada de lo que ya hay. Hace falta permiso para administrar las listas del sitio. En la pestaña **Ayuda**, **Revisar y reparar las listas** añade además las columnas que falten en listas que ya existen. Antes de nada, haz una copia de tus datos si quieres estar tranquila.
 
 ## Límites
 

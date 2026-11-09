@@ -48,6 +48,8 @@ export interface IHubData {
   objectives: IListHookState<Objective>;
   businessCases: IListHookState<BusinessCase>;
   weeklyReviews: IListHookState<WeeklyReview>;
+  /** Loads every list again, e.g. after the lists were created. */
+  reloadAll: () => Promise<void>;
 }
 
 export const HubDataContext = React.createContext<IHubData | undefined>(undefined);
@@ -138,6 +140,14 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEm
   const businessCases = useListItems<BusinessCase>(service, listNames.businessCases, mapCase, CASES_QUERY);
   const weeklyReviews = useListItems<WeeklyReview>(service, listNames.weeklyReviews, mapWeekly, WEEKLY_QUERY);
 
+  const everyList: Array<IListHookState<unknown>> = [
+    ideas, initiatives, projects, actions, meetings, notes, risks, decisions, lessons, reviews, budgets, capex, opex, vendors, contracts, incidents, changes, interactions, kpis, skills,
+    trainings, articles, matters, areas, links, entitlements, nps, serviceMonths, catalog, stock, genius, objectives, businessCases, weeklyReviews
+  ] as Array<IListHookState<unknown>>;
+  const reloadAll = async (): Promise<void> => {
+    await Promise.all(everyList.map(state => state.reload().catch(() => undefined)));
+  };
+
   const value: IHubData = {
     service,
     userEmail,
@@ -174,7 +184,8 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEm
     genius,
     objectives,
     businessCases,
-    weeklyReviews
+    weeklyReviews,
+    reloadAll
   };
 
   return <HubDataContext.Provider value={value}>{children}</HubDataContext.Provider>;

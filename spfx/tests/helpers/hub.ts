@@ -39,6 +39,7 @@ export const hubFor = (data: HubRows, rec: IRecorder, service?: Partial<IDataSto
     userEmail: 'me@x.com'
   };
   LIST_KEYS.forEach(key => { hub[key] = list(data[key] ?? [], rec); });
+  hub.reloadAll = async () => undefined;
   return hub as unknown as IHubData;
 };
 

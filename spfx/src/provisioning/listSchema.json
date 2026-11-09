@@ -1,0 +1,2401 @@
+[
+ {
+  "title": "IT_01_Ideas",
+  "description": "Ideas captured by the IT team",
+  "fields": [
+   {
+    "name": "IdeaId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "NEW",
+     "DISCOVERY",
+     "VALIDATED",
+     "PLANNED",
+     "IN_PROGRESS",
+     "PILOT",
+     "ROLLOUT",
+     "COMPLETED",
+     "REJECTED",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "SponsorUPN",
+    "type": "Text"
+   },
+   {
+    "name": "EstimatedValue",
+    "type": "Number"
+   },
+   {
+    "name": "TargetDate",
+    "type": "Date"
+   },
+   {
+    "name": "Tags",
+    "type": "Note"
+   },
+   {
+    "name": "ConvertedInitiativeId",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRule",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalStatus",
+    "type": "Choice",
+    "choices": [
+     "NONE",
+     "PENDING",
+     "APPROVED",
+     "REJECTED"
+    ]
+   },
+   {
+    "name": "Approver",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalComment",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_02_Initiatives",
+  "description": "Initiatives that deliver validated ideas",
+  "fields": [
+   {
+    "name": "InitiativeId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "DRAFT",
+     "ACTIVE",
+     "BLOCKED",
+     "ON_HOLD",
+     "COMPLETED",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "ProgressPct",
+    "type": "Number",
+    "attrs": "Min=\"0\" Max=\"100\""
+   },
+   {
+    "name": "TargetDate",
+    "type": "Date"
+   },
+   {
+    "name": "SourceIdeaId",
+    "type": "Text"
+   },
+   {
+    "name": "PlannerPlanId",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRule",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalStatus",
+    "type": "Choice",
+    "choices": [
+     "NONE",
+     "PENDING",
+     "APPROVED",
+     "REJECTED"
+    ]
+   },
+   {
+    "name": "Approver",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalComment",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_03_Projects",
+  "description": "Projects with budget, forecast and risk",
+  "fields": [
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "InitiativeId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "PLANNING",
+     "ACTIVE",
+     "AT_RISK",
+     "BLOCKED",
+     "ON_HOLD",
+     "COMPLETED",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "StartDate",
+    "type": "Date"
+   },
+   {
+    "name": "EndDate",
+    "type": "Date"
+   },
+   {
+    "name": "BudgetAmount",
+    "type": "Number"
+   },
+   {
+    "name": "ForecastAmount",
+    "type": "Number"
+   },
+   {
+    "name": "RiskLevel",
+    "type": "Choice",
+    "choices": [
+     "LOW",
+     "MEDIUM",
+     "HIGH",
+     "CRITICAL"
+    ]
+   },
+   {
+    "name": "PlannerPlanId",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRule",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalStatus",
+    "type": "Choice",
+    "choices": [
+     "NONE",
+     "PENDING",
+     "APPROVED",
+     "REJECTED"
+    ]
+   },
+   {
+    "name": "Approver",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalComment",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_04_Actions",
+  "description": "Follow-up actions with owner and due date",
+  "fields": [
+   {
+    "name": "ActionId",
+    "type": "Text"
+   },
+   {
+    "name": "InitiativeId",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "OPEN",
+     "IN_PROGRESS",
+     "BLOCKED",
+     "DONE",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "Priority",
+    "type": "Choice",
+    "choices": [
+     "LOW",
+     "MEDIUM",
+     "HIGH",
+     "CRITICAL"
+    ]
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "DueDate",
+    "type": "Date"
+   },
+   {
+    "name": "CompletedDate",
+    "type": "Date"
+   },
+   {
+    "name": "PlannerTaskId",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRule",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalStatus",
+    "type": "Choice",
+    "choices": [
+     "NONE",
+     "PENDING",
+     "APPROVED",
+     "REJECTED"
+    ]
+   },
+   {
+    "name": "Approver",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalComment",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_05_KPIs",
+  "description": "Indicators with a target; health and trend are calculated",
+  "fields": [
+   {
+    "name": "KpiId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Category",
+    "type": "Choice",
+    "choices": [
+     "SERVICE",
+     "DELIVERY",
+     "FINANCE",
+     "PEOPLE",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "ACTIVE",
+     "RETIRED"
+    ]
+   },
+   {
+    "name": "Unit",
+    "type": "Text"
+   },
+   {
+    "name": "Direction",
+    "type": "Choice",
+    "choices": [
+     "HIGHER",
+     "LOWER"
+    ]
+   },
+   {
+    "name": "Target",
+    "type": "Number"
+   },
+   {
+    "name": "CurrentValue",
+    "type": "Number"
+   },
+   {
+    "name": "PreviousValue",
+    "type": "Number"
+   },
+   {
+    "name": "MeasuredOn",
+    "type": "Date"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_13_Incidents",
+  "description": "Incidents with severity, deadline and resolution",
+  "fields": [
+   {
+    "name": "IncidentId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "NEW",
+     "IN_PROGRESS",
+     "ON_HOLD",
+     "RESOLVED",
+     "CLOSED"
+    ]
+   },
+   {
+    "name": "Severity",
+    "type": "Choice",
+    "choices": [
+     "LOW",
+     "MEDIUM",
+     "HIGH",
+     "CRITICAL"
+    ]
+   },
+   {
+    "name": "Category",
+    "type": "Choice",
+    "choices": [
+     "APPLICATION",
+     "INFRASTRUCTURE",
+     "NETWORK",
+     "SECURITY",
+     "ACCESS",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "ReportedBy",
+    "type": "Text"
+   },
+   {
+    "name": "AssignedTo",
+    "type": "Text"
+   },
+   {
+    "name": "ReportedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ResolvedOn",
+    "type": "Date"
+   },
+   {
+    "name": "Resolution",
+    "type": "Note"
+   },
+   {
+    "name": "RootCause",
+    "type": "Note"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_14_Interactions",
+  "description": "Contacts with stakeholders and their follow-ups",
+  "fields": [
+   {
+    "name": "InteractionId",
+    "type": "Text"
+   },
+   {
+    "name": "InteractionType",
+    "type": "Choice",
+    "choices": [
+     "MEETING",
+     "CALL",
+     "EMAIL",
+     "WORKSHOP",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "LOGGED",
+     "FOLLOW_UP",
+     "DONE"
+    ]
+   },
+   {
+    "name": "InteractionDate",
+    "type": "Date"
+   },
+   {
+    "name": "ContactName",
+    "type": "Text"
+   },
+   {
+    "name": "ContactEmail",
+    "type": "Text"
+   },
+   {
+    "name": "Organization",
+    "type": "Text"
+   },
+   {
+    "name": "Summary",
+    "type": "Note"
+   },
+   {
+    "name": "NextSteps",
+    "type": "Note"
+   },
+   {
+    "name": "FollowUpDate",
+    "type": "Date"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "MeetingId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_15_ChangeRequests",
+  "description": "Change requests; risky and emergency ones need a recorded approval",
+  "fields": [
+   {
+    "name": "ChangeId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Reason",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "DRAFT",
+     "SUBMITTED",
+     "APPROVED",
+     "REJECTED",
+     "IMPLEMENTED"
+    ]
+   },
+   {
+    "name": "ChangeType",
+    "type": "Choice",
+    "choices": [
+     "STANDARD",
+     "NORMAL",
+     "EMERGENCY"
+    ]
+   },
+   {
+    "name": "Risk",
+    "type": "Choice",
+    "choices": [
+     "LOW",
+     "MEDIUM",
+     "HIGH"
+    ]
+   },
+   {
+    "name": "PlannedDate",
+    "type": "Date"
+   },
+   {
+    "name": "ImplementedDate",
+    "type": "Date"
+   },
+   {
+    "name": "BackoutPlan",
+    "type": "Note"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRule",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalStatus",
+    "type": "Choice",
+    "choices": [
+     "NONE",
+     "PENDING",
+     "APPROVED",
+     "REJECTED"
+    ]
+   },
+   {
+    "name": "Approver",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalComment",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_06_Budgets",
+  "description": "Budgets by year; committed and used are calculated from the expenses linked to them",
+  "fields": [
+   {
+    "name": "BudgetId",
+    "type": "Text"
+   },
+   {
+    "name": "FiscalYear",
+    "type": "Number"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "DRAFT",
+     "APPROVED",
+     "CLOSED"
+    ]
+   },
+   {
+    "name": "PlannedAmount",
+    "type": "Number"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_07_CAPEX",
+  "description": "Investments, linked to a budget, a project and a vendor",
+  "fields": [
+   {
+    "name": "CapexId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "PLANNED",
+     "COMMITTED",
+     "PAID",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "Amount",
+    "type": "Number"
+   },
+   {
+    "name": "ExpenseDate",
+    "type": "Date"
+   },
+   {
+    "name": "InvoiceRef",
+    "type": "Text"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "BudgetId",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRule",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalStatus",
+    "type": "Choice",
+    "choices": [
+     "NONE",
+     "PENDING",
+     "APPROVED",
+     "REJECTED"
+    ]
+   },
+   {
+    "name": "Approver",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalComment",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_08_OPEX",
+  "description": "Recurring costs; the annual amount counts against the budget",
+  "fields": [
+   {
+    "name": "OpexId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "PLANNED",
+     "COMMITTED",
+     "PAID",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "Amount",
+    "type": "Number"
+   },
+   {
+    "name": "Frequency",
+    "type": "Choice",
+    "choices": [
+     "ONE_OFF",
+     "MONTHLY",
+     "QUARTERLY",
+     "ANNUAL"
+    ]
+   },
+   {
+    "name": "ExpenseDate",
+    "type": "Date"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "BudgetId",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "ContractId",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRule",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalStatus",
+    "type": "Choice",
+    "choices": [
+     "NONE",
+     "PENDING",
+     "APPROVED",
+     "REJECTED"
+    ]
+   },
+   {
+    "name": "Approver",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalComment",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_09_Vendors",
+  "description": "Vendors with contact and relationship owner",
+  "fields": [
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "ACTIVE",
+     "UNDER_REVIEW",
+     "INACTIVE"
+    ]
+   },
+   {
+    "name": "Category",
+    "type": "Choice",
+    "choices": [
+     "SOFTWARE",
+     "HARDWARE",
+     "SERVICES",
+     "TELECOM",
+     "CLOUD",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "ContactName",
+    "type": "Text"
+   },
+   {
+    "name": "ContactEmail",
+    "type": "Text"
+   },
+   {
+    "name": "Website",
+    "type": "Text"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_10_Contracts",
+  "description": "Contracts with renewal notice, linked to a vendor",
+  "fields": [
+   {
+    "name": "ContractId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "DRAFT",
+     "ACTIVE",
+     "EXPIRED",
+     "TERMINATED"
+    ]
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "StartDate",
+    "type": "Date"
+   },
+   {
+    "name": "EndDate",
+    "type": "Date"
+   },
+   {
+    "name": "NoticeDays",
+    "type": "Number",
+    "attrs": "Min=\"0\" Max=\"365\""
+   },
+   {
+    "name": "AnnualValue",
+    "type": "Number"
+   },
+   {
+    "name": "AutoRenew",
+    "type": "Choice",
+    "choices": [
+     "NO",
+     "YES"
+    ]
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRule",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalStatus",
+    "type": "Choice",
+    "choices": [
+     "NONE",
+     "PENDING",
+     "APPROVED",
+     "REJECTED"
+    ]
+   },
+   {
+    "name": "Approver",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalComment",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_11_Risks",
+  "description": "Risks with probability, impact and mitigation",
+  "fields": [
+   {
+    "name": "RiskId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "OPEN",
+     "MITIGATING",
+     "ACCEPTED",
+     "CLOSED"
+    ]
+   },
+   {
+    "name": "Probability",
+    "type": "Choice",
+    "choices": [
+     "LOW",
+     "MEDIUM",
+     "HIGH"
+    ]
+   },
+   {
+    "name": "Impact",
+    "type": "Choice",
+    "choices": [
+     "LOW",
+     "MEDIUM",
+     "HIGH"
+    ]
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "Mitigation",
+    "type": "Note"
+   },
+   {
+    "name": "DueDate",
+    "type": "Date"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "InitiativeId",
+    "type": "Text"
+   },
+   {
+    "name": "MeetingId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_12_Decisions",
+  "description": "Decisions with their context and rationale",
+  "fields": [
+   {
+    "name": "DecisionId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Rationale",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "PROPOSED",
+     "DECIDED",
+     "SUPERSEDED"
+    ]
+   },
+   {
+    "name": "DecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "DecisionDate",
+    "type": "Date"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "InitiativeId",
+    "type": "Text"
+   },
+   {
+    "name": "MeetingId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_16_TeamSkills",
+  "description": "Skills per person with the level reached and the level expected; certifications with expiry",
+  "fields": [
+   {
+    "name": "SkillId",
+    "type": "Text"
+   },
+   {
+    "name": "PersonUPN",
+    "type": "Text"
+   },
+   {
+    "name": "Category",
+    "type": "Choice",
+    "choices": [
+     "TECHNICAL",
+     "PROCESS",
+     "TOOLING",
+     "SOFT",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "Level",
+    "type": "Choice",
+    "choices": [
+     "BASIC",
+     "INTERMEDIATE",
+     "ADVANCED",
+     "EXPERT"
+    ]
+   },
+   {
+    "name": "TargetLevel",
+    "type": "Choice",
+    "choices": [
+     "BASIC",
+     "INTERMEDIATE",
+     "ADVANCED",
+     "EXPERT"
+    ]
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "ACTIVE",
+     "ARCHIVED"
+    ]
+   },
+   {
+    "name": "LastAssessed",
+    "type": "Date"
+   },
+   {
+    "name": "Certification",
+    "type": "Text"
+   },
+   {
+    "name": "CertificationExpiry",
+    "type": "Date"
+   },
+   {
+    "name": "Notes",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_17_TrainingPlans",
+  "description": "Training plans per person, linked to the skill they work on",
+  "fields": [
+   {
+    "name": "TrainingId",
+    "type": "Text"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "PLANNED",
+     "IN_PROGRESS",
+     "COMPLETED",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "TrainingType",
+    "type": "Choice",
+    "choices": [
+     "COURSE",
+     "CERTIFICATION",
+     "WORKSHOP",
+     "SELF_STUDY",
+     "MENTORING"
+    ]
+   },
+   {
+    "name": "PersonUPN",
+    "type": "Text"
+   },
+   {
+    "name": "Provider",
+    "type": "Text"
+   },
+   {
+    "name": "SkillId",
+    "type": "Text"
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "StartDate",
+    "type": "Date"
+   },
+   {
+    "name": "DueDate",
+    "type": "Date"
+   },
+   {
+    "name": "CompletedDate",
+    "type": "Date"
+   },
+   {
+    "name": "Cost",
+    "type": "Number"
+   },
+   {
+    "name": "Notes",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_18_KnowledgeBase",
+  "description": "Articles, runbooks and policies; publishing a policy needs a recorded approval",
+  "fields": [
+   {
+    "name": "ArticleId",
+    "type": "Text"
+   },
+   {
+    "name": "Summary",
+    "type": "Note"
+   },
+   {
+    "name": "Body",
+    "type": "Note"
+   },
+   {
+    "name": "Category",
+    "type": "Choice",
+    "choices": [
+     "HOW_TO",
+     "RUNBOOK",
+     "FAQ",
+     "POLICY",
+     "REFERENCE"
+    ]
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "DRAFT",
+     "IN_REVIEW",
+     "PUBLISHED",
+     "ARCHIVED"
+    ]
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "Tags",
+    "type": "Text"
+   },
+   {
+    "name": "PublishedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ReviewDate",
+    "type": "Date"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "IncidentId",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRule",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalStatus",
+    "type": "Choice",
+    "choices": [
+     "NONE",
+     "PENDING",
+     "APPROVED",
+     "REJECTED"
+    ]
+   },
+   {
+    "name": "Approver",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalComment",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_19_Reviews",
+  "description": "Periodic reviews of projects and initiatives",
+  "fields": [
+   {
+    "name": "ReviewId",
+    "type": "Text"
+   },
+   {
+    "name": "ReviewType",
+    "type": "Choice",
+    "choices": [
+     "STATUS",
+     "RISK",
+     "FINANCIAL",
+     "CLOSURE"
+    ]
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "SCHEDULED",
+     "COMPLETED",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "Health",
+    "type": "Choice",
+    "choices": [
+     "GREEN",
+     "AMBER",
+     "RED"
+    ]
+   },
+   {
+    "name": "ReviewDate",
+    "type": "Date"
+   },
+   {
+    "name": "NextReviewDate",
+    "type": "Date"
+   },
+   {
+    "name": "Summary",
+    "type": "Note"
+   },
+   {
+    "name": "NextSteps",
+    "type": "Note"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "InitiativeId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_20_LessonsLearned",
+  "description": "What was learned and what to do next time",
+  "fields": [
+   {
+    "name": "LessonId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Recommendation",
+    "type": "Note"
+   },
+   {
+    "name": "Category",
+    "type": "Choice",
+    "choices": [
+     "PROCESS",
+     "TECHNOLOGY",
+     "PEOPLE",
+     "VENDOR",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "NEW",
+     "REVIEWED",
+     "APPLIED"
+    ]
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "InitiativeId",
+    "type": "Text"
+   },
+   {
+    "name": "MeetingId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_21_Meetings",
+  "description": "Meetings imported from a transcript, with what was created from them",
+  "fields": [
+   {
+    "name": "MeetingId",
+    "type": "Text"
+   },
+   {
+    "name": "MeetingDate",
+    "type": "Date"
+   },
+   {
+    "name": "Summary",
+    "type": "Note"
+   },
+   {
+    "name": "Attendees",
+    "type": "Note"
+   },
+   {
+    "name": "Transcript",
+    "type": "Note"
+   },
+   {
+    "name": "ImportedItems",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_22_Notes",
+  "description": "Decisions, risks, information and follow-ups",
+  "fields": [
+   {
+    "name": "NoteId",
+    "type": "Text"
+   },
+   {
+    "name": "Body",
+    "type": "Note"
+   },
+   {
+    "name": "Category",
+    "type": "Choice",
+    "choices": [
+     "DECISION",
+     "RISK",
+     "INFO",
+     "FOLLOW_UP"
+    ]
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "ACTIVE",
+     "ARCHIVED"
+    ]
+   },
+   {
+    "name": "MeetingId",
+    "type": "Text"
+   },
+   {
+    "name": "InitiativeId",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_23_Matters",
+  "description": "Everything that asks for attention: the inbox, open matters and their history",
+  "fields": [
+   {
+    "name": "MatterId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Notes",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "INBOX",
+     "OPEN",
+     "IN_PROGRESS",
+     "WAITING",
+     "DONE",
+     "DISCARDED"
+    ]
+   },
+   {
+    "name": "Priority",
+    "type": "Choice",
+    "choices": [
+     "LOW",
+     "MEDIUM",
+     "HIGH",
+     "CRITICAL"
+    ]
+   },
+   {
+    "name": "AreaId",
+    "type": "Text"
+   },
+   {
+    "name": "Source",
+    "type": "Choice",
+    "choices": [
+     "MANUAL",
+     "EMAIL",
+     "TEAMS",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "SourceRef",
+    "type": "Note"
+   },
+   {
+    "name": "Sender",
+    "type": "Text"
+   },
+   {
+    "name": "ReceivedOn",
+    "type": "Date"
+   },
+   {
+    "name": "DueDate",
+    "type": "Date"
+   },
+   {
+    "name": "ClosedOn",
+    "type": "Date"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "ContractId",
+    "type": "Text"
+   },
+   {
+    "name": "IncidentId",
+    "type": "Text"
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_24_Areas",
+  "description": "Topics that matters are grouped by; editable in the app",
+  "fields": [
+   {
+    "name": "AreaId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "ACTIVE",
+     "ARCHIVED"
+    ]
+   },
+   {
+    "name": "SortOrder",
+    "type": "Number"
+   }
+  ]
+ },
+ {
+  "title": "IT_25_Links",
+  "description": "Pages used often, grouped by category; pinned ones show on the dashboard",
+  "fields": [
+   {
+    "name": "LinkId",
+    "type": "Text"
+   },
+   {
+    "name": "Url",
+    "type": "Note"
+   },
+   {
+    "name": "Category",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "Pinned",
+    "type": "Choice",
+    "choices": [
+     "NO",
+     "YES"
+    ]
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "ACTIVE",
+     "ARCHIVED"
+    ]
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_26_Entitlements",
+  "description": "Warranties, licences, support and subscriptions that end on a date",
+  "fields": [
+   {
+    "name": "EntitlementId",
+    "type": "Text"
+   },
+   {
+    "name": "EntitlementType",
+    "type": "Choice",
+    "choices": [
+     "WARRANTY",
+     "LICENSE",
+     "SUPPORT",
+     "SUBSCRIPTION"
+    ]
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "ACTIVE",
+     "EXPIRED",
+     "RENEWED",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "Product",
+    "type": "Text"
+   },
+   {
+    "name": "Reference",
+    "type": "Text"
+   },
+   {
+    "name": "Quantity",
+    "type": "Number"
+   },
+   {
+    "name": "StartDate",
+    "type": "Date"
+   },
+   {
+    "name": "EndDate",
+    "type": "Date"
+   },
+   {
+    "name": "NoticeDays",
+    "type": "Number",
+    "attrs": "Min=\"0\" Max=\"365\""
+   },
+   {
+    "name": "AnnualCost",
+    "type": "Number"
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "ContractId",
+    "type": "Text"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "Notes",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_27_NpsResponses",
+  "description": "Survey answers; a detractor waits for a call-back",
+  "fields": [
+   {
+    "name": "ResponseId",
+    "type": "Text"
+   },
+   {
+    "name": "Score",
+    "type": "Number",
+    "attrs": "Min=\"0\" Max=\"10\""
+   },
+   {
+    "name": "Comment",
+    "type": "Note"
+   },
+   {
+    "name": "RespondedOn",
+    "type": "Date"
+   },
+   {
+    "name": "Channel",
+    "type": "Choice",
+    "choices": [
+     "KIOSK",
+     "PHONE",
+     "CHAT",
+     "FLOORWALK",
+     "SELF_SERVICE",
+     "EMAIL",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "Country",
+    "type": "Choice",
+    "choices": [
+     "ES",
+     "PT",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "TicketRef",
+    "type": "Text"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "NOT_REQUIRED",
+     "PENDING",
+     "CONTACTED",
+     "CLOSED"
+    ]
+   },
+   {
+    "name": "FollowUpDate",
+    "type": "Date"
+   },
+   {
+    "name": "FollowUpNotes",
+    "type": "Note"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_28_ServiceMonths",
+  "description": "Monthly service figures by country, from the service report",
+  "fields": [
+   {
+    "name": "MonthId",
+    "type": "Text"
+   },
+   {
+    "name": "Period",
+    "type": "Date"
+   },
+   {
+    "name": "Country",
+    "type": "Choice",
+    "choices": [
+     "ES",
+     "PT",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "Incidents",
+    "type": "Number"
+   },
+   {
+    "name": "Interactions",
+    "type": "Number"
+   },
+   {
+    "name": "Requests",
+    "type": "Number"
+   },
+   {
+    "name": "Calls",
+    "type": "Number"
+   },
+   {
+    "name": "Users",
+    "type": "Number"
+   },
+   {
+    "name": "SlaPct",
+    "type": "Number",
+    "attrs": "Min=\"0\" Max=\"100\""
+   },
+   {
+    "name": "NpsScore",
+    "type": "Number",
+    "attrs": "Min=\"-100\" Max=\"100\""
+   },
+   {
+    "name": "NpsResponses",
+    "type": "Number"
+   },
+   {
+    "name": "Backlog",
+    "type": "Number"
+   },
+   {
+    "name": "Notes",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_29_Catalog",
+  "description": "How each kind of contact is recognised and recorded (incident, interaction or request)",
+  "fields": [
+   {
+    "name": "CatalogId",
+    "type": "Text"
+   },
+   {
+    "name": "Category",
+    "type": "Choice",
+    "choices": [
+     "ACCESS",
+     "EMAIL_TEAMS",
+     "ONEDRIVE_SHAREPOINT",
+     "DEVICE",
+     "ACCESSORY",
+     "APPLICATION",
+     "NETWORK_WIFI",
+     "HOW_TO",
+     "LOCATION_PEOPLE",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "Kind",
+    "type": "Choice",
+    "choices": [
+     "INCIDENT",
+     "INTERACTION",
+     "REQUEST"
+    ]
+   },
+   {
+    "name": "Keywords",
+    "type": "Note"
+   },
+   {
+    "name": "Guidance",
+    "type": "Note"
+   },
+   {
+    "name": "ArticleId",
+    "type": "Text"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "ACTIVE",
+     "ARCHIVED"
+    ]
+   }
+  ]
+ },
+ {
+  "title": "IT_30_Stock",
+  "description": "Devices by type: on the shelf, in use and on order, with an alarm level",
+  "fields": [
+   {
+    "name": "StockId",
+    "type": "Text"
+   },
+   {
+    "name": "Category",
+    "type": "Choice",
+    "choices": [
+     "LAPTOP",
+     "TABLET",
+     "PHONE",
+     "MONITOR",
+     "HEADSET",
+     "ACCESSORY",
+     "NETWORK",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "Country",
+    "type": "Choice",
+    "choices": [
+     "ES",
+     "PT",
+     "OTHER"
+    ]
+   },
+   {
+    "name": "OnHand",
+    "type": "Number"
+   },
+   {
+    "name": "MinLevel",
+    "type": "Number"
+   },
+   {
+    "name": "InUse",
+    "type": "Number"
+   },
+   {
+    "name": "OnOrder",
+    "type": "Number"
+   },
+   {
+    "name": "ExpectedOn",
+    "type": "Date"
+   },
+   {
+    "name": "UnitCost",
+    "type": "Number"
+   },
+   {
+    "name": "Ownership",
+    "type": "Choice",
+    "choices": [
+     "RENTED",
+     "PURCHASED"
+    ]
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "ACTIVE",
+     "ARCHIVED"
+    ]
+   },
+   {
+    "name": "Notes",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_31_GeniusSessions",
+  "description": "Genius Help Desk sessions: corners, tips, academy, challenges and open sessions",
+  "fields": [
+   {
+    "name": "SessionId",
+    "type": "Text"
+   },
+   {
+    "name": "SessionType",
+    "type": "Choice",
+    "choices": [
+     "CORNER",
+     "TIP",
+     "ACADEMY",
+     "CHALLENGE",
+     "ASK_IT"
+    ]
+   },
+   {
+    "name": "Topic",
+    "type": "Text"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "IDEA",
+     "PLANNED",
+     "DELIVERED",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "SessionDate",
+    "type": "Date"
+   },
+   {
+    "name": "Audience",
+    "type": "Text"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "Invited",
+    "type": "Number"
+   },
+   {
+    "name": "Attended",
+    "type": "Number"
+   },
+   {
+    "name": "Satisfaction",
+    "type": "Number",
+    "attrs": "Min=\"0\" Max=\"5\""
+   },
+   {
+    "name": "MaterialUrl",
+    "type": "Note"
+   },
+   {
+    "name": "ArticleId",
+    "type": "Text"
+   },
+   {
+    "name": "CatalogId",
+    "type": "Text"
+   },
+   {
+    "name": "Motivation",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_32_Objectives",
+  "description": "What IT is trying to achieve, with its goal and the KPI that measures it",
+  "fields": [
+   {
+    "name": "ObjectiveId",
+    "type": "Text"
+   },
+   {
+    "name": "Description",
+    "type": "Note"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "SponsorUPN",
+    "type": "Text"
+   },
+   {
+    "name": "StartDate",
+    "type": "Date"
+   },
+   {
+    "name": "TargetDate",
+    "type": "Date"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "DRAFT",
+     "ACTIVE",
+     "ACHIEVED",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "Priority",
+    "type": "Choice",
+    "choices": [
+     "LOW",
+     "MEDIUM",
+     "HIGH",
+     "CRITICAL"
+    ]
+   },
+   {
+    "name": "Goal",
+    "type": "Note"
+   },
+   {
+    "name": "KpiId",
+    "type": "Text"
+   }
+  ]
+ },
+ {
+  "title": "IT_33_BusinessCases",
+  "description": "The reasoning behind an investment: cost, benefit, return and decision; a large one needs an approval",
+  "fields": [
+   {
+    "name": "CaseId",
+    "type": "Text"
+   },
+   {
+    "name": "Problem",
+    "type": "Note"
+   },
+   {
+    "name": "Options",
+    "type": "Note"
+   },
+   {
+    "name": "Recommendation",
+    "type": "Note"
+   },
+   {
+    "name": "Risks",
+    "type": "Note"
+   },
+   {
+    "name": "EstimatedCost",
+    "type": "Number"
+   },
+   {
+    "name": "AnnualBenefit",
+    "type": "Number"
+   },
+   {
+    "name": "ObjectiveId",
+    "type": "Text"
+   },
+   {
+    "name": "InitiativeId",
+    "type": "Text"
+   },
+   {
+    "name": "ProjectId",
+    "type": "Text"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "DRAFT",
+     "SUBMITTED",
+     "APPROVED",
+     "REJECTED",
+     "ARCHIVED"
+    ]
+   },
+   {
+    "name": "DecisionDate",
+    "type": "Date"
+   },
+   {
+    "name": "DecisionNotes",
+    "type": "Note"
+   },
+   {
+    "name": "ApprovalRule",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalStatus",
+    "type": "Choice",
+    "choices": [
+     "NONE",
+     "PENDING",
+     "APPROVED",
+     "REJECTED"
+    ]
+   },
+   {
+    "name": "Approver",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalRequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ApprovalDecidedBy",
+    "type": "Text"
+   },
+   {
+    "name": "ApprovalComment",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_34_WeeklyReviews",
+  "description": "The weekly management review",
+  "fields": [
+   {
+    "name": "ReviewId",
+    "type": "Text"
+   },
+   {
+    "name": "WeekStart",
+    "type": "Date"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "DRAFT",
+     "COMPLETED"
+    ]
+   },
+   {
+    "name": "Happened",
+    "type": "Note"
+   },
+   {
+    "name": "WentWell",
+    "type": "Note"
+   },
+   {
+    "name": "WentWrong",
+    "type": "Note"
+   },
+   {
+    "name": "Attention",
+    "type": "Note"
+   },
+   {
+    "name": "Decisions",
+    "type": "Note"
+   },
+   {
+    "name": "Risks",
+    "type": "Note"
+   },
+   {
+    "name": "Priorities",
+    "type": "Note"
+   },
+   {
+    "name": "StopDoing",
+    "type": "Note"
+   },
+   {
+    "name": "StartDoing",
+    "type": "Note"
+   },
+   {
+    "name": "OwnerUPN",
+    "type": "Text"
+   }
+  ]
+ }
+]

@@ -1,6 +1,6 @@
 # SharePoint Schema
 
-Created automatically when the app is added to a site (`scripts/generate-assets.js` generates the files packed in the `.sppkg`). Column internal names equal the names below.
+Created by the app itself (a banner offers to create the missing lists; Help has *Check and repair the lists*). The definition is written by `scripts/generate-assets.js` into `src/provisioning/listSchema.json`. Column internal names equal the names below.
 
 ## Lists in use
 

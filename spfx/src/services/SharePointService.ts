@@ -7,7 +7,10 @@ import '@pnp/sp/lists';
 import '@pnp/sp/items';
 import '@pnp/sp/items/get-all';
 import '@pnp/sp/attachments';
+import '@pnp/sp/fields';
 
+import { buildFieldXml, IFieldDef, IListDef, newGuid } from '../provisioning/fieldXml';
+import { IListProvisioner } from '../provisioning/provision';
 import { IAttachment, IDataStore, IPagedResult, IQueryOptions, IStoreCapabilities, IUserSuggestion } from '../data/IDataStore';
 
 // Kept here so existing imports keep working.
@@ -15,6 +18,20 @@ export type { IAttachment, IPagedResult, IQueryOptions, IUserSuggestion };
 
 export class SharePointService implements IDataStore {
   public readonly capabilities: IStoreCapabilities = { versioning: true, userSearch: 'directory', attachments: true };
+
+  /** Creates lists and columns on the site, so the app can set itself up. Needs permission to manage lists. */
+  public readonly provisioner: IListProvisioner = {
+    getListTitles: async (): Promise<string[]> => (await this._sp.web.lists.select('Title')()).map(list => list.Title as string),
+    createList: async (list: IListDef): Promise<void> => {
+      await this._sp.web.lists.add(list.title, list.description, 100, false, { OnQuickLaunch: true } as never);
+    },
+    getFieldNames: async (listTitle: string): Promise<string[]> =>
+      (await this._sp.web.lists.getByTitle(listTitle).fields.select('InternalName')()).map(field => field.InternalName as string),
+    addField: async (listTitle: string, field: IFieldDef): Promise<void> => {
+      // Options 24 = AddFieldInternalNameHint (8) + AddFieldToDefaultView (16)
+      await this._sp.web.lists.getByTitle(listTitle).fields.createFieldAsXml({ SchemaXml: buildFieldXml(field, newGuid()), Options: 24 as never });
+    }
+  };
 
   private readonly _sp: SPFI;
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { DefaultButton, DetailsList, IColumn, IconButton, MessageBar, MessageBarType, SelectionMode, Stack, Text, getTheme } from '@fluentui/react';
-import { useT } from '../../i18n/I18n';
+import { useLanguage, useT } from '../../i18n/I18n';
 import { buildApprovalPayload } from '../../entities/payloads';
 import { ActionItem, ActionStatus, ApprovalStatus, GeniusStatus, IApprovalState, IdeaStatus, Initiative, InitiativeStatus, ProjectStatus } from '../../models';
 import { budgetFigures, contractAlert, isLiveBudget, needsContractAttention } from '../../rules/finance';
@@ -19,8 +19,20 @@ import { dayKeyToSharePoint, toDayKey } from '../../rules/dates';
 import ApprovalDecisionDialog from '../shared/ApprovalDecisionDialog';
 import BarChart from '../shared/Charts';
 import { useHubData } from '../shared/HubData';
-import KpiTile from '../shared/KpiTile';
+import { AttentionRow, Card, Hero, Section, StatCard, Tone } from '../shared/ui';
 import QuickLinks from '../Links/QuickLinks';
+
+interface IAttention {
+  tone: Tone;
+  tab: string;
+  text: string;
+}
+
+/** "ana.lopez@x.com" -> "Ana". Empty when there is no usable name. */
+const displayName = (email: string): string => {
+  const first = (email.split('@')[0] || '').split(/[._-]/)[0] || '';
+  return first ? first.charAt(0).toUpperCase() + first.slice(1).toLowerCase() : '';
+};
 
 interface IPendingApproval {
   key: string;
@@ -33,6 +45,7 @@ interface IPendingApproval {
 
 const Dashboard: React.FC = () => {
   const t = useT();
+  const language = useLanguage();
   const theme = getTheme();
   const { userEmail, ideas: ideasState, initiatives: initiativesState, projects: projectsState, actions: actionsState, risks: risksState,
     budgets: budgetsState, capex: capexState, opex: opexState, contracts: contractsState,
@@ -172,171 +185,157 @@ const Dashboard: React.FC = () => {
     ]
   }));
 
-  const attention: string[] = [];
-  if (lateObjectives.length > 0) {
-    attention.push(t('dashboard.attentionObjectives', { count: lateObjectives.length }));
-  }
-  if (weeklyMissing) {
-    attention.push(t('dashboard.attentionWeekly', { week: lastWeekStart(now) }));
-  }
-  if (lowStock.length > 0) {
-    attention.push(t('dashboard.attentionStock', { count: lowStock.length }));
-  }
-  if (lateOrders.length > 0) {
-    attention.push(t('dashboard.attentionOrders', { count: lateOrders.length }));
-  }
-  if (lateSessions.length > 0) {
-    attention.push(t('dashboard.attentionGenius', { count: lateSessions.length }));
-  }
-  if (callsOverdue.length > 0) {
-    attention.push(t('dashboard.attentionCalls', { count: callsOverdue.length, days: AppConfig.service.npsFollowUpDays }));
-  }
-  if (lowSlaCountries.length > 0) {
-    attention.push(t('dashboard.attentionSla', { count: lowSlaCountries.length, target: AppConfig.service.slaTarget }));
-  }
-  if (inboxItems.length > 0) {
-    attention.push(t('dashboard.attentionInbox', { count: inboxItems.length }));
-  }
-  if (staleInbox.length > 0) {
-    attention.push(t('dashboard.attentionInboxStale', { count: staleInbox.length, days: AppConfig.matters.inboxStaleDays }));
-  }
-  if (overdueMatters.length > 0) {
-    attention.push(t('dashboard.attentionMatters', { count: overdueMatters.length }));
-  }
-  if (entitlementsToAttend.length > 0) {
-    attention.push(t('dashboard.attentionEntitlements', { count: entitlementsToAttend.length }));
-  }
-  if (overdueActions.length > 0) {
-    attention.push(t('dashboard.attentionOverdue', { count: overdueActions.length }));
-  }
-  if (projectsAtRisk.length > 0) {
-    attention.push(t('dashboard.attentionRisk', { count: projectsAtRisk.length }));
-  }
-  if (highRisks.length > 0) {
-    attention.push(t('dashboard.attentionHighRisks', { count: highRisks.length }));
-  }
-  if (overdueIncidents.length > 0) {
-    attention.push(t('dashboard.attentionIncidents', { count: overdueIncidents.length }));
-  }
-  if (offTargetKpis.length > 0) {
-    attention.push(t('dashboard.attentionKpis', { count: offTargetKpis.length }));
-  }
-  if (followUpsDue.length > 0) {
-    attention.push(t('dashboard.attentionFollowUps', { count: followUpsDue.length }));
-  }
-  if (certsExpired.length > 0) {
-    attention.push(t('dashboard.attentionCertsExpired', { count: certsExpired.length }));
-  }
-  if (certsToAttend.length > certsExpired.length) {
-    attention.push(t('dashboard.attentionCertsExpiring', { count: certsToAttend.length - certsExpired.length }));
-  }
-  if (trainingsOverdue.length > 0) {
-    attention.push(t('dashboard.attentionTrainings', { count: trainingsOverdue.length }));
-  }
-  if (articlesToReview.length > 0) {
-    attention.push(t('dashboard.attentionArticles', { count: articlesToReview.length }));
-  }
-  if (contractsToAttend.length > 0) {
-    attention.push(t('dashboard.attentionContracts', { count: contractsToAttend.length }));
-  }
-  if (overBudgets.length > 0) {
-    attention.push(t('dashboard.attentionBudgetsOver', { count: overBudgets.length }));
-  }
-  if (nearBudgets.length > 0) {
-    attention.push(t('dashboard.attentionBudgetsNear', { count: nearBudgets.length }));
-  }
+  const attention: IAttention[] = [];
+  const flag = (when: boolean, tone: Tone, tab: string, text: string): void => {
+    if (when) {
+      attention.push({ tone, tab, text });
+    }
+  };
+  flag(lateObjectives.length > 0, 'warning', 'strategy', t('dashboard.attentionObjectives', { count: lateObjectives.length }));
+  flag(weeklyMissing, 'info', 'weekly', t('dashboard.attentionWeekly', { week: lastWeekStart(now) }));
+  flag(lowStock.length > 0, 'danger', 'devices', t('dashboard.attentionStock', { count: lowStock.length }));
+  flag(lateOrders.length > 0, 'warning', 'devices', t('dashboard.attentionOrders', { count: lateOrders.length }));
+  flag(lateSessions.length > 0, 'warning', 'genius', t('dashboard.attentionGenius', { count: lateSessions.length }));
+  flag(callsOverdue.length > 0, 'danger', 'operations', t('dashboard.attentionCalls', { count: callsOverdue.length, days: AppConfig.service.npsFollowUpDays }));
+  flag(lowSlaCountries.length > 0, 'danger', 'operations', t('dashboard.attentionSla', { count: lowSlaCountries.length, target: AppConfig.service.slaTarget }));
+  flag(inboxItems.length > 0, 'warning', 'matters', t('dashboard.attentionInbox', { count: inboxItems.length }));
+  flag(staleInbox.length > 0, 'danger', 'matters', t('dashboard.attentionInboxStale', { count: staleInbox.length, days: AppConfig.matters.inboxStaleDays }));
+  flag(overdueMatters.length > 0, 'danger', 'matters', t('dashboard.attentionMatters', { count: overdueMatters.length }));
+  flag(entitlementsToAttend.length > 0, 'warning', 'vendors', t('dashboard.attentionEntitlements', { count: entitlementsToAttend.length }));
+  flag(overdueActions.length > 0, 'danger', 'actions', t('dashboard.attentionOverdue', { count: overdueActions.length }));
+  flag(projectsAtRisk.length > 0, 'danger', 'projects', t('dashboard.attentionRisk', { count: projectsAtRisk.length }));
+  flag(highRisks.length > 0, 'danger', 'governance', t('dashboard.attentionHighRisks', { count: highRisks.length }));
+  flag(overdueIncidents.length > 0, 'danger', 'operations', t('dashboard.attentionIncidents', { count: overdueIncidents.length }));
+  flag(offTargetKpis.length > 0, 'warning', 'operations', t('dashboard.attentionKpis', { count: offTargetKpis.length }));
+  flag(followUpsDue.length > 0, 'warning', 'vendors', t('dashboard.attentionFollowUps', { count: followUpsDue.length }));
+  flag(certsExpired.length > 0, 'danger', 'people', t('dashboard.attentionCertsExpired', { count: certsExpired.length }));
+  flag(certsToAttend.length > certsExpired.length, 'warning', 'people', t('dashboard.attentionCertsExpiring', { count: certsToAttend.length - certsExpired.length }));
+  flag(trainingsOverdue.length > 0, 'warning', 'people', t('dashboard.attentionTrainings', { count: trainingsOverdue.length }));
+  flag(articlesToReview.length > 0, 'info', 'people', t('dashboard.attentionArticles', { count: articlesToReview.length }));
+  flag(contractsToAttend.length > 0, 'warning', 'vendors', t('dashboard.attentionContracts', { count: contractsToAttend.length }));
+  flag(overBudgets.length > 0, 'danger', 'finance', t('dashboard.attentionBudgetsOver', { count: overBudgets.length }));
+  flag(nearBudgets.length > 0, 'warning', 'finance', t('dashboard.attentionBudgetsNear', { count: nearBudgets.length }));
+  // the most serious first; the order inside each group stays as above
+  const toneOrder: Record<Tone, number> = { danger: 0, warning: 1, info: 2, good: 3 };
+  const sortedAttention = attention.map((a, i) => ({ a, i })).sort((x, y) => toneOrder[x.a.tone] - toneOrder[y.a.tone] || x.i - y.i).map(x => x.a);
 
   const hasLoading = ideasState.loading || initiativesState.loading || projectsState.loading || actionsState.loading || risksState.loading || budgetsState.loading || contractsState.loading || incidentsState.loading || kpisState.loading;
   const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, mattersState.error, entitlementsState.error, linksState.error, npsState.error, monthsState.error, stockState.error, geniusState.error, casesState.error, objectivesState.error, weeklyState.error, actionError].filter(Boolean);
 
+  const hour = now.getHours();
+  const greetingKey = hour < 12 ? 'dashboard.goodMorning' : hour < 20 ? 'dashboard.goodAfternoon' : 'dashboard.goodEvening';
+  const firstName = displayName(userEmail);
+  const greeting = firstName ? t(greetingKey, { name: firstName }) : t(`${greetingKey}Plain`);
+  const dateLabel = now.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+  const summary = hasLoading && attention.length === 0 ? t('common.loading') : attention.length === 0 ? t('dashboard.heroClear') : t('dashboard.heroCount', { count: attention.length });
+
+  const level = (danger: boolean, warning: boolean): Tone => danger ? 'danger' : warning ? 'warning' : 'good';
+
   return (
     <Stack tokens={{ childrenGap: 20 }}>
-      <Text variant="xLarge" as="h2">{t('dashboard.title')}</Text>
+      <Hero title={t('dashboard.title')} greeting={greeting} date={dateLabel} summary={summary} alertCount={attention.length} />
 
       <div aria-live="polite">
         {errors.map((error, index) => <MessageBar key={index} messageBarType={MessageBarType.error}>{error}</MessageBar>)}
         {hasLoading && <MessageBar messageBarType={MessageBarType.info}>{t('common.loading')}</MessageBar>}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
-        <KpiTile label={t('dashboard.inbox')} value={inboxItems.length} tone={staleInbox.length > 0 ? 'danger' : inboxItems.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.openMatters')} value={openMatters.length} tone="info" />
-        <KpiTile label={t('dashboard.mattersOverdue')} value={overdueMatters.length} tone={overdueMatters.length > 0 ? 'danger' : 'good'} />
-        {recentNps.score !== undefined && <KpiTile label={t('dashboard.nps')} value={recentNps.score} tone="info" />}
-        <KpiTile label={t('dashboard.detractorsToCall')} value={callsPending.length} tone={callsOverdue.length > 0 ? 'danger' : callsPending.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.casesToDecide')} value={casesToDecide.length} tone={casesToDecide.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.lowStock')} value={lowStock.length} tone={lowStock.length > 0 ? 'danger' : lateOrders.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.geniusPlanned')} value={plannedSessions.length} tone="info" />
-        <KpiTile label={t('dashboard.entitlementsToRenew')} value={entitlementsToAttend.length} tone={lapsedEntitlements.length > 0 ? 'danger' : entitlementsToAttend.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.activeIdeas')} value={activeIdeas} tone="info" />
-        <KpiTile label={t('dashboard.activeInitiatives')} value={activeInitiatives} tone="info" />
-        <KpiTile label={t('dashboard.activeProjects')} value={activeProjectsList.length} tone="info" />
-        <KpiTile label={t('dashboard.openActions')} value={openActions.length} tone="good" />
-        <KpiTile label={t('dashboard.overdueActions')} value={overdueActions.length} tone={overdueActions.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.pendingApprovals')} value={pendingApprovals.length} tone={pendingApprovals.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.openIncidents')} value={openIncidents.length} tone={openIncidents.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.incidentsOverdue')} value={overdueIncidents.length} tone={overdueIncidents.length > 0 ? 'danger' : 'good'} />
-        <KpiTile label={t('dashboard.kpisOff')} value={offTargetKpis.length} tone={offTargetKpis.length > 0 ? 'danger' : 'good'} />
-        <KpiTile label={t('dashboard.followUpsDue')} value={followUpsDue.length} tone={followUpsDue.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.contractsToRenew')} value={contractsToAttend.length} tone={lapsedContracts.length > 0 ? 'danger' : contractsToAttend.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.budgetsOver')} value={overBudgets.length} tone={overBudgets.length > 0 ? 'danger' : nearBudgets.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.skillGaps')} value={skillGaps.length} tone={skillGaps.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.certsToAttend')} value={certsToAttend.length} tone={certsExpired.length > 0 ? 'danger' : certsToAttend.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.trainingsOverdue')} value={trainingsOverdue.length} tone={trainingsOverdue.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.articlesToReview')} value={articlesToReview.length} tone={articlesToReview.length > 0 ? 'warning' : 'good'} />
-        <KpiTile label={t('dashboard.highRisks')} value={highRisks.length} tone={highRisks.length > 0 ? 'danger' : 'good'} />
-        <KpiTile label={t('dashboard.projectsAtRisk')} value={projectsAtRisk.length} tone={projectsAtRisk.length > 0 ? 'danger' : 'good'} />
+      <Card title={t('dashboard.attention')}>
+        {sortedAttention.length === 0 ? (
+          <Text>{t('dashboard.attentionNone')}</Text>
+        ) : (
+          <Stack tokens={{ childrenGap: 8 }}>
+            {sortedAttention.map((a, i) => <AttentionRow key={i} tone={a.tone} tab={a.tab} text={a.text} />)}
+          </Stack>
+        )}
+      </Card>
+
+      <Section title={t('dashboard.sectionToday')}>
+        <StatCard icon="inbox" tab="matters" label={t('dashboard.inbox')} value={inboxItems.length} tone={level(staleInbox.length > 0, inboxItems.length > 0)} />
+        <StatCard icon="clipboard" tab="matters" label={t('dashboard.openMatters')} value={openMatters.length} tone="info" />
+        <StatCard icon="alert" tab="matters" label={t('dashboard.mattersOverdue')} value={overdueMatters.length} tone={level(overdueMatters.length > 0, false)} />
+        <StatCard icon="shield" label={t('dashboard.pendingApprovals')} value={pendingApprovals.length} tone={level(false, pendingApprovals.length > 0)} />
+        <StatCard icon="check" tab="actions" label={t('dashboard.openActions')} value={openActions.length} tone="good" />
+        <StatCard icon="clock" tab="actions" label={t('dashboard.overdueActions')} value={overdueActions.length} tone={level(false, overdueActions.length > 0)} />
+      </Section>
+
+      <Section title={t('dashboard.sectionService')}>
+        {recentNps.score !== undefined && <StatCard icon="heart" tab="operations" label={t('dashboard.nps')} value={recentNps.score} tone="info" />}
+        <StatCard icon="phone" tab="operations" label={t('dashboard.detractorsToCall')} value={callsPending.length} tone={level(callsOverdue.length > 0, callsPending.length > 0)} />
+        <StatCard icon="alert" tab="operations" label={t('dashboard.openIncidents')} value={openIncidents.length} tone={level(false, openIncidents.length > 0)} />
+        <StatCard icon="clock" tab="operations" label={t('dashboard.incidentsOverdue')} value={overdueIncidents.length} tone={level(overdueIncidents.length > 0, false)} />
+        <StatCard icon="chart" tab="operations" label={t('dashboard.kpisOff')} value={offTargetKpis.length} tone={level(offTargetKpis.length > 0, false)} />
+        <StatCard icon="phone" tab="vendors" label={t('dashboard.followUpsDue')} value={followUpsDue.length} tone={level(false, followUpsDue.length > 0)} />
+      </Section>
+
+      <Section title={t('dashboard.sectionMoney')}>
+        <StatCard icon="refresh" tab="vendors" label={t('dashboard.contractsToRenew')} value={contractsToAttend.length} tone={level(lapsedContracts.length > 0, contractsToAttend.length > 0)} />
+        <StatCard icon="refresh" tab="vendors" label={t('dashboard.entitlementsToRenew')} value={entitlementsToAttend.length} tone={level(lapsedEntitlements.length > 0, entitlementsToAttend.length > 0)} />
+        <StatCard icon="wallet" tab="finance" label={t('dashboard.budgetsOver')} value={overBudgets.length} tone={level(overBudgets.length > 0, nearBudgets.length > 0)} />
+        <StatCard icon="box" tab="devices" label={t('dashboard.lowStock')} value={lowStock.length} tone={level(lowStock.length > 0, lateOrders.length > 0)} />
+      </Section>
+
+      <Section title={t('dashboard.sectionProjects')}>
+        <StatCard icon="bulb" tab="ideas" label={t('dashboard.activeIdeas')} value={activeIdeas} tone="info" />
+        <StatCard icon="flag" tab="initiatives" label={t('dashboard.activeInitiatives')} value={activeInitiatives} tone="info" />
+        <StatCard icon="rocket" tab="projects" label={t('dashboard.activeProjects')} value={activeProjectsList.length} tone="info" />
+        <StatCard icon="alert" tab="projects" label={t('dashboard.projectsAtRisk')} value={projectsAtRisk.length} tone={level(projectsAtRisk.length > 0, false)} />
+        <StatCard icon="shield" tab="governance" label={t('dashboard.highRisks')} value={highRisks.length} tone={level(highRisks.length > 0, false)} />
+        <StatCard icon="scale" tab="strategy" label={t('dashboard.casesToDecide')} value={casesToDecide.length} tone={level(false, casesToDecide.length > 0)} />
+        <StatCard icon="spark" tab="genius" label={t('dashboard.geniusPlanned')} value={plannedSessions.length} tone="info" />
+      </Section>
+
+      <Section title={t('dashboard.sectionTeam')}>
+        <StatCard icon="users" tab="people" label={t('dashboard.skillGaps')} value={skillGaps.length} tone={level(false, skillGaps.length > 0)} />
+        <StatCard icon="award" tab="people" label={t('dashboard.certsToAttend')} value={certsToAttend.length} tone={level(certsExpired.length > 0, certsToAttend.length > 0)} />
+        <StatCard icon="book" tab="people" label={t('dashboard.trainingsOverdue')} value={trainingsOverdue.length} tone={level(false, trainingsOverdue.length > 0)} />
+        <StatCard icon="book" tab="people" label={t('dashboard.articlesToReview')} value={articlesToReview.length} tone={level(false, articlesToReview.length > 0)} />
+      </Section>
+
+      <Card title={t('dashboard.quickLinks')}>
+        {pinnedLinks.length === 0 ? <Text>{t('dashboard.quickLinksNone')}</Text> : <QuickLinks links={pinnedLinks} />}
+      </Card>
+
+      <Card title={t('dashboard.approvalsTitle')}>
+        <Stack tokens={{ childrenGap: 8 }}>
+          {pendingApprovals.length === 0 && !hasLoading && <Text>{t('dashboard.approvalsNone')}</Text>}
+          {pendingApprovals.map(row => {
+            const rule = findRule(row.approval.ruleId);
+            return (
+              <Stack key={row.key} horizontal wrap verticalAlign="center" tokens={{ childrenGap: 12 }} styles={{ root: { borderLeft: `4px solid ${theme.palette.orange}`, paddingLeft: 10 } }}>
+                <Stack.Item grow styles={{ root: { minWidth: 220 } }}>
+                  <Text block><strong>{t(`approval.entity.${row.entity}`)}</strong>: {row.title}</Text>
+                  <Text block variant="small">{rule ? t(rule.titleKey) : row.approval.ruleId} · {t('dashboard.approvalsWaiting', { date: row.approval.requestedOn, approver: row.approval.approver })}</Text>
+                </Stack.Item>
+                <Stack horizontal tokens={{ childrenGap: 8 }}>
+                  <DefaultButton text={t('approval.approve')} iconProps={{ iconName: 'CheckMark' }} ariaLabel={`${t('approval.approve')}: ${row.title}`} onClick={() => setDeciding({ row, decision: ApprovalStatus.APPROVED })} />
+                  <DefaultButton text={t('approval.reject')} iconProps={{ iconName: 'Cancel' }} ariaLabel={`${t('approval.reject')}: ${row.title}`} onClick={() => setDeciding({ row, decision: ApprovalStatus.REJECTED })} />
+                </Stack>
+              </Stack>
+            );
+          })}
+        </Stack>
+      </Card>
+
+      <Card title={t('dashboard.myWork')}>
+        <Stack tokens={{ childrenGap: 6 }}>
+          <Text>{t('dashboard.myWorkSummary', { overdue: myOverdue.length, today: myToday.length, week: myWeek.length })}</Text>
+          {myWork.length > 0 && (
+            <div style={{ overflowX: 'auto' }}>
+              <DetailsList items={myWork} columns={myWorkColumns} selectionMode={SelectionMode.none} getKey={a => String((a as ActionItem).id)} ariaLabelForGrid={t('dashboard.myWork')} />
+            </div>
+          )}
+          {myWork.length === 0 && !hasLoading && <Text>{t('dashboard.myWorkNone')}</Text>}
+        </Stack>
+      </Card>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
+        <Card><BarChart title={t('dashboard.chartActions')} rows={actionStatusRows} /></Card>
+        <Card><BarChart title={t('dashboard.chartBudget')} rows={budgetRows} formatValue={v => v.toLocaleString()} /></Card>
+        <Card><BarChart title={t('dashboard.chartSpend')} rows={spendRows} formatValue={v => v.toLocaleString()} /></Card>
       </div>
 
-      <Stack tokens={{ childrenGap: 4 }}>
-        <Text variant="large" as="h3">{t('dashboard.quickLinks')}</Text>
-        {pinnedLinks.length === 0 ? <Text>{t('dashboard.quickLinksNone')}</Text> : <QuickLinks links={pinnedLinks} />}
-      </Stack>
-
-      <Stack>
-        <Text variant="large" as="h3">{t('dashboard.attention')}</Text>
-        {attention.length === 0 ? <Text>{t('dashboard.attentionNone')}</Text> : attention.map((m, i) => <Text key={i}>• {m}</Text>)}
-      </Stack>
-
-      <Stack tokens={{ childrenGap: 6 }}>
-        <Text variant="large" as="h3">{t('dashboard.approvalsTitle')}</Text>
-        {pendingApprovals.length === 0 && !hasLoading && <Text>{t('dashboard.approvalsNone')}</Text>}
-        {pendingApprovals.map(row => {
-          const rule = findRule(row.approval.ruleId);
-          return (
-            <Stack key={row.key} horizontal wrap verticalAlign="center" tokens={{ childrenGap: 12 }} styles={{ root: { borderLeft: `4px solid ${theme.palette.orange}`, paddingLeft: 10 } }}>
-              <Stack.Item grow styles={{ root: { minWidth: 220 } }}>
-                <Text block><strong>{t(`approval.entity.${row.entity}`)}</strong>: {row.title}</Text>
-                <Text block variant="small">{rule ? t(rule.titleKey) : row.approval.ruleId} · {t('dashboard.approvalsWaiting', { date: row.approval.requestedOn, approver: row.approval.approver })}</Text>
-              </Stack.Item>
-              <Stack horizontal tokens={{ childrenGap: 8 }}>
-                <DefaultButton text={t('approval.approve')} iconProps={{ iconName: 'CheckMark' }} ariaLabel={`${t('approval.approve')}: ${row.title}`} onClick={() => setDeciding({ row, decision: ApprovalStatus.APPROVED })} />
-                <DefaultButton text={t('approval.reject')} iconProps={{ iconName: 'Cancel' }} ariaLabel={`${t('approval.reject')}: ${row.title}`} onClick={() => setDeciding({ row, decision: ApprovalStatus.REJECTED })} />
-              </Stack>
-            </Stack>
-          );
-        })}
-      </Stack>
-
-      <Stack tokens={{ childrenGap: 4 }}>
-        <Text variant="large" as="h3">{t('dashboard.myWork')}</Text>
-        <Text>{t('dashboard.myWorkSummary', { overdue: myOverdue.length, today: myToday.length, week: myWeek.length })}</Text>
-        {myWork.length > 0 && (
-          <div style={{ overflowX: 'auto' }}>
-            <DetailsList items={myWork} columns={myWorkColumns} selectionMode={SelectionMode.none} getKey={a => String((a as ActionItem).id)} ariaLabelForGrid={t('dashboard.myWork')} />
-          </div>
-        )}
-        {myWork.length === 0 && !hasLoading && <Text>{t('dashboard.myWorkNone')}</Text>}
-      </Stack>
-
-      <Stack horizontal wrap tokens={{ childrenGap: 24 }}>
-        <BarChart title={t('dashboard.chartActions')} rows={actionStatusRows} />
-        <BarChart title={t('dashboard.chartBudget')} rows={budgetRows} formatValue={v => v.toLocaleString()} />
-        <BarChart title={t('dashboard.chartSpend')} rows={spendRows} formatValue={v => v.toLocaleString()} />
-      </Stack>
-
-      <Stack>
-        <Text variant="large" as="h3">{t('dashboard.activeInitiativesList')}</Text>
+      <Card title={t('dashboard.activeInitiativesList')}>
         {openInitiatives.length === 0 && !hasLoading ? (
           <Text>{t('dashboard.noInitiatives')}</Text>
         ) : (
@@ -344,7 +343,7 @@ const Dashboard: React.FC = () => {
             <DetailsList items={openInitiatives} columns={initiativeColumns} selectionMode={SelectionMode.none} ariaLabelForGrid={t('dashboard.activeInitiativesList')} />
           </div>
         )}
-      </Stack>
+      </Card>
 
       <ApprovalDecisionDialog decision={deciding ? deciding.decision : undefined} title={deciding ? deciding.row.title : ''} onConfirm={decide} onCancel={() => setDeciding(undefined)} />
     </Stack>

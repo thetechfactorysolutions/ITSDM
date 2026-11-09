@@ -646,6 +646,23 @@ ${LISTS.map(instanceXml).join('\n')}
 </Elements>
 `, 'utf8');
 
+// ---------- list definition for the app (creates the lists from the web part) ----------
+{
+  const schemaOut = process.env.ITSDM_SCHEMA_OUT || path.join(__dirname, '..', 'src', 'provisioning', 'listSchema.json');
+  fs.mkdirSync(path.dirname(schemaOut), { recursive: true });
+  const schema = LISTS.map((list) => ({
+    title: list.title,
+    description: list.description,
+    fields: list.fields.map((f) => {
+      const def = { name: f.name, type: f.type };
+      if (f.choices) def.choices = f.choices;
+      if (f.attrs) def.attrs = f.attrs;
+      return def;
+    })
+  }));
+  fs.writeFileSync(schemaOut, JSON.stringify(schema, null, 1) + '\n', 'utf8');
+}
+
 // ---------- sample data for the local mode ----------
 // Same rows as above, with each date written as "@day:<offset>" (days from today). The local app
 // resolves them when it creates the data (src/data/seed.ts), so they never go stale.

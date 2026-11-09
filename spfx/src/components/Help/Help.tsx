@@ -2,6 +2,8 @@ import * as React from 'react';
 import { DefaultButton, Link, MessageBar, MessageBarType, Stack, Text } from '@fluentui/react';
 import { AppConfig } from '../../config/AppConfig';
 import { useT } from '../../i18n/I18n';
+import { LIST_DEFS } from '../App/SetupBanner';
+import { ensureLists, IEnsureResult } from '../../provisioning/provision';
 import { useHubData } from '../shared/HubData';
 
 const Section: React.FC<{ title: string; children?: React.ReactNode }> = ({ title, children }) => (
@@ -15,10 +17,11 @@ const VERSIONED_LISTS: Array<keyof typeof AppConfig.sharePoint.listNames> = ['id
 
 const Help: React.FC = () => {
   const t = useT();
-  const { service } = useHubData();
+  const { service, reloadAll } = useHubData();
   const lists = AppConfig.sharePoint.listNames;
   const [versioning, setVersioning] = React.useState<Array<{ list: string; error?: string }> | undefined>();
   const [busy, setBusy] = React.useState<boolean>(false);
+  const [repair, setRepair] = React.useState<IEnsureResult | undefined>();
   const [attachments, setAttachments] = React.useState<Array<{ list: string; error?: string }> | undefined>();
 
   const enableHistory = async (): Promise<void> => {
@@ -36,6 +39,20 @@ const Help: React.FC = () => {
       }
     }
     setVersioning(outcome);
+    setBusy(false);
+  };
+
+  const repairLists = async (): Promise<void> => {
+    if (!service.provisioner) {
+      return;
+    }
+    setBusy(true);
+    try {
+      setRepair(await ensureLists(service.provisioner, LIST_DEFS));
+      await reloadAll();
+    } catch (err) {
+      setRepair({ created: [], fieldsAdded: [], failed: [{ list: '', error: err instanceof Error ? err.message : t('common.unknownError') }] });
+    }
     setBusy(false);
   };
 
@@ -134,6 +151,14 @@ const Help: React.FC = () => {
           <Link href="https://github.com/thetechfactorysolutions/ITSDM" target="_blank" rel="noopener noreferrer">GitHub</Link>
         </Text>
       </Section>
+      {service.provisioner && <Section title={t('help.repairTitle')}>
+        <Text>{t('help.repairText')}</Text>
+        <Stack horizontal><DefaultButton text={t('help.repairButton')} disabled={busy} onClick={() => { repairLists().catch(() => undefined); }} /></Stack>
+        <div aria-live="polite">
+          {repair && <MessageBar messageBarType={repair.failed.length > 0 ? MessageBarType.warning : MessageBarType.success}>{t('help.repairResult', { created: repair.created.length, columns: repair.fieldsAdded.reduce((n, r) => n + r.fields.length, 0), failed: repair.failed.length })}</MessageBar>}
+          {repair && repair.failed.map((f, i) => <MessageBar key={i} messageBarType={MessageBarType.error}>{f.list ? `${f.list}: ` : ''}{f.error}</MessageBar>)}
+        </div>
+      </Section>}
       {service.capabilities.attachments && <Section title={t('help.attachmentsTitle')}>
         <Text>{t('help.attachments1')}</Text>
         <Stack horizontal><DefaultButton text={t('help.attachmentsButton')} disabled={busy} onClick={() => { enableAttachments().catch(() => undefined); }} /></Stack>

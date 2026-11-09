@@ -9,6 +9,8 @@
  * plain values, and `Editor: { Title }` when it is expanded. The mappers read exactly that.
  */
 
+import { IListProvisioner } from '../provisioning/provision';
+
 export interface IQueryOptions {
   filter?: string;
   select?: string[];
@@ -46,6 +48,8 @@ export interface IStoreCapabilities {
 
 export interface IDataStore {
   readonly capabilities: IStoreCapabilities;
+  /** Only on stores that can create their own lists (SharePoint). */
+  readonly provisioner?: IListProvisioner;
   getItems<T>(listName: string, options?: IQueryOptions): Promise<IPagedResult<T>>;
   getItem<T>(listName: string, id: number, select?: string[]): Promise<T>;
   createItem<T>(listName: string, payload: Record<string, unknown>): Promise<T>;
