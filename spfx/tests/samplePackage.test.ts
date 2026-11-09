@@ -4,6 +4,9 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { mapCatalog, mapNps, mapServiceMonth } from '../src/components/shared/mappers';
+import { isOrderLate, needsOrder, stockLevel } from '../src/rules/stock';
+import { attendanceRate, geniusImpact, isSessionLate, topicsWithoutSession } from '../src/rules/genius';
+import { mapGenius, mapStock } from '../src/components/shared/mappers';
 import { classifyText, interactionShare, isCallOverdue, isCallPending, latestByCountry, npsBreakdown, slaLevel, suggestedKind } from '../src/rules/service';
 import { mapArea, mapArticle, mapBudget, mapCapex, mapChange, mapContract, mapEntitlement, mapIncident, mapInteraction, mapKpi, mapLink, mapMatter, mapOpex, mapSkill, mapTraining } from '../src/components/shared/mappers';
 import { entitlementAlert, isInbox, isInboxStale, isMatterClosed, isMatterOpen, isMatterOverdue, isSafeUrl, needsEntitlementAttention } from '../src/rules/matters';
@@ -67,7 +70,7 @@ const testEveryListAndSample = (): void => {
     'IT_05_KPIs', 'IT_13_Incidents', 'IT_14_Interactions', 'IT_15_ChangeRequests',
     'IT_16_TeamSkills', 'IT_17_TrainingPlans', 'IT_18_KnowledgeBase',
     'IT_11_Risks', 'IT_12_Decisions', 'IT_19_Reviews', 'IT_20_LessonsLearned', 'IT_21_Meetings', 'IT_22_Notes',
-    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements', 'IT_27_NpsResponses', 'IT_28_ServiceMonths', 'IT_29_Catalog'
+    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements', 'IT_27_NpsResponses', 'IT_28_ServiceMonths', 'IT_29_Catalog', 'IT_30_Stock', 'IT_31_GeniusSessions'
   ];
   assert.deepEqual(instances.map(i => i.title).sort(), expected.sort(), 'every list is in the package');
 
@@ -211,6 +214,23 @@ const testSamplesShowTheirCases = (): void => {
   const catalog = rowsOf('IT_29_Catalog').map(mapCatalog);
   assert.equal(suggestedKind(classifyText('mi cuenta bloqueada', catalog)), 'INCIDENT', 'the sample catalogue recognises a blocked account');
   assert.equal(suggestedKind(classifyText('dónde está la sala 4', catalog)), 'INTERACTION');
+
+  const stock = rowsOf('IT_30_Stock').map(mapStock);
+  const stockOf = (id: string): ReturnType<typeof mapStock> => stock.filter(i => i.stockId === id)[0];
+  assert.deepEqual(stock.filter(needsOrder).map(i => i.stockId), ['STK-DEMO-001'], 'one product is low with nothing on order');
+  assert.equal(stockLevel(stockOf('STK-DEMO-004')), 'ORDERED', 'another is low but an order is on its way');
+  assert.deepEqual(stock.filter(i => isOrderLate(i)).map(i => i.stockId), ['STK-DEMO-004'], 'and that order is late');
+  assert.equal(stockLevel(stockOf('STK-DEMO-003')), 'OK');
+  assert.ok(stock.filter(i => i.onOrder > 0).every(i => !!i.expectedOn), 'every order has its expected day');
+
+  const sessions = rowsOf('IT_31_GeniusSessions').map(mapGenius);
+  assert.deepEqual(sessions.filter(s => isSessionLate(s)).map(s => s.sessionId), ['GEN-DEMO-003'], 'one planned session is past its date');
+  const impact = geniusImpact(sessions);
+  assert.equal(impact.delivered, 1);
+  assert.equal(impact.attendees, 18);
+  assert.equal(impact.averageSatisfaction, 4.5);
+  assert.equal(attendanceRate(sessions.filter(s => s.sessionId === 'GEN-DEMO-001')[0]), 45);
+  assert.equal(topicsWithoutSession(catalog, sessions).length, catalog.length - 1, 'the delivered session covers one catalogue topic');
 
   const project = byId('IT_03_Projects', 'ProjectId', 'PROJ-DEMO-002');
   assert.equal(project.ApprovalStatus, 'PENDING', 'a project also waits for approval, from the earlier round');

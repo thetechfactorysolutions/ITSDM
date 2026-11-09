@@ -2,10 +2,12 @@ import * as React from 'react';
 import { DefaultButton, DetailsList, IColumn, IconButton, MessageBar, MessageBarType, SelectionMode, Stack, Text, getTheme } from '@fluentui/react';
 import { useT } from '../../i18n/I18n';
 import { buildApprovalPayload } from '../../entities/payloads';
-import { ActionItem, ActionStatus, ApprovalStatus, IApprovalState, IdeaStatus, Initiative, InitiativeStatus, ProjectStatus } from '../../models';
+import { ActionItem, ActionStatus, ApprovalStatus, GeniusStatus, IApprovalState, IdeaStatus, Initiative, InitiativeStatus, ProjectStatus } from '../../models';
 import { budgetFigures, contractAlert, isLiveBudget, needsContractAttention } from '../../rules/finance';
 import { entitlementAlert, isInbox, isInboxStale, isMatterOpen, isMatterOverdue, needsEntitlementAttention } from '../../rules/matters';
 import { AppConfig } from '../../config/AppConfig';
+import { isSessionLate } from '../../rules/genius';
+import { isOrderLate, stockLevel } from '../../rules/stock';
 import { isCallOverdue, isCallPending, latestByCountry, npsBreakdown, responsesInLastDays, slaLevel } from '../../rules/service';
 import { isHighActiveRisk } from '../../rules/governance';
 import { certificationAlert, hasSkillGap, isReviewDue, isTrainingOverdue, needsCertificationAttention } from '../../rules/people';
@@ -34,7 +36,7 @@ const Dashboard: React.FC = () => {
   const { userEmail, ideas: ideasState, initiatives: initiativesState, projects: projectsState, actions: actionsState, risks: risksState,
     budgets: budgetsState, capex: capexState, opex: opexState, contracts: contractsState,
     incidents: incidentsState, changes: changesState, interactions: interactionsState, kpis: kpisState, skills: skillsState, trainings: trainingsState, articles: articlesState,
-    matters: mattersState, entitlements: entitlementsState, links: linksState, nps: npsState, serviceMonths: monthsState } = useHubData();
+    matters: mattersState, entitlements: entitlementsState, links: linksState, nps: npsState, serviceMonths: monthsState, stock: stockState, genius: geniusState } = useHubData();
   const [actionError, setActionError] = React.useState<string | undefined>();
   const [deciding, setDeciding] = React.useState<{ row: IPendingApproval; decision: ApprovalStatus.APPROVED | ApprovalStatus.REJECTED } | undefined>();
 
@@ -85,6 +87,10 @@ const Dashboard: React.FC = () => {
   const entitlementsToAttend = entitlementsState.items.filter(e => needsEntitlementAttention(e, now));
   const lapsedEntitlements = entitlementsToAttend.filter(e => entitlementAlert(e, now).alert === 'LAPSED');
   const pinnedLinks = linksState.items.filter(l => l.pinned);
+  const lowStock = stockState.items.filter(i => stockLevel(i) === 'LOW');
+  const lateOrders = stockState.items.filter(i => isOrderLate(i, now));
+  const lateSessions = geniusState.items.filter(g => isSessionLate(g, now));
+  const plannedSessions = geniusState.items.filter(g => g.status === GeniusStatus.PLANNED && !isSessionLate(g, now));
   const recentNps = npsBreakdown(responsesInLastDays(npsState.items, 90, now));
   const callsPending = npsState.items.filter(isCallPending);
   const callsOverdue = npsState.items.filter(r => isCallOverdue(r, now));
@@ -162,6 +168,15 @@ const Dashboard: React.FC = () => {
   }));
 
   const attention: string[] = [];
+  if (lowStock.length > 0) {
+    attention.push(t('dashboard.attentionStock', { count: lowStock.length }));
+  }
+  if (lateOrders.length > 0) {
+    attention.push(t('dashboard.attentionOrders', { count: lateOrders.length }));
+  }
+  if (lateSessions.length > 0) {
+    attention.push(t('dashboard.attentionGenius', { count: lateSessions.length }));
+  }
   if (callsOverdue.length > 0) {
     attention.push(t('dashboard.attentionCalls', { count: callsOverdue.length, days: AppConfig.service.npsFollowUpDays }));
   }
@@ -221,7 +236,7 @@ const Dashboard: React.FC = () => {
   }
 
   const hasLoading = ideasState.loading || initiativesState.loading || projectsState.loading || actionsState.loading || risksState.loading || budgetsState.loading || contractsState.loading || incidentsState.loading || kpisState.loading;
-  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, mattersState.error, entitlementsState.error, linksState.error, npsState.error, monthsState.error, actionError].filter(Boolean);
+  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, mattersState.error, entitlementsState.error, linksState.error, npsState.error, monthsState.error, stockState.error, geniusState.error, actionError].filter(Boolean);
 
   return (
     <Stack tokens={{ childrenGap: 20 }}>
@@ -238,6 +253,8 @@ const Dashboard: React.FC = () => {
         <KpiTile label={t('dashboard.mattersOverdue')} value={overdueMatters.length} tone={overdueMatters.length > 0 ? 'danger' : 'good'} />
         {recentNps.score !== undefined && <KpiTile label={t('dashboard.nps')} value={recentNps.score} tone="info" />}
         <KpiTile label={t('dashboard.detractorsToCall')} value={callsPending.length} tone={callsOverdue.length > 0 ? 'danger' : callsPending.length > 0 ? 'warning' : 'good'} />
+        <KpiTile label={t('dashboard.lowStock')} value={lowStock.length} tone={lowStock.length > 0 ? 'danger' : lateOrders.length > 0 ? 'warning' : 'good'} />
+        <KpiTile label={t('dashboard.geniusPlanned')} value={plannedSessions.length} tone="info" />
         <KpiTile label={t('dashboard.entitlementsToRenew')} value={entitlementsToAttend.length} tone={lapsedEntitlements.length > 0 ? 'danger' : entitlementsToAttend.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.activeIdeas')} value={activeIdeas} tone="info" />
         <KpiTile label={t('dashboard.activeInitiatives')} value={activeInitiatives} tone="info" />

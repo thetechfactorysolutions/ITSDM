@@ -1320,5 +1320,127 @@
    "Guidance": "It is a request with its tasks, not an incident.",
    "Status": "ACTIVE"
   }
+ ],
+ "IT_30_Stock": [
+  {
+   "Title": "Standard laptops, Spain",
+   "StockId": "STK-DEMO-001",
+   "Category": "LAPTOP",
+   "Country": "ES",
+   "OnHand": 95,
+   "MinLevel": 100,
+   "InUse": 900,
+   "OnOrder": 0,
+   "UnitCost": 1100,
+   "Ownership": "RENTED",
+   "VendorId": "VEN-DEMO-001",
+   "Status": "ACTIVE",
+   "Notes": "Sample product."
+  },
+  {
+   "Title": "iPad mini for the retail counters",
+   "StockId": "STK-DEMO-002",
+   "Category": "TABLET",
+   "Country": "ES",
+   "OnHand": 0,
+   "MinLevel": 0,
+   "InUse": 0,
+   "OnOrder": 270,
+   "UnitCost": 560,
+   "Ownership": "PURCHASED",
+   "VendorId": "",
+   "Status": "ACTIVE",
+   "Notes": "Sample product.",
+   "ExpectedOn": "@day:60"
+  },
+  {
+   "Title": "Headsets",
+   "StockId": "STK-DEMO-003",
+   "Category": "HEADSET",
+   "Country": "ES",
+   "OnHand": 40,
+   "MinLevel": 30,
+   "InUse": 600,
+   "OnOrder": 0,
+   "UnitCost": 85,
+   "Ownership": "PURCHASED",
+   "VendorId": "",
+   "Status": "ACTIVE",
+   "Notes": "Sample product."
+  },
+  {
+   "Title": "Standard laptops, Portugal",
+   "StockId": "STK-DEMO-004",
+   "Category": "LAPTOP",
+   "Country": "PT",
+   "OnHand": 20,
+   "MinLevel": 25,
+   "InUse": 170,
+   "OnOrder": 30,
+   "UnitCost": 1100,
+   "Ownership": "RENTED",
+   "VendorId": "VEN-DEMO-001",
+   "Status": "ACTIVE",
+   "Notes": "Sample product.",
+   "ExpectedOn": "@day:-10"
+  }
+ ],
+ "IT_31_GeniusSessions": [
+  {
+   "Title": "Free up space with OneDrive",
+   "SessionId": "GEN-DEMO-001",
+   "SessionType": "CORNER",
+   "Topic": "OneDrive space",
+   "Status": "DELIVERED",
+   "Audience": "All staff",
+   "OwnerUPN": "demo.owner@example.com",
+   "Invited": 40,
+   "Attended": 18,
+   "CatalogId": "CAT-DEMO-004",
+   "Motivation": "Many users ran out of disk space.",
+   "SessionDate": "@day:-14",
+   "Satisfaction": 4.5
+  },
+  {
+   "Title": "Tip: files on demand",
+   "SessionId": "GEN-DEMO-002",
+   "SessionType": "TIP",
+   "Topic": "OneDrive",
+   "Status": "PLANNED",
+   "Audience": "All staff",
+   "OwnerUPN": "demo.owner@example.com",
+   "Invited": 0,
+   "Attended": 0,
+   "CatalogId": "",
+   "Motivation": "Follows the OneDrive corner.",
+   "SessionDate": "@day:7"
+  },
+  {
+   "Title": "Open session: ask IT anything",
+   "SessionId": "GEN-DEMO-003",
+   "SessionType": "ASK_IT",
+   "Topic": "Any question",
+   "Status": "PLANNED",
+   "Audience": "All staff",
+   "OwnerUPN": "demo.owner@example.com",
+   "Invited": 0,
+   "Attended": 0,
+   "CatalogId": "",
+   "Motivation": "",
+   "SessionDate": "@day:-3"
+  },
+  {
+   "Title": "Welcome training for the kiosk team",
+   "SessionId": "GEN-DEMO-004",
+   "SessionType": "ACADEMY",
+   "Topic": "Receiving users",
+   "Status": "IDEA",
+   "Audience": "All staff",
+   "OwnerUPN": "demo.owner@example.com",
+   "Invited": 0,
+   "Attended": 0,
+   "CatalogId": "",
+   "Motivation": "Make the kiosk a place to learn, not a window."
+  }
  ]
 }

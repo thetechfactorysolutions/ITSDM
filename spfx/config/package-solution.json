@@ -64,7 +64,9 @@
             "schema_entitlements.xml",
             "schema_nps.xml",
             "schema_servicemonths.xml",
-            "schema_catalog.xml"
+            "schema_catalog.xml",
+            "schema_stock.xml",
+            "schema_genius.xml"
           ]
         }
       }

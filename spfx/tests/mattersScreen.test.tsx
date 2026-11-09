@@ -55,7 +55,8 @@ const hubFor = (data: IData, rec: IRecorder, service?: Partial<IDataStore>): IHu
     userEmail: 'me@x.com',
     matters: list(data.matters ?? [], rec), areas: list(data.areas ?? []), links: list(data.links ?? [], rec), entitlements: list(data.entitlements ?? [], rec), actions: list(data.actions ?? []),
     ideas: none(), initiatives: none(), projects: none(), meetings: none(), notes: none(), risks: none(), decisions: none(), lessons: none(), reviews: none(), budgets: none(), capex: none(),
-    opex: none(), vendors: none(), contracts: none(), incidents: none(), changes: none(), interactions: none(), kpis: none(), skills: none(), trainings: none(), articles: none()
+    opex: none(), vendors: none(), contracts: none(), incidents: none(), changes: none(), interactions: none(), kpis: none(), skills: none(), trainings: none(), articles: none(),
+    stock: none(), genius: none()
   };
 };
 

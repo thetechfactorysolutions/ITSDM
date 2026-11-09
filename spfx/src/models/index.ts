@@ -25,3 +25,5 @@ export * from './Area';
 export * from './LinkItem';
 export * from './Entitlement';
 export * from './Service';
+export * from './Stock';
+export * from './Genius';

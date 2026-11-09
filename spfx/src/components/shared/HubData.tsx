@@ -3,12 +3,12 @@ import { AppConfig } from '../../config/AppConfig';
 import { EXPAND_EDITOR, SELECT } from '../../entities/payloads';
 import { IListHookState, useListItems } from '../../hooks/useListItems';
 import {
-  ActionItem, Area, Article, Budget, CatalogEntry, NpsResponse, ServiceMonth, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, Budget, CatalogEntry, GeniusSession, NpsResponse, ServiceMonth, StockItem, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../../models';
 import { IDataStore, IQueryOptions } from '../../data/IDataStore';
 import {
   mapAction, mapBudget, mapCapex, mapChange, mapContract, mapDecision, mapIdea, mapIncident, mapInitiative, mapInteraction, mapKpi, mapLesson, mapMeeting, mapNote, mapOpex, mapProject,
-  mapArea, mapArticle, mapCatalog, mapNps, mapServiceMonth, mapEntitlement, mapLink, mapMatter, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
+  mapArea, mapArticle, mapCatalog, mapGenius, mapStock, mapNps, mapServiceMonth, mapEntitlement, mapLink, mapMatter, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
 } from './mappers';
 
 export interface IHubData {
@@ -43,6 +43,8 @@ export interface IHubData {
   nps: IListHookState<NpsResponse>;
   serviceMonths: IListHookState<ServiceMonth>;
   catalog: IListHookState<CatalogEntry>;
+  stock: IListHookState<StockItem>;
+  genius: IListHookState<GeniusSession>;
 }
 
 export const HubDataContext = React.createContext<IHubData | undefined>(undefined);
@@ -85,6 +87,8 @@ const ENTITLEMENTS_QUERY = query(SELECT.entitlements);
 const NPS_QUERY = query(SELECT.nps);
 const SERVICE_MONTHS_QUERY = query(SELECT.serviceMonths);
 const CATALOG_QUERY = query(SELECT.catalog);
+const STOCK_QUERY = query(SELECT.stock);
+const GENIUS_QUERY = query(SELECT.genius);
 
 /**
  * Loads each list once for the whole web part. Every tab reads the same state, so switching
@@ -122,6 +126,8 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEm
   const nps = useListItems<NpsResponse>(service, listNames.nps, mapNps, NPS_QUERY);
   const serviceMonths = useListItems<ServiceMonth>(service, listNames.serviceMonths, mapServiceMonth, SERVICE_MONTHS_QUERY);
   const catalog = useListItems<CatalogEntry>(service, listNames.catalog, mapCatalog, CATALOG_QUERY);
+  const stock = useListItems<StockItem>(service, listNames.stock, mapStock, STOCK_QUERY);
+  const genius = useListItems<GeniusSession>(service, listNames.genius, mapGenius, GENIUS_QUERY);
 
   const value: IHubData = {
     service,
@@ -154,7 +160,9 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEm
     entitlements,
     nps,
     serviceMonths,
-    catalog
+    catalog,
+    stock,
+    genius
   };
 
   return <HubDataContext.Provider value={value}>{children}</HubDataContext.Provider>;

@@ -2,7 +2,9 @@ import * as React from 'react';
 import { Pivot, PivotItem, Stack, Text } from '@fluentui/react';
 import { AppConfig } from '../../config/AppConfig';
 import Dashboard from '../Dashboard/Dashboard';
+import Stock from '../Devices/Stock';
 import Finance from '../Finance/Finance';
+import Genius from '../Genius/Genius';
 import Governance from '../Governance/Governance';
 import Help from '../Help/Help';
 import Ideas from '../Ideas/Ideas';
@@ -46,6 +48,8 @@ const HubTabs: React.FC<{ description: string }> = ({ description }) => {
         <PivotItem headerText={t('nav.vendorsTab')}><VendorsTab /></PivotItem>
         <PivotItem headerText={t('nav.operations')}><Operations /></PivotItem>
         <PivotItem headerText={t('nav.people')}><PeopleTab /></PivotItem>
+        <PivotItem headerText={t('nav.devices')}><Stock /></PivotItem>
+        <PivotItem headerText={t('nav.genius')}><Genius /></PivotItem>
         <PivotItem headerText={t('nav.governance')}><Governance /></PivotItem>
         <PivotItem headerText={t('nav.notes')}><Notes /></PivotItem>
         <PivotItem headerText={t('nav.import')}><Import /></PivotItem>

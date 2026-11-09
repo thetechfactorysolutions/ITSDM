@@ -28,6 +28,8 @@ export interface ISharePointListMap {
   nps: string;
   serviceMonths: string;
   catalog: string;
+  stock: string;
+  genius: string;
 }
 
 export interface IAppConfig {
@@ -105,7 +107,9 @@ export const AppConfig: IAppConfig = {
       entitlements: 'IT_26_Entitlements',
       nps: 'IT_27_NpsResponses',
       serviceMonths: 'IT_28_ServiceMonths',
-      catalog: 'IT_29_Catalog'
+      catalog: 'IT_29_Catalog',
+      stock: 'IT_30_Stock',
+      genius: 'IT_31_GeniusSessions'
     }
   },
   service: {

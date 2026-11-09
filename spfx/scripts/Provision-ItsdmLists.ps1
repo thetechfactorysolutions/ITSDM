@@ -301,6 +301,19 @@ $catalog = @(
   @{ Name = 'ArticleId'; Type = 'Text' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'ACTIVE', 'ARCHIVED' }
 )
 
+$stock = @(
+  @{ Name = 'StockId'; Type = 'Text' }, @{ Name = 'Category'; Type = 'Choice'; Choices = 'LAPTOP', 'TABLET', 'PHONE', 'MONITOR', 'HEADSET', 'ACCESSORY', 'NETWORK', 'OTHER' },
+  @{ Name = 'Country'; Type = 'Choice'; Choices = 'ES', 'PT', 'OTHER' }, @{ Name = 'OnHand'; Type = 'Number' }, @{ Name = 'MinLevel'; Type = 'Number' }, @{ Name = 'InUse'; Type = 'Number' },
+  @{ Name = 'OnOrder'; Type = 'Number' }, @{ Name = 'ExpectedOn'; Type = 'Date' }, @{ Name = 'UnitCost'; Type = 'Number' }, @{ Name = 'Ownership'; Type = 'Choice'; Choices = 'RENTED', 'PURCHASED' },
+  @{ Name = 'VendorId'; Type = 'Text' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'ACTIVE', 'ARCHIVED' }, @{ Name = 'Notes'; Type = 'Note' }
+)
+$genius = @(
+  @{ Name = 'SessionId'; Type = 'Text' }, @{ Name = 'SessionType'; Type = 'Choice'; Choices = 'CORNER', 'TIP', 'ACADEMY', 'CHALLENGE', 'ASK_IT' }, @{ Name = 'Topic'; Type = 'Text' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'IDEA', 'PLANNED', 'DELIVERED', 'CANCELLED' }, @{ Name = 'SessionDate'; Type = 'Date' }, @{ Name = 'Audience'; Type = 'Text' },
+  @{ Name = 'OwnerUPN'; Type = 'Text' }, @{ Name = 'Invited'; Type = 'Number' }, @{ Name = 'Attended'; Type = 'Number' }, @{ Name = 'Satisfaction'; Type = 'Number'; Extra = 'Min="0" Max="5"' },
+  @{ Name = 'MaterialUrl'; Type = 'Note' }, @{ Name = 'ArticleId'; Type = 'Text' }, @{ Name = 'CatalogId'; Type = 'Text' }, @{ Name = 'Motivation'; Type = 'Note' }
+)
+
 # Same seven approval columns on the four main lists (see src/rules/approvals.ts).
 $approval = @(
   @{ Name = 'ApprovalRule'; Type = 'Text' },
@@ -349,6 +362,8 @@ Initialize-ItsdmList -Title 'IT_26_Entitlements' -Fields $entitlements
 Initialize-ItsdmList -Title 'IT_27_NpsResponses' -Fields $nps
 Initialize-ItsdmList -Title 'IT_28_ServiceMonths' -Fields $serviceMonths
 Initialize-ItsdmList -Title 'IT_29_Catalog'     -Fields $catalog
+Initialize-ItsdmList -Title 'IT_30_Stock'       -Fields $stock
+Initialize-ItsdmList -Title 'IT_31_GeniusSessions' -Fields $genius
 
 # ---------- sample data ----------
 if ($SkipSampleData) {

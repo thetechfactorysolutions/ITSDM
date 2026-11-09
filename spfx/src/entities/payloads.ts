@@ -1,5 +1,5 @@
 import {
-  ActionItem, Area, Article, Budget, CatalogEntry, NpsResponse, ServiceMonth, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, Budget, CatalogEntry, GeniusSession, NpsResponse, ServiceMonth, StockItem, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
@@ -442,6 +442,42 @@ export const buildCatalogPayload = (entry: CatalogEntry): Record<string, unknown
   Status: entry.status
 });
 
+export const buildStockPayload = (item: StockItem): Record<string, unknown> => ({
+  Title: item.title.trim(),
+  StockId: item.stockId,
+  Category: item.category,
+  Country: item.country,
+  OnHand: item.onHand,
+  MinLevel: item.minLevel,
+  InUse: item.inUse,
+  OnOrder: item.onOrder,
+  ExpectedOn: dayKeyToSharePoint(item.expectedOn),
+  UnitCost: item.unitCost,
+  Ownership: item.ownership,
+  VendorId: item.vendorId ?? '',
+  Status: item.status,
+  Notes: item.notes
+});
+
+export const buildGeniusPayload = (session: GeniusSession): Record<string, unknown> => ({
+  Title: session.title.trim(),
+  SessionId: session.sessionId,
+  SessionType: session.type,
+  Topic: session.topic,
+  Status: session.status,
+  SessionDate: dayKeyToSharePoint(session.sessionDate),
+  Audience: session.audience,
+  OwnerUPN: session.ownerUpn,
+  Invited: session.invited,
+  Attended: session.attended,
+  // null clears the column: a session nobody rated must not be read back as a zero rating.
+  Satisfaction: session.satisfaction === undefined ? null : session.satisfaction,
+  MaterialUrl: session.materialUrl.trim(),
+  ArticleId: session.articleId ?? '',
+  CatalogId: session.catalogId ?? '',
+  Motivation: session.motivation
+});
+
 export const SELECT = {
   ideas: ['Id', 'Title', 'IdeaId', 'Description', 'Status', 'OwnerUPN', 'SponsorUPN', 'EstimatedValue', 'TargetDate', 'Tags', 'ConvertedInitiativeId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   initiatives: ['Id', 'Title', 'InitiativeId', 'Description', 'Status', 'OwnerUPN', 'ProgressPct', 'TargetDate', 'SourceIdeaId', 'PlannerPlanId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
@@ -471,7 +507,9 @@ export const SELECT = {
   entitlements: ['Id', 'Title', 'EntitlementId', 'EntitlementType', 'Status', 'Product', 'Reference', 'Quantity', 'StartDate', 'EndDate', 'NoticeDays', 'AnnualCost', 'VendorId', 'ContractId', 'OwnerUPN', 'Notes', 'Created', 'Modified', 'Editor/Title'],
   nps: ['Id', 'Title', 'ResponseId', 'Score', 'Comment', 'RespondedOn', 'Channel', 'Country', 'TicketRef', 'Status', 'FollowUpDate', 'FollowUpNotes', 'OwnerUPN', 'Created', 'Modified', 'Editor/Title'],
   serviceMonths: ['Id', 'Title', 'MonthId', 'Period', 'Country', 'Incidents', 'Interactions', 'Requests', 'Calls', 'Users', 'SlaPct', 'NpsScore', 'NpsResponses', 'Backlog', 'Notes', 'Created', 'Modified', 'Editor/Title'],
-  catalog: ['Id', 'Title', 'CatalogId', 'Category', 'Kind', 'Keywords', 'Guidance', 'ArticleId', 'Status', 'Created', 'Modified', 'Editor/Title']
+  catalog: ['Id', 'Title', 'CatalogId', 'Category', 'Kind', 'Keywords', 'Guidance', 'ArticleId', 'Status', 'Created', 'Modified', 'Editor/Title'],
+  stock: ['Id', 'Title', 'StockId', 'Category', 'Country', 'OnHand', 'MinLevel', 'InUse', 'OnOrder', 'ExpectedOn', 'UnitCost', 'Ownership', 'VendorId', 'Status', 'Notes', 'Created', 'Modified', 'Editor/Title'],
+  genius: ['Id', 'Title', 'SessionId', 'SessionType', 'Topic', 'Status', 'SessionDate', 'Audience', 'OwnerUPN', 'Invited', 'Attended', 'Satisfaction', 'MaterialUrl', 'ArticleId', 'CatalogId', 'Motivation', 'Created', 'Modified', 'Editor/Title']
 };
 
 export const EXPAND_EDITOR = ['Editor'];

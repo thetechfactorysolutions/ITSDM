@@ -167,7 +167,11 @@
     IT_28_ServiceMonths: [T('MonthId'), D('Period'), C('Country', ['ES', 'PT', 'OTHER']), NUM('Incidents'), NUM('Interactions'), NUM('Requests'), NUM('Calls'), NUM('Users'),
       NUM('SlaPct', 'Min="0" Max="100"'), NUM('NpsScore', 'Min="-100" Max="100"'), NUM('NpsResponses'), NUM('Backlog'), N('Notes')],
     IT_29_Catalog: [T('CatalogId'), C('Category', ['ACCESS', 'EMAIL_TEAMS', 'ONEDRIVE_SHAREPOINT', 'DEVICE', 'ACCESSORY', 'APPLICATION', 'NETWORK_WIFI', 'HOW_TO', 'LOCATION_PEOPLE', 'OTHER']),
-      C('Kind', ['INCIDENT', 'INTERACTION', 'REQUEST']), N('Keywords'), N('Guidance'), T('ArticleId'), C('Status', ['ACTIVE', 'ARCHIVED'])]
+      C('Kind', ['INCIDENT', 'INTERACTION', 'REQUEST']), N('Keywords'), N('Guidance'), T('ArticleId'), C('Status', ['ACTIVE', 'ARCHIVED'])],
+    IT_30_Stock: [T('StockId'), C('Category', ['LAPTOP', 'TABLET', 'PHONE', 'MONITOR', 'HEADSET', 'ACCESSORY', 'NETWORK', 'OTHER']), C('Country', ['ES', 'PT', 'OTHER']), NUM('OnHand'), NUM('MinLevel'),
+      NUM('InUse'), NUM('OnOrder'), D('ExpectedOn'), NUM('UnitCost'), C('Ownership', ['RENTED', 'PURCHASED']), T('VendorId'), C('Status', ['ACTIVE', 'ARCHIVED']), N('Notes')],
+    IT_31_GeniusSessions: [T('SessionId'), C('SessionType', ['CORNER', 'TIP', 'ACADEMY', 'CHALLENGE', 'ASK_IT']), T('Topic'), C('Status', ['IDEA', 'PLANNED', 'DELIVERED', 'CANCELLED']), D('SessionDate'), T('Audience'),
+      T('OwnerUPN'), NUM('Invited'), NUM('Attended'), NUM('Satisfaction', 'Min="0" Max="5"'), N('MaterialUrl'), T('ArticleId'), T('CatalogId'), N('Motivation')]
   };
 
   // Same seven approval columns on the four main lists (see src/rules/approvals.ts).

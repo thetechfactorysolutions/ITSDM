@@ -1,6 +1,6 @@
 import {
-  ActionItem, ActionStatus, Article, ArticleStatus, ChangeRequest, ChangeStatus, Contract, ContractStatus, Entitlement, EntitlementStatus, Incident, Interaction, InteractionStatus,
-  Matter, Project, ProjectStatus, Review, ReviewStatus, Risk, Skill, Training, TrainingStatus
+  ActionItem, ActionStatus, Article, ArticleStatus, ChangeRequest, ChangeStatus, Contract, ContractStatus, Entitlement, EntitlementStatus, GeniusSession, GeniusStatus, Incident, Interaction, InteractionStatus,
+  Matter, Project, StockItem, StockStatus, ProjectStatus, Review, ReviewStatus, Risk, Skill, Training, TrainingStatus
 } from '../models';
 import { addDays, dayKeyFromValue, fromDayKey, toDayKey } from './dates';
 import { daysBetween } from './finance';
@@ -13,7 +13,7 @@ import { isActiveSkill } from './people';
 
 export type AgendaKind =
   | 'MATTER' | 'ACTION' | 'CONTRACT_RENEWAL' | 'CONTRACT_END' | 'ENTITLEMENT_RENEWAL' | 'ENTITLEMENT_END' | 'FOLLOW_UP' | 'REVIEW' | 'RISK'
-  | 'TRAINING' | 'CERTIFICATION' | 'PROJECT_END' | 'ARTICLE_REVIEW' | 'CHANGE' | 'INCIDENT';
+  | 'TRAINING' | 'CERTIFICATION' | 'PROJECT_END' | 'ARTICLE_REVIEW' | 'CHANGE' | 'INCIDENT' | 'STOCK_ARRIVAL' | 'GENIUS';
 
 /** How close the date is: past, today, within the next 7 days, or later. */
 export type AgendaUrgency = 'OVERDUE' | 'TODAY' | 'SOON' | 'LATER';
@@ -42,11 +42,13 @@ export interface IAgendaInput {
   articles: Article[];
   changes: ChangeRequest[];
   incidents: Incident[];
+  stock: StockItem[];
+  genius: GeniusSession[];
 }
 
 export const AGENDA_KINDS: AgendaKind[] = [
   'MATTER', 'ACTION', 'INCIDENT', 'CONTRACT_RENEWAL', 'CONTRACT_END', 'ENTITLEMENT_RENEWAL', 'ENTITLEMENT_END', 'FOLLOW_UP', 'REVIEW', 'RISK', 'CHANGE',
-  'PROJECT_END', 'TRAINING', 'CERTIFICATION', 'ARTICLE_REVIEW'
+  'PROJECT_END', 'STOCK_ARRIVAL', 'GENIUS', 'TRAINING', 'CERTIFICATION', 'ARTICLE_REVIEW'
 ];
 
 /** Days ahead that count as "soon". */
@@ -104,6 +106,8 @@ export const buildAgenda = (input: IAgendaInput, now: Date = new Date()): IAgend
   input.projects.filter(p => p.status !== ProjectStatus.COMPLETED && p.status !== ProjectStatus.CANCELLED).forEach(p => add('PROJECT_END', p.projectId, p.title, p.endDate));
   input.trainings.filter(t => t.status !== TrainingStatus.COMPLETED && t.status !== TrainingStatus.CANCELLED).forEach(t => add('TRAINING', t.trainingId, t.title, t.dueDate));
   input.skills.filter(s => isActiveSkill(s) && s.certification.trim()).forEach(s => add('CERTIFICATION', s.skillId, `${s.certification} · ${s.title}`, s.certificationExpiry));
+  input.stock.filter(i => i.status === StockStatus.ACTIVE && i.onOrder > 0).forEach(i => add('STOCK_ARRIVAL', i.stockId, `${i.title} (${i.onOrder})`, i.expectedOn));
+  input.genius.filter(g => g.status === GeniusStatus.PLANNED).forEach(g => add('GENIUS', g.sessionId, g.title, g.sessionDate));
   input.articles.filter(a => a.status === ArticleStatus.PUBLISHED).forEach(a => add('ARTICLE_REVIEW', a.articleId, a.title, a.reviewDate));
 
   const order = (kind: AgendaKind): number => AGENDA_KINDS.indexOf(kind);

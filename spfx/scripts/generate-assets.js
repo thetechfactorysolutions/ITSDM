@@ -440,6 +440,37 @@ const LISTS = [
       ['OneDrive full or not syncing', 'CAT-DEMO-004', 'ONEDRIVE_SHAREPOINT', 'INCIDENT', 'onedrive, espacio, disco lleno, sincroniza', 'Free space (files on demand, temporary files). Record an incident.'],
       ['New starter equipment and mailbox', 'CAT-DEMO-005', 'DEVICE', 'REQUEST', 'onboarding, alta, nuevo empleado, nueva incorporación', 'It is a request with its tasks, not an incident.']
     ].map(([t, id, cat, kind, words, guidance]) => ({ Title: t, CatalogId: id, Category: cat, Kind: kind, Keywords: words, Guidance: guidance, Status: 'ACTIVE' }))
+  },
+  {
+    title: 'IT_30_Stock', file: 'schema_stock.xml', description: 'Devices by type: on the shelf, in use and on order, with an alarm level',
+    fields: [T('StockId'), C('Category', ['LAPTOP', 'TABLET', 'PHONE', 'MONITOR', 'HEADSET', 'ACCESSORY', 'NETWORK', 'OTHER']), C('Country', ['ES', 'PT', 'OTHER']), NUM('OnHand'), NUM('MinLevel'),
+      NUM('InUse'), NUM('OnOrder'), D('ExpectedOn'), NUM('UnitCost'), C('Ownership', ['RENTED', 'PURCHASED']), T('VendorId'), C('Status', ['ACTIVE', 'ARCHIVED']), N('Notes')],
+    rows: (day) => [
+      ['Standard laptops, Spain', 'STK-DEMO-001', 'LAPTOP', 'ES', 95, 100, 900, 0, null, 1100, 'RENTED', 'VEN-DEMO-001'],
+      ['iPad mini for the retail counters', 'STK-DEMO-002', 'TABLET', 'ES', 0, 0, 0, 270, 60, 560, 'PURCHASED', ''],
+      ['Headsets', 'STK-DEMO-003', 'HEADSET', 'ES', 40, 30, 600, 0, null, 85, 'PURCHASED', ''],
+      ['Standard laptops, Portugal', 'STK-DEMO-004', 'LAPTOP', 'PT', 20, 25, 170, 30, -10, 1100, 'RENTED', 'VEN-DEMO-001']
+    ].map(([t, id, cat, country, onHand, min, inUse, onOrder, expected, cost, ownership, ven]) => {
+      const row = { Title: t, StockId: id, Category: cat, Country: country, OnHand: onHand, MinLevel: min, InUse: inUse, OnOrder: onOrder, UnitCost: cost, Ownership: ownership, VendorId: ven, Status: 'ACTIVE', Notes: 'Sample product.' };
+      if (expected !== null) { row.ExpectedOn = day(expected); }
+      return row;
+    })
+  },
+  {
+    title: 'IT_31_GeniusSessions', file: 'schema_genius.xml', description: 'Genius Help Desk sessions: corners, tips, academy, challenges and open sessions',
+    fields: [T('SessionId'), C('SessionType', ['CORNER', 'TIP', 'ACADEMY', 'CHALLENGE', 'ASK_IT']), T('Topic'), C('Status', ['IDEA', 'PLANNED', 'DELIVERED', 'CANCELLED']), D('SessionDate'), T('Audience'), T('OwnerUPN'),
+      NUM('Invited'), NUM('Attended'), NUM('Satisfaction', 'Min="0" Max="5"'), N('MaterialUrl'), T('ArticleId'), T('CatalogId'), N('Motivation')],
+    rows: (day) => [
+      ['Free up space with OneDrive', 'GEN-DEMO-001', 'CORNER', 'OneDrive space', 'DELIVERED', -14, 40, 18, 4.5, 'CAT-DEMO-004', 'Many users ran out of disk space.'],
+      ['Tip: files on demand', 'GEN-DEMO-002', 'TIP', 'OneDrive', 'PLANNED', 7, 0, 0, null, '', 'Follows the OneDrive corner.'],
+      ['Open session: ask IT anything', 'GEN-DEMO-003', 'ASK_IT', 'Any question', 'PLANNED', -3, 0, 0, null, '', ''],
+      ['Welcome training for the kiosk team', 'GEN-DEMO-004', 'ACADEMY', 'Receiving users', 'IDEA', null, 0, 0, null, '', 'Make the kiosk a place to learn, not a window.']
+    ].map(([t, id, type, topic, st, date, invited, attended, sat, cat, why]) => {
+      const row = { Title: t, SessionId: id, SessionType: type, Topic: topic, Status: st, Audience: 'All staff', OwnerUPN: SAMPLE_OWNER, Invited: invited, Attended: attended, CatalogId: cat, Motivation: why };
+      if (date !== null) { row.SessionDate = day(date); }
+      if (sat !== null) { row.Satisfaction = sat; }
+      return row;
+    })
   }
 ];
 

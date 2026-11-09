@@ -1,4 +1,5 @@
 import {
+  GeniusSession, GeniusStatus, GeniusType, StockCategory, StockItem, StockOwnership, StockStatus,
   CatalogCategory, CatalogEntry, CatalogKind, CatalogStatus, Country, NpsChannel, NpsFollowUp, NpsResponse, ServiceMonth,
   Area, AreaStatus, Entitlement, EntitlementStatus, EntitlementType, LinkItem, LinkStatus, Matter, MatterPriority, MatterSource, MatterStatus,
   ActionItem, ActionPriority, ActionStatus, Article, ArticleCategory, ArticleStatus, Skill, SkillCategory, SkillLevel, SkillStatus, Training, TrainingStatus, TrainingType, ApprovalStatus, AutoRenew, ChangeRequest, ChangeStatus, ChangeType, Incident, IncidentCategory, IncidentSeverity, IncidentStatus,
@@ -590,6 +591,49 @@ export const mapCatalog = (item: Record<string, unknown>): CatalogEntry => ({
   guidance: readString(item, 'Guidance'),
   articleId: readString(item, 'ArticleId'),
   status: readEnum(item, 'Status', enumValues(CatalogStatus), CatalogStatus.ACTIVE),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapStock = (item: Record<string, unknown>): StockItem => ({
+  id: readId(item),
+  stockId: readString(item, 'StockId'),
+  title: readString(item, 'Title'),
+  category: readEnum(item, 'Category', enumValues(StockCategory), StockCategory.OTHER),
+  country: readEnum(item, 'Country', enumValues(Country), Country.ES),
+  onHand: readNumber(item, 'OnHand'),
+  minLevel: readNumber(item, 'MinLevel'),
+  inUse: readNumber(item, 'InUse'),
+  onOrder: readNumber(item, 'OnOrder'),
+  expectedOn: readDate(item, 'ExpectedOn'),
+  unitCost: readNumber(item, 'UnitCost'),
+  ownership: readEnum(item, 'Ownership', enumValues(StockOwnership), StockOwnership.RENTED),
+  vendorId: readString(item, 'VendorId'),
+  status: readEnum(item, 'Status', enumValues(StockStatus), StockStatus.ACTIVE),
+  notes: readString(item, 'Notes'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapGenius = (item: Record<string, unknown>): GeniusSession => ({
+  id: readId(item),
+  sessionId: readString(item, 'SessionId'),
+  title: readString(item, 'Title'),
+  type: readEnum(item, 'SessionType', enumValues(GeniusType), GeniusType.CORNER),
+  topic: readString(item, 'Topic'),
+  status: readEnum(item, 'Status', enumValues(GeniusStatus), GeniusStatus.IDEA),
+  sessionDate: readDate(item, 'SessionDate'),
+  audience: readString(item, 'Audience'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  invited: readNumber(item, 'Invited'),
+  attended: readNumber(item, 'Attended'),
+  satisfaction: readOptionalNumber(item, 'Satisfaction'),
+  materialUrl: readString(item, 'MaterialUrl'),
+  articleId: readString(item, 'ArticleId'),
+  catalogId: readString(item, 'CatalogId'),
+  motivation: readString(item, 'Motivation'),
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
   editor: readExpandedTitle(item, 'Editor')

@@ -1,5 +1,5 @@
 import {
-  ActionItem, Area, Article, Budget, CatalogEntry, NpsResponse, ServiceMonth, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, MatterStatus, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, Budget, CatalogEntry, GeniusSession, NpsResponse, ServiceMonth, StockItem, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, MatterStatus, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { isValidDayKey } from './dates';
 import { isSafeUrl } from './matters';
@@ -382,5 +382,36 @@ export const validateServiceMonth = (month: ServiceMonth): ValidationErrors => {
 export const validateCatalog = (entry: CatalogEntry): ValidationErrors => {
   const errors: ValidationErrors = {};
   validateTitle(errors, entry.title);
+  return errors;
+};
+
+export const validateStock = (item: StockItem): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, item.title);
+  validateNonNegative(errors, 'onHand', item.onHand);
+  validateNonNegative(errors, 'minLevel', item.minLevel);
+  validateNonNegative(errors, 'inUse', item.inUse);
+  validateNonNegative(errors, 'onOrder', item.onOrder);
+  validateNonNegative(errors, 'unitCost', item.unitCost);
+  validateOptionalDate(errors, 'expectedOn', item.expectedOn);
+  return errors;
+};
+
+export const validateGenius = (session: GeniusSession): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, session.title);
+  validateOptionalDate(errors, 'sessionDate', session.sessionDate);
+  validateNonNegative(errors, 'invited', session.invited);
+  validateNonNegative(errors, 'attended', session.attended);
+  if (!errors.invited && !errors.attended && session.invited > 0 && session.attended > session.invited) {
+    errors.attended = 'validation.attendedAboveInvited';
+  }
+  if (session.satisfaction !== undefined && (!isFinite(session.satisfaction) || session.satisfaction < 0 || session.satisfaction > 5)) {
+    errors.satisfaction = 'validation.satisfactionRange';
+  }
+  if (session.materialUrl.trim().length > 0 && !isSafeUrl(session.materialUrl)) {
+    errors.materialUrl = 'validation.urlInvalid';
+  }
+  validateOptionalEmail(errors, 'ownerUpn', session.ownerUpn, 'validation.ownerInvalid');
   return errors;
 };

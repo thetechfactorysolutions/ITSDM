@@ -37,9 +37,10 @@ const Agenda: React.FC = () => {
 
   const events = React.useMemo(() => buildAgenda({
     matters: hub.matters.items, actions: hub.actions.items, contracts: hub.contracts.items, entitlements: hub.entitlements.items, interactions: hub.interactions.items, reviews: hub.reviews.items,
-    risks: hub.risks.items, trainings: hub.trainings.items, skills: hub.skills.items, projects: hub.projects.items, articles: hub.articles.items, changes: hub.changes.items, incidents: hub.incidents.items
+    risks: hub.risks.items, trainings: hub.trainings.items, skills: hub.skills.items, projects: hub.projects.items, articles: hub.articles.items, changes: hub.changes.items, incidents: hub.incidents.items,
+    stock: hub.stock.items, genius: hub.genius.items
   }), [hub.matters.items, hub.actions.items, hub.contracts.items, hub.entitlements.items, hub.interactions.items, hub.reviews.items, hub.risks.items, hub.trainings.items, hub.skills.items,
-    hub.projects.items, hub.articles.items, hub.changes.items, hub.incidents.items]);
+    hub.projects.items, hub.articles.items, hub.changes.items, hub.incidents.items, hub.stock.items, hub.genius.items]);
 
   const shown = kind ? events.filter(e => e.kind === kind) : events;
   const byDay = eventsByDay(shown);
