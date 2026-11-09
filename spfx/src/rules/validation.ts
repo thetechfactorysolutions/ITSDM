@@ -1,8 +1,9 @@
 import {
-  ActionItem, Area, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, MatterStatus, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, Budget, CatalogEntry, NpsResponse, ServiceMonth, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, MatterStatus, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { isValidDayKey } from './dates';
 import { isSafeUrl } from './matters';
+import { isValidNpsScore } from './service';
 
 /** Translation key of the error per field name (e.g. validation.titleRequired); a missing key means the field is valid. */
 export type ValidationErrors = Record<string, string | undefined>;
@@ -343,5 +344,43 @@ export const validateEntitlement = (entitlement: Entitlement): ValidationErrors 
   if (!isFinite(entitlement.noticeDays) || Math.floor(entitlement.noticeDays) !== entitlement.noticeDays || entitlement.noticeDays < 0 || entitlement.noticeDays > 365) {
     errors.noticeDays = 'validation.noticeDaysRange';
   }
+  return errors;
+};
+
+export const validateNps = (response: NpsResponse): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, response.title);
+  if (!isValidNpsScore(response.score)) {
+    errors.score = 'validation.npsScoreRange';
+  }
+  validateOptionalDate(errors, 'respondedOn', response.respondedOn);
+  validateOptionalDate(errors, 'followUpDate', response.followUpDate);
+  validateOptionalEmail(errors, 'ownerUpn', response.ownerUpn, 'validation.ownerInvalid');
+  return errors;
+};
+
+export const validateServiceMonth = (month: ServiceMonth): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, month.title);
+  validateOptionalDate(errors, 'period', month.period);
+  validateNonNegative(errors, 'incidents', month.incidents);
+  validateNonNegative(errors, 'interactions', month.interactions);
+  validateNonNegative(errors, 'requests', month.requests);
+  validateNonNegative(errors, 'calls', month.calls);
+  validateNonNegative(errors, 'users', month.users);
+  validateNonNegative(errors, 'npsResponses', month.npsResponses);
+  validateNonNegative(errors, 'backlog', month.backlog);
+  if (month.slaPct !== undefined && (!isFinite(month.slaPct) || month.slaPct < 0 || month.slaPct > 100)) {
+    errors.slaPct = 'validation.percentRange';
+  }
+  if (month.npsScore !== undefined && (!isFinite(month.npsScore) || month.npsScore < -100 || month.npsScore > 100)) {
+    errors.npsScore = 'validation.npsRange';
+  }
+  return errors;
+};
+
+export const validateCatalog = (entry: CatalogEntry): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, entry.title);
   return errors;
 };

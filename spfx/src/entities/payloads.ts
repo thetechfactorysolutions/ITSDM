@@ -1,5 +1,5 @@
 import {
-  ActionItem, Area, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, Budget, CatalogEntry, NpsResponse, ServiceMonth, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
@@ -398,6 +398,50 @@ export const buildEntitlementPayload = (entitlement: Entitlement): Record<string
   Notes: entitlement.notes
 });
 
+export const buildNpsPayload = (response: NpsResponse): Record<string, unknown> => ({
+  Title: response.title.trim(),
+  ResponseId: response.responseId,
+  Score: response.score,
+  Comment: response.comment,
+  RespondedOn: dayKeyToSharePoint(response.respondedOn),
+  Channel: response.channel,
+  Country: response.country,
+  TicketRef: response.ticketRef,
+  Status: response.status,
+  FollowUpDate: dayKeyToSharePoint(response.followUpDate),
+  FollowUpNotes: response.followUpNotes,
+  OwnerUPN: response.ownerUpn
+});
+
+export const buildServiceMonthPayload = (month: ServiceMonth): Record<string, unknown> => ({
+  Title: month.title.trim(),
+  MonthId: month.monthId,
+  Period: dayKeyToSharePoint(month.period),
+  Country: month.country,
+  Incidents: month.incidents,
+  Interactions: month.interactions,
+  Requests: month.requests,
+  Calls: month.calls,
+  Users: month.users,
+  // null clears the column: a month with no SLA reported must not be read back as zero.
+  SlaPct: month.slaPct === undefined ? null : month.slaPct,
+  NpsScore: month.npsScore === undefined ? null : month.npsScore,
+  NpsResponses: month.npsResponses,
+  Backlog: month.backlog,
+  Notes: month.notes
+});
+
+export const buildCatalogPayload = (entry: CatalogEntry): Record<string, unknown> => ({
+  Title: entry.title.trim(),
+  CatalogId: entry.catalogId,
+  Category: entry.category,
+  Kind: entry.kind,
+  Keywords: entry.keywords,
+  Guidance: entry.guidance,
+  ArticleId: entry.articleId ?? '',
+  Status: entry.status
+});
+
 export const SELECT = {
   ideas: ['Id', 'Title', 'IdeaId', 'Description', 'Status', 'OwnerUPN', 'SponsorUPN', 'EstimatedValue', 'TargetDate', 'Tags', 'ConvertedInitiativeId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   initiatives: ['Id', 'Title', 'InitiativeId', 'Description', 'Status', 'OwnerUPN', 'ProgressPct', 'TargetDate', 'SourceIdeaId', 'PlannerPlanId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
@@ -424,7 +468,10 @@ export const SELECT = {
   matters: ['Id', 'Title', 'MatterId', 'Description', 'Notes', 'Status', 'Priority', 'AreaId', 'Source', 'SourceRef', 'Sender', 'ReceivedOn', 'DueDate', 'ClosedOn', 'OwnerUPN', 'ProjectId', 'ContractId', 'IncidentId', 'VendorId', 'Created', 'Modified', 'Editor/Title'],
   areas: ['Id', 'Title', 'AreaId', 'Description', 'Status', 'SortOrder', 'Created', 'Modified', 'Editor/Title'],
   links: ['Id', 'Title', 'LinkId', 'Url', 'Category', 'Description', 'Pinned', 'Status', 'VendorId', 'Created', 'Modified', 'Editor/Title'],
-  entitlements: ['Id', 'Title', 'EntitlementId', 'EntitlementType', 'Status', 'Product', 'Reference', 'Quantity', 'StartDate', 'EndDate', 'NoticeDays', 'AnnualCost', 'VendorId', 'ContractId', 'OwnerUPN', 'Notes', 'Created', 'Modified', 'Editor/Title']
+  entitlements: ['Id', 'Title', 'EntitlementId', 'EntitlementType', 'Status', 'Product', 'Reference', 'Quantity', 'StartDate', 'EndDate', 'NoticeDays', 'AnnualCost', 'VendorId', 'ContractId', 'OwnerUPN', 'Notes', 'Created', 'Modified', 'Editor/Title'],
+  nps: ['Id', 'Title', 'ResponseId', 'Score', 'Comment', 'RespondedOn', 'Channel', 'Country', 'TicketRef', 'Status', 'FollowUpDate', 'FollowUpNotes', 'OwnerUPN', 'Created', 'Modified', 'Editor/Title'],
+  serviceMonths: ['Id', 'Title', 'MonthId', 'Period', 'Country', 'Incidents', 'Interactions', 'Requests', 'Calls', 'Users', 'SlaPct', 'NpsScore', 'NpsResponses', 'Backlog', 'Notes', 'Created', 'Modified', 'Editor/Title'],
+  catalog: ['Id', 'Title', 'CatalogId', 'Category', 'Kind', 'Keywords', 'Guidance', 'ArticleId', 'Status', 'Created', 'Modified', 'Editor/Title']
 };
 
 export const EXPAND_EDITOR = ['Editor'];

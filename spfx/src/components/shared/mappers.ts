@@ -1,4 +1,5 @@
 import {
+  CatalogCategory, CatalogEntry, CatalogKind, CatalogStatus, Country, NpsChannel, NpsFollowUp, NpsResponse, ServiceMonth,
   Area, AreaStatus, Entitlement, EntitlementStatus, EntitlementType, LinkItem, LinkStatus, Matter, MatterPriority, MatterSource, MatterStatus,
   ActionItem, ActionPriority, ActionStatus, Article, ArticleCategory, ArticleStatus, Skill, SkillCategory, SkillLevel, SkillStatus, Training, TrainingStatus, TrainingType, ApprovalStatus, AutoRenew, ChangeRequest, ChangeStatus, ChangeType, Incident, IncidentCategory, IncidentSeverity, IncidentStatus,
   Interaction, InteractionStatus, InteractionType, Kpi, KpiCategory, KpiDirection, KpiStatus, Budget, BudgetStatus, CapexItem, Contract, ContractStatus, ExpenseStatus, OpexFrequency, OpexItem, Vendor, VendorCategory, VendorStatus, Decision, DecisionStatus, IApprovalState, Idea, Lesson, LessonCategory, LessonStatus, IdeaStatus, Initiative, InitiativeStatus, Meeting, Note, NoteCategory, NoteStatus,
@@ -20,6 +21,10 @@ const readNumber = (item: Record<string, unknown>, key: string): number => {
   const value = item[key];
   return typeof value === 'number' ? value : Number(value ?? 0);
 };
+
+/** A number, or undefined when the column is empty (an empty column is not the same as zero). */
+const readOptionalNumber = (item: Record<string, unknown>, key: string): number | undefined =>
+  item[key] === undefined || item[key] === null || item[key] === '' ? undefined : readNumber(item, key);
 
 const readId = (item: Record<string, unknown>): number | undefined => {
   const value = item.Id;
@@ -530,6 +535,61 @@ export const mapEntitlement = (item: Record<string, unknown>): Entitlement => ({
   contractId: readString(item, 'ContractId'),
   ownerUpn: readString(item, 'OwnerUPN'),
   notes: readString(item, 'Notes'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapNps = (item: Record<string, unknown>): NpsResponse => ({
+  id: readId(item),
+  responseId: readString(item, 'ResponseId'),
+  title: readString(item, 'Title'),
+  score: readNumber(item, 'Score'),
+  comment: readString(item, 'Comment'),
+  respondedOn: readDate(item, 'RespondedOn'),
+  channel: readEnum(item, 'Channel', enumValues(NpsChannel), NpsChannel.OTHER),
+  country: readEnum(item, 'Country', enumValues(Country), Country.ES),
+  ticketRef: readString(item, 'TicketRef'),
+  status: readEnum(item, 'Status', enumValues(NpsFollowUp), NpsFollowUp.NOT_REQUIRED),
+  followUpDate: readDate(item, 'FollowUpDate'),
+  followUpNotes: readString(item, 'FollowUpNotes'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapServiceMonth = (item: Record<string, unknown>): ServiceMonth => ({
+  id: readId(item),
+  monthId: readString(item, 'MonthId'),
+  title: readString(item, 'Title'),
+  period: readDate(item, 'Period'),
+  country: readEnum(item, 'Country', enumValues(Country), Country.ES),
+  incidents: readNumber(item, 'Incidents'),
+  interactions: readNumber(item, 'Interactions'),
+  requests: readNumber(item, 'Requests'),
+  calls: readNumber(item, 'Calls'),
+  users: readNumber(item, 'Users'),
+  slaPct: readOptionalNumber(item, 'SlaPct'),
+  npsScore: readOptionalNumber(item, 'NpsScore'),
+  npsResponses: readNumber(item, 'NpsResponses'),
+  backlog: readNumber(item, 'Backlog'),
+  notes: readString(item, 'Notes'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapCatalog = (item: Record<string, unknown>): CatalogEntry => ({
+  id: readId(item),
+  catalogId: readString(item, 'CatalogId'),
+  title: readString(item, 'Title'),
+  category: readEnum(item, 'Category', enumValues(CatalogCategory), CatalogCategory.OTHER),
+  kind: readEnum(item, 'Kind', enumValues(CatalogKind), CatalogKind.INTERACTION),
+  keywords: readString(item, 'Keywords'),
+  guidance: readString(item, 'Guidance'),
+  articleId: readString(item, 'ArticleId'),
+  status: readEnum(item, 'Status', enumValues(CatalogStatus), CatalogStatus.ACTIVE),
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
   editor: readExpandedTitle(item, 'Editor')

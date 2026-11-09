@@ -388,6 +388,58 @@ const LISTS = [
       Title: t, EntitlementId: id, EntitlementType: type, Status: st, Product: product, Reference: '', Quantity: qty, StartDate: day(sd), EndDate: day(ed),
       NoticeDays: notice, AnnualCost: cost, VendorId: ven, OwnerUPN: SAMPLE_OWNER, Notes: 'Sample record.'
     }))
+  },
+  {
+    title: 'IT_27_NpsResponses', file: 'schema_nps.xml', description: 'Survey answers; a detractor waits for a call-back',
+    fields: [T('ResponseId'), NUM('Score', 'Min="0" Max="10"'), N('Comment'), D('RespondedOn'), C('Channel', ['KIOSK', 'PHONE', 'CHAT', 'FLOORWALK', 'SELF_SERVICE', 'EMAIL', 'OTHER']),
+      C('Country', ['ES', 'PT', 'OTHER']), T('TicketRef'), C('Status', ['NOT_REQUIRED', 'PENDING', 'CONTACTED', 'CLOSED']), D('FollowUpDate'), N('FollowUpNotes'), T('OwnerUPN')],
+    rows: (day) => [
+      ['Shared mailbox permissions took too long', 'NPS-DEMO-001', 6, 'KIOSK', 'ES', 'PENDING', -9, null, ''],
+      ['A distribution list change was cancelled', 'NPS-DEMO-002', 4, 'SELF_SERVICE', 'ES', 'PENDING', -3, null, ''],
+      ['Fast fix at the kiosk', 'NPS-DEMO-003', 10, 'KIOSK', 'ES', 'NOT_REQUIRED', -2, null, ''],
+      ['Good phone support', 'NPS-DEMO-004', 9, 'PHONE', 'ES', 'NOT_REQUIRED', -6, null, ''],
+      ['Laptop swap in Lisbon', 'NPS-DEMO-005', 8, 'KIOSK', 'PT', 'NOT_REQUIRED', -12, null, ''],
+      ['Disk space problem came back', 'NPS-DEMO-006', 6, 'CHAT', 'ES', 'CONTACTED', -20, -18, 'Called: the cleanup helped for a week. Explain OneDrive files on demand.']
+    ].map(([t, id, score, channel, country, st, answered, called, notes]) => {
+      const row = { Title: t, ResponseId: id, Score: score, Comment: 'Sample answer.', RespondedOn: day(answered), Channel: channel, Country: country, Status: st, OwnerUPN: SAMPLE_OWNER, FollowUpNotes: notes };
+      if (called !== null) { row.FollowUpDate = day(called); }
+      return row;
+    })
+  },
+  {
+    title: 'IT_28_ServiceMonths', file: 'schema_servicemonths.xml', description: 'Monthly service figures by country, from the service report',
+    fields: [T('MonthId'), D('Period'), C('Country', ['ES', 'PT', 'OTHER']), NUM('Incidents'), NUM('Interactions'), NUM('Requests'), NUM('Calls'), NUM('Users'),
+      NUM('SlaPct', 'Min="0" Max="100"'), NUM('NpsScore', 'Min="-100" Max="100"'), NUM('NpsResponses'), NUM('Backlog'), N('Notes')],
+    rows: (day) => {
+      // Days from today to the first day of a month, so the sample never goes stale.
+      const monthOffset = (back) => {
+        const now = new Date();
+        const first = new Date(now.getFullYear(), now.getMonth() - back, 1);
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        return Math.round((first - today) / 86400000);
+      };
+      return [
+        ['Spain, two months ago', 'MON-DEMO-001', 2, 'ES', 205, 118, 540, 150, 950, 97, 79, 30, 13],
+        ['Spain, last month', 'MON-DEMO-002', 1, 'ES', 190, 163, 520, 140, 950, 99, 81, 28, 12],
+        ['Portugal, two months ago', 'MON-DEMO-003', 2, 'PT', 4, 80, 55, 0, 180, 100, 100, 2, 0],
+        ['Portugal, last month', 'MON-DEMO-004', 1, 'PT', 3, 88, 60, 0, 180, 90, 100, 2, 1]
+      ].map(([t, id, back, country, inc, inter, req, calls, users, sla, nps, resp, backlog]) => ({
+        Title: t, MonthId: id, Period: day(monthOffset(back)), Country: country, Incidents: inc, Interactions: inter, Requests: req, Calls: calls, Users: users,
+        SlaPct: sla, NpsScore: nps, NpsResponses: resp, Backlog: backlog, Notes: 'Sample figures.'
+      }));
+    }
+  },
+  {
+    title: 'IT_29_Catalog', file: 'schema_catalog.xml', description: 'How each kind of contact is recognised and recorded (incident, interaction or request)',
+    fields: [T('CatalogId'), C('Category', ['ACCESS', 'EMAIL_TEAMS', 'ONEDRIVE_SHAREPOINT', 'DEVICE', 'ACCESSORY', 'APPLICATION', 'NETWORK_WIFI', 'HOW_TO', 'LOCATION_PEOPLE', 'OTHER']),
+      C('Kind', ['INCIDENT', 'INTERACTION', 'REQUEST']), N('Keywords'), N('Guidance'), T('ArticleId'), C('Status', ['ACTIVE', 'ARCHIVED'])],
+    rows: () => [
+      ['Blocked account or password reset', 'CAT-DEMO-001', 'ACCESS', 'INCIDENT', 'cuenta bloqueada, bloqueado, contraseña, password, locked', 'Verify the identity first (the security procedure). Record it as an incident.'],
+      ['Where is a room, or who is who', 'CAT-DEMO-002', 'LOCATION_PEOPLE', 'INTERACTION', 'dónde está, quién es, sala, extensión', 'Answer on the spot and record an interaction.'],
+      ['How do I order an accessory', 'CAT-DEMO-003', 'HOW_TO', 'INTERACTION', 'pedir un accesorio, ratón, auriculares, cargador', 'Explain the request form. Record an interaction; it becomes a request if the person asks you to raise it.'],
+      ['OneDrive full or not syncing', 'CAT-DEMO-004', 'ONEDRIVE_SHAREPOINT', 'INCIDENT', 'onedrive, espacio, disco lleno, sincroniza', 'Free space (files on demand, temporary files). Record an incident.'],
+      ['New starter equipment and mailbox', 'CAT-DEMO-005', 'DEVICE', 'REQUEST', 'onboarding, alta, nuevo empleado, nueva incorporación', 'It is a request with its tasks, not an incident.']
+    ].map(([t, id, cat, kind, words, guidance]) => ({ Title: t, CatalogId: id, Category: cat, Kind: kind, Keywords: words, Guidance: guidance, Status: 'ACTIVE' }))
   }
 ];
 

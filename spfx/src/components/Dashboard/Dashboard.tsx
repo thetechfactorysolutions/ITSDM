@@ -6,6 +6,7 @@ import { ActionItem, ActionStatus, ApprovalStatus, IApprovalState, IdeaStatus, I
 import { budgetFigures, contractAlert, isLiveBudget, needsContractAttention } from '../../rules/finance';
 import { entitlementAlert, isInbox, isInboxStale, isMatterOpen, isMatterOverdue, needsEntitlementAttention } from '../../rules/matters';
 import { AppConfig } from '../../config/AppConfig';
+import { isCallOverdue, isCallPending, latestByCountry, npsBreakdown, responsesInLastDays, slaLevel } from '../../rules/service';
 import { isHighActiveRisk } from '../../rules/governance';
 import { certificationAlert, hasSkillGap, isReviewDue, isTrainingOverdue, needsCertificationAttention } from '../../rules/people';
 import { isActiveKpi, isFollowUpOverdue, isIncidentOpen, isIncidentOverdue, kpiHealth } from '../../rules/operations';
@@ -33,7 +34,7 @@ const Dashboard: React.FC = () => {
   const { userEmail, ideas: ideasState, initiatives: initiativesState, projects: projectsState, actions: actionsState, risks: risksState,
     budgets: budgetsState, capex: capexState, opex: opexState, contracts: contractsState,
     incidents: incidentsState, changes: changesState, interactions: interactionsState, kpis: kpisState, skills: skillsState, trainings: trainingsState, articles: articlesState,
-    matters: mattersState, entitlements: entitlementsState, links: linksState } = useHubData();
+    matters: mattersState, entitlements: entitlementsState, links: linksState, nps: npsState, serviceMonths: monthsState } = useHubData();
   const [actionError, setActionError] = React.useState<string | undefined>();
   const [deciding, setDeciding] = React.useState<{ row: IPendingApproval; decision: ApprovalStatus.APPROVED | ApprovalStatus.REJECTED } | undefined>();
 
@@ -84,6 +85,11 @@ const Dashboard: React.FC = () => {
   const entitlementsToAttend = entitlementsState.items.filter(e => needsEntitlementAttention(e, now));
   const lapsedEntitlements = entitlementsToAttend.filter(e => entitlementAlert(e, now).alert === 'LAPSED');
   const pinnedLinks = linksState.items.filter(l => l.pinned);
+  const recentNps = npsBreakdown(responsesInLastDays(npsState.items, 90, now));
+  const callsPending = npsState.items.filter(isCallPending);
+  const callsOverdue = npsState.items.filter(r => isCallOverdue(r, now));
+  const latestMonths = latestByCountry(monthsState.items);
+  const lowSlaCountries = Object.keys(latestMonths).filter(key => { const m = latestMonths[key as keyof typeof latestMonths]; return !!m && slaLevel(m) === 'LOW'; });
 
   const initiativeColumns: IColumn[] = [
     { key: 'title', name: t('field.initiative'), fieldName: 'title', minWidth: 180, isResizable: true },
@@ -156,6 +162,12 @@ const Dashboard: React.FC = () => {
   }));
 
   const attention: string[] = [];
+  if (callsOverdue.length > 0) {
+    attention.push(t('dashboard.attentionCalls', { count: callsOverdue.length, days: AppConfig.service.npsFollowUpDays }));
+  }
+  if (lowSlaCountries.length > 0) {
+    attention.push(t('dashboard.attentionSla', { count: lowSlaCountries.length, target: AppConfig.service.slaTarget }));
+  }
   if (inboxItems.length > 0) {
     attention.push(t('dashboard.attentionInbox', { count: inboxItems.length }));
   }
@@ -209,7 +221,7 @@ const Dashboard: React.FC = () => {
   }
 
   const hasLoading = ideasState.loading || initiativesState.loading || projectsState.loading || actionsState.loading || risksState.loading || budgetsState.loading || contractsState.loading || incidentsState.loading || kpisState.loading;
-  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, mattersState.error, entitlementsState.error, linksState.error, actionError].filter(Boolean);
+  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, mattersState.error, entitlementsState.error, linksState.error, npsState.error, monthsState.error, actionError].filter(Boolean);
 
   return (
     <Stack tokens={{ childrenGap: 20 }}>
@@ -224,6 +236,8 @@ const Dashboard: React.FC = () => {
         <KpiTile label={t('dashboard.inbox')} value={inboxItems.length} tone={staleInbox.length > 0 ? 'danger' : inboxItems.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.openMatters')} value={openMatters.length} tone="info" />
         <KpiTile label={t('dashboard.mattersOverdue')} value={overdueMatters.length} tone={overdueMatters.length > 0 ? 'danger' : 'good'} />
+        {recentNps.score !== undefined && <KpiTile label={t('dashboard.nps')} value={recentNps.score} tone="info" />}
+        <KpiTile label={t('dashboard.detractorsToCall')} value={callsPending.length} tone={callsOverdue.length > 0 ? 'danger' : callsPending.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.entitlementsToRenew')} value={entitlementsToAttend.length} tone={lapsedEntitlements.length > 0 ? 'danger' : entitlementsToAttend.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.activeIdeas')} value={activeIdeas} tone="info" />
         <KpiTile label={t('dashboard.activeInitiatives')} value={activeInitiatives} tone="info" />

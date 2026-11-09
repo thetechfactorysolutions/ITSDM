@@ -161,7 +161,13 @@
     IT_24_Areas: [T('AreaId'), N('Description'), C('Status', ['ACTIVE', 'ARCHIVED']), NUM('SortOrder')],
     IT_25_Links: [T('LinkId'), N('Url'), T('Category'), N('Description'), C('Pinned', ['NO', 'YES']), C('Status', ['ACTIVE', 'ARCHIVED']), T('VendorId')],
     IT_26_Entitlements: [T('EntitlementId'), C('EntitlementType', ['WARRANTY', 'LICENSE', 'SUPPORT', 'SUBSCRIPTION']), C('Status', ['ACTIVE', 'EXPIRED', 'RENEWED', 'CANCELLED']), T('Product'), T('Reference'),
-      NUM('Quantity'), D('StartDate'), D('EndDate'), NUM('NoticeDays', 'Min="0" Max="365"'), NUM('AnnualCost'), T('VendorId'), T('ContractId'), T('OwnerUPN'), N('Notes')]
+      NUM('Quantity'), D('StartDate'), D('EndDate'), NUM('NoticeDays', 'Min="0" Max="365"'), NUM('AnnualCost'), T('VendorId'), T('ContractId'), T('OwnerUPN'), N('Notes')],
+    IT_27_NpsResponses: [T('ResponseId'), NUM('Score', 'Min="0" Max="10"'), N('Comment'), D('RespondedOn'), C('Channel', ['KIOSK', 'PHONE', 'CHAT', 'FLOORWALK', 'SELF_SERVICE', 'EMAIL', 'OTHER']),
+      C('Country', ['ES', 'PT', 'OTHER']), T('TicketRef'), C('Status', ['NOT_REQUIRED', 'PENDING', 'CONTACTED', 'CLOSED']), D('FollowUpDate'), N('FollowUpNotes'), T('OwnerUPN')],
+    IT_28_ServiceMonths: [T('MonthId'), D('Period'), C('Country', ['ES', 'PT', 'OTHER']), NUM('Incidents'), NUM('Interactions'), NUM('Requests'), NUM('Calls'), NUM('Users'),
+      NUM('SlaPct', 'Min="0" Max="100"'), NUM('NpsScore', 'Min="-100" Max="100"'), NUM('NpsResponses'), NUM('Backlog'), N('Notes')],
+    IT_29_Catalog: [T('CatalogId'), C('Category', ['ACCESS', 'EMAIL_TEAMS', 'ONEDRIVE_SHAREPOINT', 'DEVICE', 'ACCESSORY', 'APPLICATION', 'NETWORK_WIFI', 'HOW_TO', 'LOCATION_PEOPLE', 'OTHER']),
+      C('Kind', ['INCIDENT', 'INTERACTION', 'REQUEST']), N('Keywords'), N('Guidance'), T('ArticleId'), C('Status', ['ACTIVE', 'ARCHIVED'])]
   };
 
   // Same seven approval columns on the four main lists (see src/rules/approvals.ts).

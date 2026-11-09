@@ -3,12 +3,12 @@ import { AppConfig } from '../../config/AppConfig';
 import { EXPAND_EDITOR, SELECT } from '../../entities/payloads';
 import { IListHookState, useListItems } from '../../hooks/useListItems';
 import {
-  ActionItem, Area, Article, Budget, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, Budget, CatalogEntry, NpsResponse, ServiceMonth, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../../models';
 import { IDataStore, IQueryOptions } from '../../data/IDataStore';
 import {
   mapAction, mapBudget, mapCapex, mapChange, mapContract, mapDecision, mapIdea, mapIncident, mapInitiative, mapInteraction, mapKpi, mapLesson, mapMeeting, mapNote, mapOpex, mapProject,
-  mapArea, mapArticle, mapEntitlement, mapLink, mapMatter, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
+  mapArea, mapArticle, mapCatalog, mapNps, mapServiceMonth, mapEntitlement, mapLink, mapMatter, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
 } from './mappers';
 
 export interface IHubData {
@@ -40,6 +40,9 @@ export interface IHubData {
   areas: IListHookState<Area>;
   links: IListHookState<LinkItem>;
   entitlements: IListHookState<Entitlement>;
+  nps: IListHookState<NpsResponse>;
+  serviceMonths: IListHookState<ServiceMonth>;
+  catalog: IListHookState<CatalogEntry>;
 }
 
 export const HubDataContext = React.createContext<IHubData | undefined>(undefined);
@@ -79,6 +82,9 @@ const MATTERS_QUERY = query(SELECT.matters);
 const AREAS_QUERY = query(SELECT.areas);
 const LINKS_QUERY = query(SELECT.links);
 const ENTITLEMENTS_QUERY = query(SELECT.entitlements);
+const NPS_QUERY = query(SELECT.nps);
+const SERVICE_MONTHS_QUERY = query(SELECT.serviceMonths);
+const CATALOG_QUERY = query(SELECT.catalog);
 
 /**
  * Loads each list once for the whole web part. Every tab reads the same state, so switching
@@ -113,6 +119,9 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEm
   const areas = useListItems<Area>(service, listNames.areas, mapArea, AREAS_QUERY);
   const links = useListItems<LinkItem>(service, listNames.links, mapLink, LINKS_QUERY);
   const entitlements = useListItems<Entitlement>(service, listNames.entitlements, mapEntitlement, ENTITLEMENTS_QUERY);
+  const nps = useListItems<NpsResponse>(service, listNames.nps, mapNps, NPS_QUERY);
+  const serviceMonths = useListItems<ServiceMonth>(service, listNames.serviceMonths, mapServiceMonth, SERVICE_MONTHS_QUERY);
+  const catalog = useListItems<CatalogEntry>(service, listNames.catalog, mapCatalog, CATALOG_QUERY);
 
   const value: IHubData = {
     service,
@@ -142,7 +151,10 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEm
     matters,
     areas,
     links,
-    entitlements
+    entitlements,
+    nps,
+    serviceMonths,
+    catalog
   };
 
   return <HubDataContext.Provider value={value}>{children}</HubDataContext.Provider>;

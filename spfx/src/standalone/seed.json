@@ -1132,5 +1132,193 @@
    "OwnerUPN": "demo.owner@example.com",
    "Notes": "Sample record."
   }
+ ],
+ "IT_27_NpsResponses": [
+  {
+   "Title": "Shared mailbox permissions took too long",
+   "ResponseId": "NPS-DEMO-001",
+   "Score": 6,
+   "Comment": "Sample answer.",
+   "RespondedOn": "@day:-9",
+   "Channel": "KIOSK",
+   "Country": "ES",
+   "Status": "PENDING",
+   "OwnerUPN": "demo.owner@example.com",
+   "FollowUpNotes": ""
+  },
+  {
+   "Title": "A distribution list change was cancelled",
+   "ResponseId": "NPS-DEMO-002",
+   "Score": 4,
+   "Comment": "Sample answer.",
+   "RespondedOn": "@day:-3",
+   "Channel": "SELF_SERVICE",
+   "Country": "ES",
+   "Status": "PENDING",
+   "OwnerUPN": "demo.owner@example.com",
+   "FollowUpNotes": ""
+  },
+  {
+   "Title": "Fast fix at the kiosk",
+   "ResponseId": "NPS-DEMO-003",
+   "Score": 10,
+   "Comment": "Sample answer.",
+   "RespondedOn": "@day:-2",
+   "Channel": "KIOSK",
+   "Country": "ES",
+   "Status": "NOT_REQUIRED",
+   "OwnerUPN": "demo.owner@example.com",
+   "FollowUpNotes": ""
+  },
+  {
+   "Title": "Good phone support",
+   "ResponseId": "NPS-DEMO-004",
+   "Score": 9,
+   "Comment": "Sample answer.",
+   "RespondedOn": "@day:-6",
+   "Channel": "PHONE",
+   "Country": "ES",
+   "Status": "NOT_REQUIRED",
+   "OwnerUPN": "demo.owner@example.com",
+   "FollowUpNotes": ""
+  },
+  {
+   "Title": "Laptop swap in Lisbon",
+   "ResponseId": "NPS-DEMO-005",
+   "Score": 8,
+   "Comment": "Sample answer.",
+   "RespondedOn": "@day:-12",
+   "Channel": "KIOSK",
+   "Country": "PT",
+   "Status": "NOT_REQUIRED",
+   "OwnerUPN": "demo.owner@example.com",
+   "FollowUpNotes": ""
+  },
+  {
+   "Title": "Disk space problem came back",
+   "ResponseId": "NPS-DEMO-006",
+   "Score": 6,
+   "Comment": "Sample answer.",
+   "RespondedOn": "@day:-20",
+   "Channel": "CHAT",
+   "Country": "ES",
+   "Status": "CONTACTED",
+   "OwnerUPN": "demo.owner@example.com",
+   "FollowUpNotes": "Called: the cleanup helped for a week. Explain OneDrive files on demand.",
+   "FollowUpDate": "@day:-18"
+  }
+ ],
+ "IT_28_ServiceMonths": [
+  {
+   "Title": "Spain, two months ago",
+   "MonthId": "MON-DEMO-001",
+   "Period": "@day:-69",
+   "Country": "ES",
+   "Incidents": 205,
+   "Interactions": 118,
+   "Requests": 540,
+   "Calls": 150,
+   "Users": 950,
+   "SlaPct": 97,
+   "NpsScore": 79,
+   "NpsResponses": 30,
+   "Backlog": 13,
+   "Notes": "Sample figures."
+  },
+  {
+   "Title": "Spain, last month",
+   "MonthId": "MON-DEMO-002",
+   "Period": "@day:-39",
+   "Country": "ES",
+   "Incidents": 190,
+   "Interactions": 163,
+   "Requests": 520,
+   "Calls": 140,
+   "Users": 950,
+   "SlaPct": 99,
+   "NpsScore": 81,
+   "NpsResponses": 28,
+   "Backlog": 12,
+   "Notes": "Sample figures."
+  },
+  {
+   "Title": "Portugal, two months ago",
+   "MonthId": "MON-DEMO-003",
+   "Period": "@day:-69",
+   "Country": "PT",
+   "Incidents": 4,
+   "Interactions": 80,
+   "Requests": 55,
+   "Calls": 0,
+   "Users": 180,
+   "SlaPct": 100,
+   "NpsScore": 100,
+   "NpsResponses": 2,
+   "Backlog": 0,
+   "Notes": "Sample figures."
+  },
+  {
+   "Title": "Portugal, last month",
+   "MonthId": "MON-DEMO-004",
+   "Period": "@day:-39",
+   "Country": "PT",
+   "Incidents": 3,
+   "Interactions": 88,
+   "Requests": 60,
+   "Calls": 0,
+   "Users": 180,
+   "SlaPct": 90,
+   "NpsScore": 100,
+   "NpsResponses": 2,
+   "Backlog": 1,
+   "Notes": "Sample figures."
+  }
+ ],
+ "IT_29_Catalog": [
+  {
+   "Title": "Blocked account or password reset",
+   "CatalogId": "CAT-DEMO-001",
+   "Category": "ACCESS",
+   "Kind": "INCIDENT",
+   "Keywords": "cuenta bloqueada, bloqueado, contraseña, password, locked",
+   "Guidance": "Verify the identity first (the security procedure). Record it as an incident.",
+   "Status": "ACTIVE"
+  },
+  {
+   "Title": "Where is a room, or who is who",
+   "CatalogId": "CAT-DEMO-002",
+   "Category": "LOCATION_PEOPLE",
+   "Kind": "INTERACTION",
+   "Keywords": "dónde está, quién es, sala, extensión",
+   "Guidance": "Answer on the spot and record an interaction.",
+   "Status": "ACTIVE"
+  },
+  {
+   "Title": "How do I order an accessory",
+   "CatalogId": "CAT-DEMO-003",
+   "Category": "HOW_TO",
+   "Kind": "INTERACTION",
+   "Keywords": "pedir un accesorio, ratón, auriculares, cargador",
+   "Guidance": "Explain the request form. Record an interaction; it becomes a request if the person asks you to raise it.",
+   "Status": "ACTIVE"
+  },
+  {
+   "Title": "OneDrive full or not syncing",
+   "CatalogId": "CAT-DEMO-004",
+   "Category": "ONEDRIVE_SHAREPOINT",
+   "Kind": "INCIDENT",
+   "Keywords": "onedrive, espacio, disco lleno, sincroniza",
+   "Guidance": "Free space (files on demand, temporary files). Record an incident.",
+   "Status": "ACTIVE"
+  },
+  {
+   "Title": "New starter equipment and mailbox",
+   "CatalogId": "CAT-DEMO-005",
+   "Category": "DEVICE",
+   "Kind": "REQUEST",
+   "Keywords": "onboarding, alta, nuevo empleado, nueva incorporación",
+   "Guidance": "It is a request with its tasks, not an incident.",
+   "Status": "ACTIVE"
+  }
  ]
 }

@@ -281,6 +281,26 @@ $entitlements = @(
   @{ Name = 'VendorId'; Type = 'Text' }, @{ Name = 'ContractId'; Type = 'Text' }, @{ Name = 'OwnerUPN'; Type = 'Text' }, @{ Name = 'Notes'; Type = 'Note' }
 )
 
+$nps = @(
+  @{ Name = 'ResponseId'; Type = 'Text' }, @{ Name = 'Score'; Type = 'Number'; Extra = 'Min="0" Max="10"' }, @{ Name = 'Comment'; Type = 'Note' }, @{ Name = 'RespondedOn'; Type = 'Date' },
+  @{ Name = 'Channel'; Type = 'Choice'; Choices = 'KIOSK', 'PHONE', 'CHAT', 'FLOORWALK', 'SELF_SERVICE', 'EMAIL', 'OTHER' },
+  @{ Name = 'Country'; Type = 'Choice'; Choices = 'ES', 'PT', 'OTHER' }, @{ Name = 'TicketRef'; Type = 'Text' },
+  @{ Name = 'Status'; Type = 'Choice'; Choices = 'NOT_REQUIRED', 'PENDING', 'CONTACTED', 'CLOSED' }, @{ Name = 'FollowUpDate'; Type = 'Date' },
+  @{ Name = 'FollowUpNotes'; Type = 'Note' }, @{ Name = 'OwnerUPN'; Type = 'Text' }
+)
+$serviceMonths = @(
+  @{ Name = 'MonthId'; Type = 'Text' }, @{ Name = 'Period'; Type = 'Date' }, @{ Name = 'Country'; Type = 'Choice'; Choices = 'ES', 'PT', 'OTHER' },
+  @{ Name = 'Incidents'; Type = 'Number' }, @{ Name = 'Interactions'; Type = 'Number' }, @{ Name = 'Requests'; Type = 'Number' }, @{ Name = 'Calls'; Type = 'Number' }, @{ Name = 'Users'; Type = 'Number' },
+  @{ Name = 'SlaPct'; Type = 'Number'; Extra = 'Min="0" Max="100"' }, @{ Name = 'NpsScore'; Type = 'Number'; Extra = 'Min="-100" Max="100"' },
+  @{ Name = 'NpsResponses'; Type = 'Number' }, @{ Name = 'Backlog'; Type = 'Number' }, @{ Name = 'Notes'; Type = 'Note' }
+)
+$catalog = @(
+  @{ Name = 'CatalogId'; Type = 'Text' },
+  @{ Name = 'Category'; Type = 'Choice'; Choices = 'ACCESS', 'EMAIL_TEAMS', 'ONEDRIVE_SHAREPOINT', 'DEVICE', 'ACCESSORY', 'APPLICATION', 'NETWORK_WIFI', 'HOW_TO', 'LOCATION_PEOPLE', 'OTHER' },
+  @{ Name = 'Kind'; Type = 'Choice'; Choices = 'INCIDENT', 'INTERACTION', 'REQUEST' }, @{ Name = 'Keywords'; Type = 'Note' }, @{ Name = 'Guidance'; Type = 'Note' },
+  @{ Name = 'ArticleId'; Type = 'Text' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'ACTIVE', 'ARCHIVED' }
+)
+
 # Same seven approval columns on the four main lists (see src/rules/approvals.ts).
 $approval = @(
   @{ Name = 'ApprovalRule'; Type = 'Text' },
@@ -326,6 +346,9 @@ Initialize-ItsdmList -Title 'IT_23_Matters'     -Fields $matters
 Initialize-ItsdmList -Title 'IT_24_Areas'       -Fields $areas
 Initialize-ItsdmList -Title 'IT_25_Links'       -Fields $links
 Initialize-ItsdmList -Title 'IT_26_Entitlements' -Fields $entitlements
+Initialize-ItsdmList -Title 'IT_27_NpsResponses' -Fields $nps
+Initialize-ItsdmList -Title 'IT_28_ServiceMonths' -Fields $serviceMonths
+Initialize-ItsdmList -Title 'IT_29_Catalog'     -Fields $catalog
 
 # ---------- sample data ----------
 if ($SkipSampleData) {

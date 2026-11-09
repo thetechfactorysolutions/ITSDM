@@ -24,3 +24,4 @@ export * from './Matter';
 export * from './Area';
 export * from './LinkItem';
 export * from './Entitlement';
+export * from './Service';

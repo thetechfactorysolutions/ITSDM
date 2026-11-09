@@ -25,6 +25,9 @@ export interface ISharePointListMap {
   areas: string;
   links: string;
   entitlements: string;
+  nps: string;
+  serviceMonths: string;
+  catalog: string;
 }
 
 export interface IAppConfig {
@@ -38,6 +41,10 @@ export interface IAppConfig {
     slaDays: Record<string, number>;
     /** A KPI within this ratio of its target is "at risk" instead of "off target". */
     kpiTolerance: number;
+    /** A detractor not called within this many days of answering is flagged. */
+    npsFollowUpDays: number;
+    /** Monthly SLA below this percentage is flagged. */
+    slaTarget: number;
   };
   people: {
     /** A certification that expires within this many days is flagged. */
@@ -95,12 +102,17 @@ export const AppConfig: IAppConfig = {
       matters: 'IT_23_Matters',
       areas: 'IT_24_Areas',
       links: 'IT_25_Links',
-      entitlements: 'IT_26_Entitlements'
+      entitlements: 'IT_26_Entitlements',
+      nps: 'IT_27_NpsResponses',
+      serviceMonths: 'IT_28_ServiceMonths',
+      catalog: 'IT_29_Catalog'
     }
   },
   service: {
     slaDays: { LOW: 14, MEDIUM: 7, HIGH: 3, CRITICAL: 1 },
-    kpiTolerance: 0.1
+    kpiTolerance: 0.1,
+    npsFollowUpDays: 7,
+    slaTarget: 95
   },
   people: {
     certificationWarningDays: 60

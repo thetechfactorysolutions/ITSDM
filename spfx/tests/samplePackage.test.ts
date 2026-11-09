@@ -3,6 +3,8 @@ import * as cp from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { mapCatalog, mapNps, mapServiceMonth } from '../src/components/shared/mappers';
+import { classifyText, interactionShare, isCallOverdue, isCallPending, latestByCountry, npsBreakdown, slaLevel, suggestedKind } from '../src/rules/service';
 import { mapArea, mapArticle, mapBudget, mapCapex, mapChange, mapContract, mapEntitlement, mapIncident, mapInteraction, mapKpi, mapLink, mapMatter, mapOpex, mapSkill, mapTraining } from '../src/components/shared/mappers';
 import { entitlementAlert, isInbox, isInboxStale, isMatterClosed, isMatterOpen, isMatterOverdue, isSafeUrl, needsEntitlementAttention } from '../src/rules/matters';
 import { APPROVAL_RULES } from '../src/rules/approvals';
@@ -65,7 +67,7 @@ const testEveryListAndSample = (): void => {
     'IT_05_KPIs', 'IT_13_Incidents', 'IT_14_Interactions', 'IT_15_ChangeRequests',
     'IT_16_TeamSkills', 'IT_17_TrainingPlans', 'IT_18_KnowledgeBase',
     'IT_11_Risks', 'IT_12_Decisions', 'IT_19_Reviews', 'IT_20_LessonsLearned', 'IT_21_Meetings', 'IT_22_Notes',
-    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements'
+    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements', 'IT_27_NpsResponses', 'IT_28_ServiceMonths', 'IT_29_Catalog'
   ];
   assert.deepEqual(instances.map(i => i.title).sort(), expected.sort(), 'every list is in the package');
 
@@ -191,6 +193,24 @@ const testSamplesShowTheirCases = (): void => {
   const alertOf = (id: string): string => entitlementAlert(entitlements.filter(e => e.entitlementId === id)[0]).alert;
   assert.deepEqual(['ENT-DEMO-001', 'ENT-DEMO-002', 'ENT-DEMO-003', 'ENT-DEMO-004'].map(alertOf), ['RENEWAL', 'NONE', 'LAPSED', 'NONE'], 'one to renew, one lapsed, two fine or closed');
   assert.equal(entitlements.filter(e => needsEntitlementAttention(e)).length, 2);
+
+  const responses = rowsOf('IT_27_NpsResponses').map(mapNps);
+  assert.deepEqual(responses.filter(isCallPending).map(r => r.responseId), ['NPS-DEMO-001', 'NPS-DEMO-002'], 'two detractors wait for a call');
+  assert.deepEqual(responses.filter(r => isCallOverdue(r)).map(r => r.responseId), ['NPS-DEMO-001'], 'one of them is late');
+  assert.ok(responses.filter(r => r.status === 'CONTACTED').every(r => !!r.followUpDate && !!r.followUpNotes), 'a call made has its day and its notes');
+  assert.equal(npsBreakdown(responses).total, 6);
+
+  const serviceMonths = rowsOf('IT_28_ServiceMonths').map(mapServiceMonth);
+  const latestMonths = latestByCountry(serviceMonths);
+  assert.equal(latestMonths.ES?.monthId, 'MON-DEMO-002', 'the latest month of Spain');
+  assert.equal(latestMonths.PT?.monthId, 'MON-DEMO-004', 'and of Portugal');
+  assert.equal(slaLevel(latestMonths.PT as never), 'LOW', 'the SLA of Portugal is the one below the target');
+  assert.equal(slaLevel(latestMonths.ES as never), 'OK');
+  assert.ok((interactionShare(latestMonths.PT as never) ?? 0) > 90 && (interactionShare(latestMonths.ES as never) ?? 100) < 60, 'the two countries record very differently, which is what the comparison shows');
+
+  const catalog = rowsOf('IT_29_Catalog').map(mapCatalog);
+  assert.equal(suggestedKind(classifyText('mi cuenta bloqueada', catalog)), 'INCIDENT', 'the sample catalogue recognises a blocked account');
+  assert.equal(suggestedKind(classifyText('dónde está la sala 4', catalog)), 'INTERACTION');
 
   const project = byId('IT_03_Projects', 'ProjectId', 'PROJ-DEMO-002');
   assert.equal(project.ApprovalStatus, 'PENDING', 'a project also waits for approval, from the earlier round');
