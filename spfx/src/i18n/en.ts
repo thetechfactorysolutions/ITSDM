@@ -1090,5 +1090,7 @@ export const en: Record<string, string> = {
   'agenda.kind.OBJECTIVE': 'Objective target date',
   'help.strategyTitle': 'Strategy and weekly review',
   'help.strategy1': 'An objective says what IT is trying to achieve and which KPI measures it. A business case gives the reasoning behind an investment: the problem, the options, the recommendation, the cost and the benefit per year. The ROI of the first year is (benefit - cost) / cost; the payback is how many months of benefit pay for the cost. Approving a case of a large amount needs a recorded approval, like the other protected changes.',
-  'help.strategy2': 'The weekly review has the questions to ask each week: what happened, what went well and wrong, what needs attention and decisions, which risks changed, the priorities and what to stop and start. If you have used it and last week has no completed review, the dashboard says so.'
+  'help.strategy2': 'The weekly review has the questions to ask each week: what happened, what went well and wrong, what needs attention and decisions, which risks changed, the priorities and what to stop and start. If you have used it and last week has no completed review, the dashboard says so.',
+  'csv.template': 'Download a template',
+  'csv.templateHint': 'Easiest way: download a file with the column names and one example row, fill it in with Excel (one row per item, keep the column names) and choose it below. Columns such as Status or Priority use the codes of the example row (for instance OPEN or HIGH). Leave an id empty and it is generated.'
 };

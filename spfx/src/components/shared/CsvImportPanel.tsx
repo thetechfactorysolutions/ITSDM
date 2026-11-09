@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { DefaultButton, MessageBar, MessageBarType, Panel, PanelType, PrimaryButton, ProgressIndicator, Stack, Text, TextField } from '@fluentui/react';
 import { useT } from '../../i18n/I18n';
+import { downloadTextFile } from '../../utils/download';
 import { csvToObjects, parseCsv } from '../../rules/csv';
 import { ValidationErrors } from '../../rules/validation';
 
@@ -15,6 +16,8 @@ export interface ICsvImportPanelProps<T> {
   createItem: (payload: Record<string, unknown>) => Promise<unknown>;
   /** Called once after the import, so the list is reloaded a single time. */
   onFinished: () => void;
+  /** A ready-to-fill file: the column names and one example row. Leave it out to hide the button. */
+  template?: { fileName: string; content: () => string };
 }
 
 interface IParsedRow<T> {
@@ -89,6 +92,15 @@ function CsvImportPanel<T>(props: ICsvImportPanelProps<T>): React.ReactElement {
       <Stack tokens={{ childrenGap: 12 }}>
         <Text>{t('csv.hint')}</Text>
         <Text variant="small" styles={{ root: { fontFamily: 'monospace', wordBreak: 'break-word' } }}>{headers.join(', ')}</Text>
+
+        {props.template && (
+          <Stack tokens={{ childrenGap: 4 }}>
+            <Text>{t('csv.templateHint')}</Text>
+            <Stack horizontal>
+              <DefaultButton text={t('csv.template')} iconProps={{ iconName: 'Download' }} onClick={() => downloadTextFile((props.template as { fileName: string }).fileName, (props.template as { content: () => string }).content())} />
+            </Stack>
+          </Stack>
+        )}
 
         <label>
           <Text block>{t('csv.chooseFile')}</Text>

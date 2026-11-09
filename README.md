@@ -18,6 +18,7 @@ ITSDM is a SharePoint Framework (SPFx) web part for IT Service Delivery Manageme
 - **Service quality:** NPS with the call-back of each detractor, monthly figures by country that can be compared fairly, and a classification catalogue (incident, interaction or request) with a phrase tester.
 - **Devices and Genius:** device stock with an alarm level and orders on their way, and Genius Help Desk sessions with their impact.
 - **Strategy and management:** objectives, business cases with ROI, payback and approval, and a weekly review (`docs/superpowers/specs/2026-11-09-modulos-servicio-diseno.md`).
+- **Easy data entry:** every screen can import a CSV and offers a ready-to-fill template (the column names and an example row, with ";" for Spanish Excel).
 - **Full-width section** support, **English and Spanish**, keyboard and screen-reader friendly.
 - Lists and sample data are created when the app is added to a site.
 - **Local mode (prototype):** the same app as a plain web page that keeps its data in a JSON file you choose, for example in your OneDrive folder, with no SharePoint and no installation (`docs/MODO_LOCAL.md`, `npm run standalone` in `spfx/`).

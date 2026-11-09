@@ -1090,5 +1090,7 @@ export const es: Record<string, string> = {
   'agenda.kind.OBJECTIVE': 'Fecha meta de un objetivo',
   'help.strategyTitle': 'Estrategia y revisión semanal',
   'help.strategy1': 'Un objetivo dice lo que TI quiere conseguir y qué KPI lo mide. Un caso de negocio da el razonamiento de una inversión: el problema, las opciones, la recomendación, el coste y el beneficio al año. El ROI del primer año es (beneficio - coste) / coste; la recuperación son los meses de beneficio que pagan el coste. Aprobar un caso de importe alto necesita una aprobación registrada, como los demás cambios protegidos.',
-  'help.strategy2': 'La revisión semanal tiene las preguntas de cada semana: qué pasó, qué fue bien y mal, qué requiere atención y decisiones, qué riesgos han cambiado, las prioridades y qué dejar y qué empezar. Si ya la has usado y la semana pasada no tiene una completada, el Panel lo dice.'
+  'help.strategy2': 'La revisión semanal tiene las preguntas de cada semana: qué pasó, qué fue bien y mal, qué requiere atención y decisiones, qué riesgos han cambiado, las prioridades y qué dejar y qué empezar. Si ya la has usado y la semana pasada no tiene una completada, el Panel lo dice.',
+  'csv.template': 'Descargar una plantilla',
+  'csv.templateHint': 'La forma más fácil: descarga un fichero con los nombres de las columnas y una fila de ejemplo, rellénalo con Excel (una fila por elemento, sin cambiar los nombres de las columnas) y elígelo abajo. Columnas como Status o Priority usan los códigos de la fila de ejemplo (por ejemplo OPEN o HIGH). Deja un id vacío y se genera solo.'
 };

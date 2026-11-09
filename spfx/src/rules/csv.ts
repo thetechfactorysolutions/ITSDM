@@ -16,10 +16,13 @@ const escapeCell = (value: string | number | undefined): string => {
   return needsQuotes.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 };
 
-/** CSV text with a header row. Comma separated; cells with commas, quotes or line breaks are quoted. */
-export const toCsv = <T>(items: T[], columns: Array<ICsvColumn<T>>): string => {
-  const header = columns.map(column => escapeCell(column.header)).join(',');
-  const rows = items.map(item => columns.map(column => escapeCell(column.value(item))).join(','));
+/**
+ * CSV text with a header row. Comma separated unless another separator is given (Spanish Excel
+ * opens files separated by ";" in columns); cells with the separators, quotes or line breaks are quoted.
+ */
+export const toCsv = <T>(items: T[], columns: Array<ICsvColumn<T>>, separator: string = ','): string => {
+  const header = columns.map(column => escapeCell(column.header)).join(separator);
+  const rows = items.map(item => columns.map(column => escapeCell(column.value(item))).join(separator));
   return [header].concat(rows).join('\r\n');
 };
 

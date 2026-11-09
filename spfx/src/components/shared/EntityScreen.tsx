@@ -4,7 +4,7 @@ import {
   MessageBarType, Panel, PanelType, PrimaryButton, SearchBox, Selection, SelectionMode, Stack, Text, Toggle
 } from '@fluentui/react';
 import { buildApprovalPayload } from '../../entities/payloads';
-import { useT } from '../../i18n/I18n';
+import { useLanguage, useT } from '../../i18n/I18n';
 import { IListHookState } from '../../hooks/useListItems';
 import { ApprovalStatus, IApprovalState } from '../../models';
 import { IDataStore } from '../../data/IDataStore';
@@ -96,6 +96,7 @@ export interface IEntityScreenProps<T extends IEntityBase> {
 
 function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): React.ReactElement {
   const t = useT();
+  const language = useLanguage();
   const { userEmail } = useHubData();
   const { textKey, state, service, statuses, getStatus, columns, sortAccessors, searchFields } = props;
 
@@ -476,6 +477,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
         isOpen={isCsvOpen}
         onDismiss={() => setIsCsvOpen(false)}
         headers={props.csvColumns.map(column => column.header)}
+        template={{ fileName: `template-${props.csvFileName}`, content: () => toCsv([props.newItem()], props.csvColumns, language === 'es' ? ';' : ',') }}
         fromRow={props.csvFromRow}
         validate={csvValidate}
         buildPayload={props.buildPayload}
