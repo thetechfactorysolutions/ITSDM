@@ -7,6 +7,7 @@ import { budgetFigures, contractAlert, isLiveBudget, needsContractAttention } fr
 import { entitlementAlert, isInbox, isInboxStale, isMatterOpen, isMatterOverdue, needsEntitlementAttention } from '../../rules/matters';
 import { AppConfig } from '../../config/AppConfig';
 import { isSessionLate } from '../../rules/genius';
+import { isCaseToDecide, isObjectiveLate, isWeeklyReviewMissing, lastWeekStart } from '../../rules/strategy';
 import { isOrderLate, stockLevel } from '../../rules/stock';
 import { isCallOverdue, isCallPending, latestByCountry, npsBreakdown, responsesInLastDays, slaLevel } from '../../rules/service';
 import { isHighActiveRisk } from '../../rules/governance';
@@ -36,7 +37,7 @@ const Dashboard: React.FC = () => {
   const { userEmail, ideas: ideasState, initiatives: initiativesState, projects: projectsState, actions: actionsState, risks: risksState,
     budgets: budgetsState, capex: capexState, opex: opexState, contracts: contractsState,
     incidents: incidentsState, changes: changesState, interactions: interactionsState, kpis: kpisState, skills: skillsState, trainings: trainingsState, articles: articlesState,
-    matters: mattersState, entitlements: entitlementsState, links: linksState, nps: npsState, serviceMonths: monthsState, stock: stockState, genius: geniusState } = useHubData();
+    matters: mattersState, entitlements: entitlementsState, links: linksState, nps: npsState, serviceMonths: monthsState, stock: stockState, genius: geniusState, businessCases: casesState, objectives: objectivesState, weeklyReviews: weeklyState } = useHubData();
   const [actionError, setActionError] = React.useState<string | undefined>();
   const [deciding, setDeciding] = React.useState<{ row: IPendingApproval; decision: ApprovalStatus.APPROVED | ApprovalStatus.REJECTED } | undefined>();
 
@@ -62,7 +63,8 @@ const Dashboard: React.FC = () => {
     opexState.items.filter(isPending).map(o => ({ key: `opex-${o.id}`, entity: 'opex' as ApprovalEntity, id: o.id, title: o.title, approval: getApproval(o), update: opexState.update })),
     contractsState.items.filter(isPending).map(c => ({ key: `contracts-${c.id}`, entity: 'contracts' as ApprovalEntity, id: c.id, title: c.title, approval: getApproval(c), update: contractsState.update })),
     changesState.items.filter(isPending).map(c => ({ key: `changes-${c.id}`, entity: 'changes' as ApprovalEntity, id: c.id, title: c.title, approval: getApproval(c), update: changesState.update })),
-    articlesState.items.filter(isPending).map(a => ({ key: `articles-${a.id}`, entity: 'articles' as ApprovalEntity, id: a.id, title: a.title, approval: getApproval(a), update: articlesState.update }))
+    articlesState.items.filter(isPending).map(a => ({ key: `articles-${a.id}`, entity: 'articles' as ApprovalEntity, id: a.id, title: a.title, approval: getApproval(a), update: articlesState.update })),
+    casesState.items.filter(isPending).map(c => ({ key: `cases-${c.id}`, entity: 'cases' as ApprovalEntity, id: c.id, title: c.title, approval: getApproval(c), update: casesState.update }))
   );
   const highRisks = risksState.items.filter(isHighActiveRisk);
   const openIncidents = incidentsState.items.filter(i => isIncidentOpen(i.status));
@@ -87,6 +89,9 @@ const Dashboard: React.FC = () => {
   const entitlementsToAttend = entitlementsState.items.filter(e => needsEntitlementAttention(e, now));
   const lapsedEntitlements = entitlementsToAttend.filter(e => entitlementAlert(e, now).alert === 'LAPSED');
   const pinnedLinks = linksState.items.filter(l => l.pinned);
+  const casesToDecide = casesState.items.filter(isCaseToDecide);
+  const lateObjectives = objectivesState.items.filter(o => isObjectiveLate(o, now));
+  const weeklyMissing = isWeeklyReviewMissing(weeklyState.items, now);
   const lowStock = stockState.items.filter(i => stockLevel(i) === 'LOW');
   const lateOrders = stockState.items.filter(i => isOrderLate(i, now));
   const lateSessions = geniusState.items.filter(g => isSessionLate(g, now));
@@ -168,6 +173,12 @@ const Dashboard: React.FC = () => {
   }));
 
   const attention: string[] = [];
+  if (lateObjectives.length > 0) {
+    attention.push(t('dashboard.attentionObjectives', { count: lateObjectives.length }));
+  }
+  if (weeklyMissing) {
+    attention.push(t('dashboard.attentionWeekly', { week: lastWeekStart(now) }));
+  }
   if (lowStock.length > 0) {
     attention.push(t('dashboard.attentionStock', { count: lowStock.length }));
   }
@@ -236,7 +247,7 @@ const Dashboard: React.FC = () => {
   }
 
   const hasLoading = ideasState.loading || initiativesState.loading || projectsState.loading || actionsState.loading || risksState.loading || budgetsState.loading || contractsState.loading || incidentsState.loading || kpisState.loading;
-  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, mattersState.error, entitlementsState.error, linksState.error, npsState.error, monthsState.error, stockState.error, geniusState.error, actionError].filter(Boolean);
+  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, mattersState.error, entitlementsState.error, linksState.error, npsState.error, monthsState.error, stockState.error, geniusState.error, casesState.error, objectivesState.error, weeklyState.error, actionError].filter(Boolean);
 
   return (
     <Stack tokens={{ childrenGap: 20 }}>
@@ -253,6 +264,7 @@ const Dashboard: React.FC = () => {
         <KpiTile label={t('dashboard.mattersOverdue')} value={overdueMatters.length} tone={overdueMatters.length > 0 ? 'danger' : 'good'} />
         {recentNps.score !== undefined && <KpiTile label={t('dashboard.nps')} value={recentNps.score} tone="info" />}
         <KpiTile label={t('dashboard.detractorsToCall')} value={callsPending.length} tone={callsOverdue.length > 0 ? 'danger' : callsPending.length > 0 ? 'warning' : 'good'} />
+        <KpiTile label={t('dashboard.casesToDecide')} value={casesToDecide.length} tone={casesToDecide.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.lowStock')} value={lowStock.length} tone={lowStock.length > 0 ? 'danger' : lateOrders.length > 0 ? 'warning' : 'good'} />
         <KpiTile label={t('dashboard.geniusPlanned')} value={plannedSessions.length} tone="info" />
         <KpiTile label={t('dashboard.entitlementsToRenew')} value={entitlementsToAttend.length} tone={lapsedEntitlements.length > 0 ? 'danger' : entitlementsToAttend.length > 0 ? 'warning' : 'good'} />

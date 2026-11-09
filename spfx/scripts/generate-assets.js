@@ -471,6 +471,47 @@ const LISTS = [
       if (sat !== null) { row.Satisfaction = sat; }
       return row;
     })
+  },
+  {
+    title: 'IT_32_Objectives', file: 'schema_objectives.xml', description: 'What IT is trying to achieve, with its goal and the KPI that measures it',
+    fields: [T('ObjectiveId'), N('Description'), T('OwnerUPN'), T('SponsorUPN'), D('StartDate'), D('TargetDate'), C('Status', ['DRAFT', 'ACTIVE', 'ACHIEVED', 'CANCELLED']), C('Priority', LEVELS), N('Goal'), T('KpiId')],
+    rows: (day) => [
+      ['Raise user satisfaction', 'OBJ-DEMO-001', 'ACTIVE', 'HIGH', 'NPS of 85 or more', 'KPI-DEMO-002', 150],
+      ['Retail counters ready for Augmented BI', 'OBJ-DEMO-002', 'ACTIVE', 'HIGH', 'iPads delivered and configured', '', 170],
+      ['Keep laptop stock above the alarm level', 'OBJ-DEMO-003', 'ACTIVE', 'MEDIUM', 'No product below its alarm level', '', -5],
+      ['Simplify the kiosk service', 'OBJ-DEMO-004', 'DRAFT', 'LOW', 'A welcome point, not a window', '', 240]
+    ].map(([t, id, st, pr, goal, kpi, target]) => ({
+      Title: t, ObjectiveId: id, Description: `Sample objective: ${t}.`, OwnerUPN: SAMPLE_OWNER, SponsorUPN: SAMPLE_OWNER, StartDate: day(-30), TargetDate: day(target), Status: st, Priority: pr, Goal: goal, KpiId: kpi
+    }))
+  },
+  {
+    title: 'IT_33_BusinessCases', file: 'schema_businesscases.xml', description: 'The reasoning behind an investment: cost, benefit, return and decision; a large one needs an approval',
+    fields: [T('CaseId'), N('Problem'), N('Options'), N('Recommendation'), N('Risks'), NUM('EstimatedCost'), NUM('AnnualBenefit'), T('ObjectiveId'), T('InitiativeId'), T('ProjectId'), T('OwnerUPN'),
+      C('Status', ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'ARCHIVED']), D('DecisionDate'), N('DecisionNotes')],
+    rows: (day) => [
+      ['Buy iPad mini for the retail counters', 'CASE-DEMO-001', 'SUBMITTED', 151200, 90000, 'OBJ-DEMO-002', null],
+      ['Redesign the kiosk as a welcome point', 'CASE-DEMO-002', 'DRAFT', 12000, 0, 'OBJ-DEMO-004', null],
+      ['Replace the ticket chat tool', 'CASE-DEMO-003', 'APPROVED', 8000, 20000, 'OBJ-DEMO-001', -20]
+    ].map(([t, id, st, cost, benefit, obj, decided]) => {
+      const row = { Title: t, CaseId: id, Problem: 'Sample problem.', Options: 'Do nothing; the recommended option.', Recommendation: 'The recommended option.', Risks: 'Delivery delays.', EstimatedCost: cost, AnnualBenefit: benefit, ObjectiveId: obj, InitiativeId: 'INIT-DEMO-001', OwnerUPN: SAMPLE_OWNER, Status: st };
+      if (decided !== null) { row.DecisionDate = day(decided); }
+      return row;
+    })
+  },
+  {
+    title: 'IT_34_WeeklyReviews', file: 'schema_weeklyreviews.xml', description: 'The weekly management review',
+    fields: [T('ReviewId'), D('WeekStart'), C('Status', ['DRAFT', 'COMPLETED']), N('Happened'), N('WentWell'), N('WentWrong'), N('Attention'), N('Decisions'), N('Risks'), N('Priorities'), N('StopDoing'), N('StartDoing'), T('OwnerUPN')],
+    rows: (day) => {
+      // Days from today to the Monday of a week, so the sample never goes stale.
+      const mondayOffset = (weeksBack) => -((new Date().getDay() + 6) % 7) - 7 * weeksBack;
+      return [
+        ['Review of last week', 'WEEK-DEMO-001', 1, 'COMPLETED', 'Monthly figures received from the service provider.', 'The NPS call-backs are up to date.', 'Two detractors were called late.', 'Laptop stock for Spain.', 'Order laptops.', 'Stock risk.', 'Close the iPad order.', 'Chasing reports by email.', 'A weekly check of the stock levels.'],
+        ['Review of this week', 'WEEK-DEMO-002', 0, 'DRAFT', '', '', '', '', '', '', '', '', '']
+      ].map(([t, id, back, st, happened, well, wrong, attention, decisions, risks, priorities, stop, start]) => ({
+        Title: t, ReviewId: id, WeekStart: day(mondayOffset(back)), Status: st, Happened: happened, WentWell: well, WentWrong: wrong, Attention: attention, Decisions: decisions, Risks: risks,
+        Priorities: priorities, StopDoing: stop, StartDoing: start, OwnerUPN: SAMPLE_OWNER
+      }));
+    }
   }
 ];
 
@@ -480,7 +521,7 @@ const APPROVAL_FIELDS = [
   T('ApprovalRule'), C('ApprovalStatus', ['NONE', 'PENDING', 'APPROVED', 'REJECTED']), T('Approver'),
   D('ApprovalRequestedOn'), D('ApprovalDecidedOn'), T('ApprovalDecidedBy'), N('ApprovalComment')
 ];
-const WITH_APPROVALS = ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests', 'IT_18_KnowledgeBase'];
+const WITH_APPROVALS = ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests', 'IT_18_KnowledgeBase', 'IT_33_BusinessCases'];
 for (const list of LISTS) {
   if (WITH_APPROVALS.indexOf(list.title) > -1) {
     list.fields = list.fields.concat(APPROVAL_FIELDS);

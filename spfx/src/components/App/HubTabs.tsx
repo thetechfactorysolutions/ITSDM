@@ -5,6 +5,8 @@ import Dashboard from '../Dashboard/Dashboard';
 import Stock from '../Devices/Stock';
 import Finance from '../Finance/Finance';
 import Genius from '../Genius/Genius';
+import WeeklyReviews from '../Management/WeeklyReviews';
+import StrategyTab from '../Strategy/StrategyTab';
 import Governance from '../Governance/Governance';
 import Help from '../Help/Help';
 import Ideas from '../Ideas/Ideas';
@@ -50,6 +52,8 @@ const HubTabs: React.FC<{ description: string }> = ({ description }) => {
         <PivotItem headerText={t('nav.people')}><PeopleTab /></PivotItem>
         <PivotItem headerText={t('nav.devices')}><Stock /></PivotItem>
         <PivotItem headerText={t('nav.genius')}><Genius /></PivotItem>
+        <PivotItem headerText={t('nav.strategy')}><StrategyTab /></PivotItem>
+        <PivotItem headerText={t('nav.weeklyReview')}><WeeklyReviews /></PivotItem>
         <PivotItem headerText={t('nav.governance')}><Governance /></PivotItem>
         <PivotItem headerText={t('nav.notes')}><Notes /></PivotItem>
         <PivotItem headerText={t('nav.import')}><Import /></PivotItem>

@@ -126,7 +126,7 @@ const testGeniusValidationAndMapping = (): void => {
 
 const testAgendaAndTexts = (): void => {
   const input: IAgendaInput = {
-    matters: [], actions: [], contracts: [], entitlements: [], interactions: [], reviews: [], risks: [], trainings: [], skills: [], projects: [], articles: [], changes: [], incidents: [],
+    matters: [], actions: [], contracts: [], entitlements: [], interactions: [], reviews: [], risks: [], trainings: [], skills: [], projects: [], articles: [], changes: [], incidents: [], objectives: [],
     stock: [item({ stockId: 'S-1', title: 'iPads', onOrder: 270, expectedOn: '2026-12-15' }), item({ stockId: 'S-2', title: 'No order', onOrder: 0, expectedOn: '2026-12-15' }), item({ stockId: 'S-3', title: 'Old', onOrder: 5, expectedOn: '2026-12-01', status: StockStatus.ARCHIVED })],
     genius: [session({ sessionId: 'G-1', title: 'Corner', sessionDate: '2026-11-20' }), session({ sessionId: 'G-2', title: 'Done', status: GeniusStatus.DELIVERED, sessionDate: '2026-11-01' }), session({ sessionId: 'G-3', title: 'No date' })]
   };

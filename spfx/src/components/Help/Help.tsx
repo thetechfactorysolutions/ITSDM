@@ -97,6 +97,10 @@ const Help: React.FC = () => {
         <Text>{t('help.stock1')}</Text>
         <Text>{t('help.stock2')}</Text>
       </Section>
+      <Section title={t('help.strategyTitle')}>
+        <Text>{t('help.strategy1')}</Text>
+        <Text>{t('help.strategy2')}</Text>
+      </Section>
       <Section title={t('help.peopleTitle')}>
         <Text>{t('help.people1')}</Text>
         <Text>{t('help.people2')}</Text>

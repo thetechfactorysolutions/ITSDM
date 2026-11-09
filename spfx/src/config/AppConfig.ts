@@ -30,6 +30,9 @@ export interface ISharePointListMap {
   catalog: string;
   stock: string;
   genius: string;
+  objectives: string;
+  businessCases: string;
+  weeklyReviews: string;
 }
 
 export interface IAppConfig {
@@ -109,7 +112,10 @@ export const AppConfig: IAppConfig = {
       serviceMonths: 'IT_28_ServiceMonths',
       catalog: 'IT_29_Catalog',
       stock: 'IT_30_Stock',
-      genius: 'IT_31_GeniusSessions'
+      genius: 'IT_31_GeniusSessions',
+      objectives: 'IT_32_Objectives',
+      businessCases: 'IT_33_BusinessCases',
+      weeklyReviews: 'IT_34_WeeklyReviews'
     }
   },
   service: {

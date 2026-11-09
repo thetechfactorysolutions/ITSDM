@@ -84,6 +84,30 @@ Title, LinkId (Text), Url (Multiple lines; only http and https are accepted by t
 ### IT_26_Entitlements
 Title, EntitlementId (Text), EntitlementType (Choice: WARRANTY, LICENSE, SUPPORT, SUBSCRIPTION), Status (Choice: ACTIVE, EXPIRED, RENEWED, CANCELLED), Product (Text), Reference (Text, a serial or order reference, never a licence key), Quantity (Number), StartDate (Date), EndDate (Date), NoticeDays (Number 0-365), AnnualCost (Number), VendorId (Text), ContractId (Text), OwnerUPN (Text), Notes (Multiple lines). Renewal warning: same rule as contracts.
 
+### IT_27_NpsResponses
+Title, ResponseId (Text), Score (Number 0-10), Comment (Multiple lines), RespondedOn (Date), Channel (Choice: KIOSK, PHONE, CHAT, FLOORWALK, SELF_SERVICE, EMAIL, OTHER), Country (Choice: ES, PT, OTHER), TicketRef (Text), Status (Choice: NOT_REQUIRED, PENDING, CONTACTED, CLOSED; the call-back), FollowUpDate (Date), FollowUpNotes (Multiple lines), OwnerUPN (Text, who calls)
+
+### IT_28_ServiceMonths
+Title, MonthId (Text), Period (Date, first day of the month), Country (Choice: ES, PT, OTHER), Incidents, Interactions, Requests, Calls, Users (Number), SlaPct (Number 0-100, may be empty), NpsScore (Number -100 to 100, may be empty), NpsResponses, Backlog (Number), Notes (Multiple lines)
+
+### IT_29_Catalog
+Title, CatalogId (Text), Category (Choice: ACCESS, EMAIL_TEAMS, ONEDRIVE_SHAREPOINT, DEVICE, ACCESSORY, APPLICATION, NETWORK_WIFI, HOW_TO, LOCATION_PEOPLE, OTHER), Kind (Choice: INCIDENT, INTERACTION, REQUEST), Keywords (Multiple lines, separated by commas), Guidance (Multiple lines), ArticleId (Text), Status (Choice: ACTIVE, ARCHIVED)
+
+### IT_30_Stock
+Title, StockId (Text), Category (Choice: LAPTOP, TABLET, PHONE, MONITOR, HEADSET, ACCESSORY, NETWORK, OTHER), Country (Choice: ES, PT, OTHER), OnHand, MinLevel, InUse, OnOrder (Number), ExpectedOn (Date), UnitCost (Number), Ownership (Choice: RENTED, PURCHASED), VendorId (Text), Status (Choice: ACTIVE, ARCHIVED), Notes (Multiple lines)
+
+### IT_31_GeniusSessions
+Title, SessionId (Text), SessionType (Choice: CORNER, TIP, ACADEMY, CHALLENGE, ASK_IT), Topic (Text), Status (Choice: IDEA, PLANNED, DELIVERED, CANCELLED), SessionDate (Date), Audience (Text), OwnerUPN (Text, who gives it), Invited, Attended (Number), Satisfaction (Number 0-5, may be empty), MaterialUrl (Multiple lines, http or https), ArticleId (Text), CatalogId (Text), Motivation (Multiple lines)
+
+### IT_32_Objectives
+Title, ObjectiveId (Text), Description (Multiple lines), OwnerUPN (Text), SponsorUPN (Text), StartDate (Date), TargetDate (Date), Status (Choice: DRAFT, ACTIVE, ACHIEVED, CANCELLED), Priority (Choice: LOW, MEDIUM, HIGH, CRITICAL), Goal (Multiple lines), KpiId (Text)
+
+### IT_33_BusinessCases
+Title, CaseId (Text), Problem, Options, Recommendation, Risks (Multiple lines), EstimatedCost, AnnualBenefit (Number), ObjectiveId, InitiativeId, ProjectId (Text), OwnerUPN (Text), Status (Choice: DRAFT, SUBMITTED, APPROVED, REJECTED, ARCHIVED), DecisionDate (Date), DecisionNotes (Multiple lines), plus the seven approval columns (approving a large case needs an approval, rule `case.approve`). ROI and payback are calculated.
+
+### IT_34_WeeklyReviews
+Title, ReviewId (Text), WeekStart (Date, the Monday), Status (Choice: DRAFT, COMPLETED), Happened, WentWell, WentWrong, Attention, Decisions, Risks, Priorities, StopDoing, StartDoing (Multiple lines), OwnerUPN (Text)
+
 ## Notes
 - Attachments use the list attachments of SharePoint; the Help tab has a button that turns them on for lists that were created without them.
 - Changing the columns of a list that already exists is not automated (see `ROADMAP.md`).

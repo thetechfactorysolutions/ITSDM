@@ -1442,5 +1442,138 @@
    "CatalogId": "",
    "Motivation": "Make the kiosk a place to learn, not a window."
   }
+ ],
+ "IT_32_Objectives": [
+  {
+   "Title": "Raise user satisfaction",
+   "ObjectiveId": "OBJ-DEMO-001",
+   "Description": "Sample objective: Raise user satisfaction.",
+   "OwnerUPN": "demo.owner@example.com",
+   "SponsorUPN": "demo.owner@example.com",
+   "StartDate": "@day:-30",
+   "TargetDate": "@day:150",
+   "Status": "ACTIVE",
+   "Priority": "HIGH",
+   "Goal": "NPS of 85 or more",
+   "KpiId": "KPI-DEMO-002"
+  },
+  {
+   "Title": "Retail counters ready for Augmented BI",
+   "ObjectiveId": "OBJ-DEMO-002",
+   "Description": "Sample objective: Retail counters ready for Augmented BI.",
+   "OwnerUPN": "demo.owner@example.com",
+   "SponsorUPN": "demo.owner@example.com",
+   "StartDate": "@day:-30",
+   "TargetDate": "@day:170",
+   "Status": "ACTIVE",
+   "Priority": "HIGH",
+   "Goal": "iPads delivered and configured",
+   "KpiId": ""
+  },
+  {
+   "Title": "Keep laptop stock above the alarm level",
+   "ObjectiveId": "OBJ-DEMO-003",
+   "Description": "Sample objective: Keep laptop stock above the alarm level.",
+   "OwnerUPN": "demo.owner@example.com",
+   "SponsorUPN": "demo.owner@example.com",
+   "StartDate": "@day:-30",
+   "TargetDate": "@day:-5",
+   "Status": "ACTIVE",
+   "Priority": "MEDIUM",
+   "Goal": "No product below its alarm level",
+   "KpiId": ""
+  },
+  {
+   "Title": "Simplify the kiosk service",
+   "ObjectiveId": "OBJ-DEMO-004",
+   "Description": "Sample objective: Simplify the kiosk service.",
+   "OwnerUPN": "demo.owner@example.com",
+   "SponsorUPN": "demo.owner@example.com",
+   "StartDate": "@day:-30",
+   "TargetDate": "@day:240",
+   "Status": "DRAFT",
+   "Priority": "LOW",
+   "Goal": "A welcome point, not a window",
+   "KpiId": ""
+  }
+ ],
+ "IT_33_BusinessCases": [
+  {
+   "Title": "Buy iPad mini for the retail counters",
+   "CaseId": "CASE-DEMO-001",
+   "Problem": "Sample problem.",
+   "Options": "Do nothing; the recommended option.",
+   "Recommendation": "The recommended option.",
+   "Risks": "Delivery delays.",
+   "EstimatedCost": 151200,
+   "AnnualBenefit": 90000,
+   "ObjectiveId": "OBJ-DEMO-002",
+   "InitiativeId": "INIT-DEMO-001",
+   "OwnerUPN": "demo.owner@example.com",
+   "Status": "SUBMITTED"
+  },
+  {
+   "Title": "Redesign the kiosk as a welcome point",
+   "CaseId": "CASE-DEMO-002",
+   "Problem": "Sample problem.",
+   "Options": "Do nothing; the recommended option.",
+   "Recommendation": "The recommended option.",
+   "Risks": "Delivery delays.",
+   "EstimatedCost": 12000,
+   "AnnualBenefit": 0,
+   "ObjectiveId": "OBJ-DEMO-004",
+   "InitiativeId": "INIT-DEMO-001",
+   "OwnerUPN": "demo.owner@example.com",
+   "Status": "DRAFT"
+  },
+  {
+   "Title": "Replace the ticket chat tool",
+   "CaseId": "CASE-DEMO-003",
+   "Problem": "Sample problem.",
+   "Options": "Do nothing; the recommended option.",
+   "Recommendation": "The recommended option.",
+   "Risks": "Delivery delays.",
+   "EstimatedCost": 8000,
+   "AnnualBenefit": 20000,
+   "ObjectiveId": "OBJ-DEMO-001",
+   "InitiativeId": "INIT-DEMO-001",
+   "OwnerUPN": "demo.owner@example.com",
+   "Status": "APPROVED",
+   "DecisionDate": "@day:-20"
+  }
+ ],
+ "IT_34_WeeklyReviews": [
+  {
+   "Title": "Review of last week",
+   "ReviewId": "WEEK-DEMO-001",
+   "WeekStart": "@day:-7",
+   "Status": "COMPLETED",
+   "Happened": "Monthly figures received from the service provider.",
+   "WentWell": "The NPS call-backs are up to date.",
+   "WentWrong": "Two detractors were called late.",
+   "Attention": "Laptop stock for Spain.",
+   "Decisions": "Order laptops.",
+   "Risks": "Stock risk.",
+   "Priorities": "Close the iPad order.",
+   "StopDoing": "Chasing reports by email.",
+   "StartDoing": "A weekly check of the stock levels.",
+   "OwnerUPN": "demo.owner@example.com"
+  },
+  {
+   "Title": "Review of this week",
+   "ReviewId": "WEEK-DEMO-002",
+   "WeekStart": "@day:0",
+   "Status": "DRAFT",
+   "Happened": "",
+   "WentWell": "",
+   "WentWrong": "",
+   "Attention": "",
+   "Decisions": "",
+   "Risks": "",
+   "Priorities": "",
+   "StopDoing": "",
+   "StartDoing": "",
+   "OwnerUPN": "demo.owner@example.com"
+  }
  ]
 }

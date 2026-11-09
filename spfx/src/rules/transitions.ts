@@ -61,6 +61,6 @@ export const applyActionStatusEffects = (action: ActionItem, previousStatus: Act
 };
 
 /** Statuses that count as closed: hidden by default in the tables. */
-export const CLOSED_STATUSES: string[] = ['COMPLETED', 'CANCELLED', 'REJECTED', 'DONE', 'ARCHIVED', 'CLOSED', 'SUPERSEDED', 'APPLIED', 'INACTIVE', 'EXPIRED', 'TERMINATED', 'RESOLVED', 'IMPLEMENTED', 'RETIRED', 'DISCARDED', 'RENEWED', 'NOT_REQUIRED', 'DELIVERED'];
+export const CLOSED_STATUSES: string[] = ['COMPLETED', 'CANCELLED', 'REJECTED', 'DONE', 'ARCHIVED', 'CLOSED', 'SUPERSEDED', 'APPLIED', 'INACTIVE', 'EXPIRED', 'TERMINATED', 'RESOLVED', 'IMPLEMENTED', 'RETIRED', 'DISCARDED', 'RENEWED', 'NOT_REQUIRED', 'DELIVERED', 'ACHIEVED'];
 
 export const isClosedStatus = (status: string): boolean => CLOSED_STATUSES.indexOf(status) > -1;

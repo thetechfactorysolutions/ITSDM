@@ -1,6 +1,6 @@
 import { AppConfig } from '../config/AppConfig';
 import {
-  ActionItem, Article, ArticleCategory, ArticleStatus, ApprovalStatus, CapexItem, ChangeRequest, ChangeStatus, ChangeType, Contract, ContractStatus, IApprovalState, Idea, IdeaStatus, Initiative, InitiativeStatus, OpexItem, Project, ProjectStatus, RiskScale
+  ActionItem, Article, ArticleCategory, ArticleStatus, ApprovalStatus, BusinessCase, CaseStatus, CapexItem, ChangeRequest, ChangeStatus, ChangeType, Contract, ContractStatus, IApprovalState, Idea, IdeaStatus, Initiative, InitiativeStatus, OpexItem, Project, ProjectStatus, RiskScale
 } from '../models';
 import { toDayKey } from './dates';
 import { isCommitted, opexAnnualAmount } from './finance';
@@ -14,7 +14,7 @@ import { isCommitted, opexAnnualAmount } from './finance';
  * quick status change, the CSV import and the dashboard all read this list.
  */
 
-export type ApprovalEntity = 'ideas' | 'initiatives' | 'projects' | 'actions' | 'capex' | 'opex' | 'contracts' | 'changes' | 'articles';
+export type ApprovalEntity = 'ideas' | 'initiatives' | 'projects' | 'actions' | 'capex' | 'opex' | 'contracts' | 'changes' | 'articles' | 'cases';
 
 export interface IEntityByApprovalKey {
   ideas: Idea;
@@ -26,6 +26,7 @@ export interface IEntityByApprovalKey {
   contracts: Contract;
   changes: ChangeRequest;
   articles: Article;
+  cases: BusinessCase;
 }
 
 export interface IApprovalRule {
@@ -128,6 +129,15 @@ export const APPROVAL_RULES: IApprovalRule[] = [
     enabled: true,
     requires: (current, next) =>
       next.status === ArticleStatus.PUBLISHED && (!current || current.status !== ArticleStatus.PUBLISHED) && next.category === ArticleCategory.POLICY
+  }),
+
+  // Strategy: approving a business case for a large amount needs a recorded sign-off.
+  rule({
+    id: 'case.approve',
+    entity: 'cases',
+    enabled: true,
+    requires: (current, next) =>
+      next.status === CaseStatus.APPROVED && (!current || current.status !== CaseStatus.APPROVED) && next.estimatedCost >= AppConfig.approvals.highSpend
   }),
 
   // Off by default: an example of a rule that is switched on by changing `enabled` to true.

@@ -44,6 +44,8 @@ Diseño en `docs/superpowers/specs/2026-11-08-ronda-2-diseno.md`: vínculos con 
 
 - **Asuntos, bandeja y panel conectado:** bandeja de entrada con áreas editables, asuntos con histórico, directorio de enlaces, garantías y licencias, agenda única con calendario, añadir rápido, adjuntos en cualquier lista, plantillas de proyecto (helpdesk al estilo de un servicio de referencia, app para otro equipo, renovación) y recetas de flujos para meter correo y Teams en la bandeja (`docs/ASUNTOS.md`, diseño en `docs/superpowers/specs/2026-11-09-asuntos-bandeja-diseno.md`). Paquete 1.8.0.0, 26 listas. Probado con jsdom; falta probarlo en el tenant y crear los flujos.
 
+- **Servicio, stock, Genius y gestión:** NPS con seguimiento de detractores, cifras mensuales por país con el reparto interacción/incidencia, catálogo de clasificación con probador de frases, stock de dispositivos con alarma, sesiones Genius con impacto, objetivos estratégicos, casos de negocio con ROI y aprobación, y revisión semanal (`docs/superpowers/specs/2026-11-09-modulos-servicio-diseno.md`). Paquete 1.9.0.0, 34 listas. Probado con jsdom; falta probarlo en el tenant.
+
 ## Aplazado tras la ronda 2 (pendiente de retomar)
 Quedó fuera a propósito. Para retomarlo, pedir "retoma el roadmap".
 - **Integraciones:** Planner (crear plan/tarea al activar iniciativas y proyectos), Power Automate (ya documentado como recetas; falta, si se quiere, un botón en la app que dispare un flujo) y Microsoft Graph (perfil, foto, calendario). Necesitan permisos y flujos del tenant.

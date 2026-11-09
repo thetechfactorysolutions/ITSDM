@@ -84,3 +84,5 @@ En cada elemento: la regla aprobada, el estado (Sin aprobación, Pendiente, Apro
 - **Los avisos los envías tú.** Si quieres que los recordatorios salgan solos, mira el flujo 4 de `docs/POWER_AUTOMATE.md`.
 - **Los enlaces de email y de Teams** dependen de tener un programa de correo y Teams configurados en el equipo; no se han probado contra tu tenant.
 - Las listas ya creadas no se migran: las columnas de aprobación aparecen al volver a añadir la aplicación al sitio, o con los scripts de `spfx/scripts/`.
+
+También protege **aprobar un caso de negocio** de importe alto (regla `case.approve`, el mismo umbral de gasto alto que los contratos y los gastos). Ver `ASUNTOS.md` y el diseño de los módulos nuevos en `superpowers/specs/2026-11-09-modulos-servicio-diseno.md`.

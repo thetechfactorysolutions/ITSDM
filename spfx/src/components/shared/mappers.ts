@@ -1,4 +1,5 @@
 import {
+  BusinessCase, CaseStatus, Objective, ObjectiveStatus, WeeklyReview, WeeklyReviewStatus,
   GeniusSession, GeniusStatus, GeniusType, StockCategory, StockItem, StockOwnership, StockStatus,
   CatalogCategory, CatalogEntry, CatalogKind, CatalogStatus, Country, NpsChannel, NpsFollowUp, NpsResponse, ServiceMonth,
   Area, AreaStatus, Entitlement, EntitlementStatus, EntitlementType, LinkItem, LinkStatus, Matter, MatterPriority, MatterSource, MatterStatus,
@@ -634,6 +635,68 @@ export const mapGenius = (item: Record<string, unknown>): GeniusSession => ({
   articleId: readString(item, 'ArticleId'),
   catalogId: readString(item, 'CatalogId'),
   motivation: readString(item, 'Motivation'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapObjective = (item: Record<string, unknown>): Objective => ({
+  id: readId(item),
+  objectiveId: readString(item, 'ObjectiveId'),
+  title: readString(item, 'Title'),
+  description: readString(item, 'Description'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  sponsorUpn: readString(item, 'SponsorUPN'),
+  startDate: readDate(item, 'StartDate'),
+  targetDate: readDate(item, 'TargetDate'),
+  status: readEnum(item, 'Status', enumValues(ObjectiveStatus), ObjectiveStatus.DRAFT),
+  priority: readEnum(item, 'Priority', enumValues(ActionPriority), ActionPriority.MEDIUM),
+  goal: readString(item, 'Goal'),
+  kpiId: readString(item, 'KpiId'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapCase = (item: Record<string, unknown>): BusinessCase => ({
+  id: readId(item),
+  caseId: readString(item, 'CaseId'),
+  title: readString(item, 'Title'),
+  problem: readString(item, 'Problem'),
+  options: readString(item, 'Options'),
+  recommendation: readString(item, 'Recommendation'),
+  risks: readString(item, 'Risks'),
+  estimatedCost: readNumber(item, 'EstimatedCost'),
+  annualBenefit: readNumber(item, 'AnnualBenefit'),
+  objectiveId: readString(item, 'ObjectiveId'),
+  initiativeId: readString(item, 'InitiativeId'),
+  projectId: readString(item, 'ProjectId'),
+  ownerUpn: readString(item, 'OwnerUPN'),
+  status: readEnum(item, 'Status', enumValues(CaseStatus), CaseStatus.DRAFT),
+  decisionDate: readDate(item, 'DecisionDate'),
+  decisionNotes: readString(item, 'DecisionNotes'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor'),
+  approval: readApproval(item)
+});
+
+export const mapWeekly = (item: Record<string, unknown>): WeeklyReview => ({
+  id: readId(item),
+  reviewId: readString(item, 'ReviewId'),
+  title: readString(item, 'Title'),
+  weekStart: readDate(item, 'WeekStart'),
+  status: readEnum(item, 'Status', enumValues(WeeklyReviewStatus), WeeklyReviewStatus.DRAFT),
+  happened: readString(item, 'Happened'),
+  wentWell: readString(item, 'WentWell'),
+  wentWrong: readString(item, 'WentWrong'),
+  attention: readString(item, 'Attention'),
+  decisions: readString(item, 'Decisions'),
+  risks: readString(item, 'Risks'),
+  priorities: readString(item, 'Priorities'),
+  stopDoing: readString(item, 'StopDoing'),
+  startDoing: readString(item, 'StartDoing'),
+  ownerUpn: readString(item, 'OwnerUPN'),
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
   editor: readExpandedTitle(item, 'Editor')

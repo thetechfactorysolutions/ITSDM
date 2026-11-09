@@ -69,6 +69,16 @@
 - **Warranty or licence (entitlement):** Active → Expired, Renewed or Cancelled. Same warning as contracts: renewal inside the notice days, lapsed when it ended and is still Active.
 - **Agenda:** every date of every open item, in date order (`src/rules/agenda.ts`). Contracts and entitlements give two dates: the decision to renew (end date minus the notice) and the end.
 
+## Service quality, stock, Genius and management
+- **NPS answer:** promoter 9-10, passive 7-8, detractor 0-6. **NPS** = % promoters minus % detractors. A detractor starts as *To call*; if nobody has called after `AppConfig.service.npsFollowUpDays` (7) days it is **overdue**. Answers that need no call (*No call needed*) and closed ones are hidden by default.
+- **Monthly figures:** by month and country. **Interactions %** = interactions / (incidents + interactions). **Contacts per 100 users** = (incidents + interactions) / users x 100. **SLA low** below `AppConfig.service.slaTarget` (95). A missing SLA or NPS is empty, not zero.
+- **Catalogue:** each entry has keywords (case and accents ignored), a kind (incident, interaction or request) and a category. The phrase tester lists the active entries whose keywords appear in the text.
+- **Stock:** *Low* when the units on the shelf are at or below the alarm level and the order on its way does not lift them above it; *Ordered* when they are low but the order would. An order is **late** when units are on order and the expected day has passed. A zero alarm level turns the alarm off. Archived products never alarm.
+- **Genius session:** Idea → Planned → Delivered (or Cancelled). Attendance = attended / invited. The impact sums delivered sessions: attendees, mean attendance, mean satisfaction. It does not claim that interactions were avoided. Catalogue entries without a live session are suggested as topics.
+- **Objective:** Draft → Active → Achieved (or Cancelled). Late when active and past its target date.
+- **Business case:** Draft → Submitted → Approved or Rejected. **ROI** (first year) = (annual benefit - cost) / cost. **Payback** = cost / (annual benefit / 12) months. Approving a case of `AppConfig.approvals.highSpend` or more needs an approval (`case.approve`). The decision date (today) is filled in when it is approved or rejected.
+- **Weekly review:** the week starts on Monday. If the person has used it before and nothing completed covers last week, the dashboard says so.
+
 ## Approvals
 Ideas, initiatives, projects and actions carry one active approval (`ApprovalRule`, `ApprovalStatus` NONE/PENDING/APPROVED/REJECTED, `Approver`, `ApprovalRequestedOn`, `ApprovalDecidedOn`, `ApprovalDecidedBy`, `ApprovalComment`). Which changes need one is defined as data in `src/rules/approvals.ts`; see `APROBACIONES.md`.
 

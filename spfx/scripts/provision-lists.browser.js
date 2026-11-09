@@ -171,13 +171,17 @@
     IT_30_Stock: [T('StockId'), C('Category', ['LAPTOP', 'TABLET', 'PHONE', 'MONITOR', 'HEADSET', 'ACCESSORY', 'NETWORK', 'OTHER']), C('Country', ['ES', 'PT', 'OTHER']), NUM('OnHand'), NUM('MinLevel'),
       NUM('InUse'), NUM('OnOrder'), D('ExpectedOn'), NUM('UnitCost'), C('Ownership', ['RENTED', 'PURCHASED']), T('VendorId'), C('Status', ['ACTIVE', 'ARCHIVED']), N('Notes')],
     IT_31_GeniusSessions: [T('SessionId'), C('SessionType', ['CORNER', 'TIP', 'ACADEMY', 'CHALLENGE', 'ASK_IT']), T('Topic'), C('Status', ['IDEA', 'PLANNED', 'DELIVERED', 'CANCELLED']), D('SessionDate'), T('Audience'),
-      T('OwnerUPN'), NUM('Invited'), NUM('Attended'), NUM('Satisfaction', 'Min="0" Max="5"'), N('MaterialUrl'), T('ArticleId'), T('CatalogId'), N('Motivation')]
+      T('OwnerUPN'), NUM('Invited'), NUM('Attended'), NUM('Satisfaction', 'Min="0" Max="5"'), N('MaterialUrl'), T('ArticleId'), T('CatalogId'), N('Motivation')],
+    IT_32_Objectives: [T('ObjectiveId'), N('Description'), T('OwnerUPN'), T('SponsorUPN'), D('StartDate'), D('TargetDate'), C('Status', ['DRAFT', 'ACTIVE', 'ACHIEVED', 'CANCELLED']), C('Priority', level), N('Goal'), T('KpiId')],
+    IT_33_BusinessCases: [T('CaseId'), N('Problem'), N('Options'), N('Recommendation'), N('Risks'), NUM('EstimatedCost'), NUM('AnnualBenefit'), T('ObjectiveId'), T('InitiativeId'), T('ProjectId'), T('OwnerUPN'),
+      C('Status', ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'ARCHIVED']), D('DecisionDate'), N('DecisionNotes')],
+    IT_34_WeeklyReviews: [T('ReviewId'), D('WeekStart'), C('Status', ['DRAFT', 'COMPLETED']), N('Happened'), N('WentWell'), N('WentWrong'), N('Attention'), N('Decisions'), N('Risks'), N('Priorities'), N('StopDoing'), N('StartDoing'), T('OwnerUPN')]
   };
 
   // Same seven approval columns on the four main lists (see src/rules/approvals.ts).
   const approvalFields = [T('ApprovalRule'), C('ApprovalStatus', ['NONE', 'PENDING', 'APPROVED', 'REJECTED']), T('Approver'),
     D('ApprovalRequestedOn'), D('ApprovalDecidedOn'), T('ApprovalDecidedBy'), N('ApprovalComment')];
-  ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests', 'IT_18_KnowledgeBase'].forEach((name) => { defs[name] = defs[name].concat(approvalFields); });
+  ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests', 'IT_18_KnowledgeBase', 'IT_33_BusinessCases'].forEach((name) => { defs[name] = defs[name].concat(approvalFields); });
 
   for (const [title, fields] of Object.entries(defs)) await ensureList(title, fields);
 

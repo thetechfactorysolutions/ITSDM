@@ -1,6 +1,6 @@
 # Módulos de servicio, stock, Genius y gestión: diseño
 
-Fecha: 2026-11-09. Estado: aprobado por la usuaria ("primero los módulos nuevos"). Se construye en tres fases; versión del paquete 1.9.0.0.
+Fecha: 2026-11-09. Estado: aprobado por la usuaria ("primero los módulos nuevos"). Se construye en tres fases; versión del paquete 1.9.0.0. Implementado y probado con jsdom; sin probar en el tenant.
 
 ## Por qué
 

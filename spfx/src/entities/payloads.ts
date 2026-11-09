@@ -1,5 +1,5 @@
 import {
-  ActionItem, Area, Article, Budget, CatalogEntry, GeniusSession, NpsResponse, ServiceMonth, StockItem, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, BusinessCase, Budget, CatalogEntry, GeniusSession, NpsResponse, Objective, ServiceMonth, StockItem, WeeklyReview, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
@@ -478,6 +478,56 @@ export const buildGeniusPayload = (session: GeniusSession): Record<string, unkno
   Motivation: session.motivation
 });
 
+export const buildObjectivePayload = (objective: Objective): Record<string, unknown> => ({
+  Title: objective.title.trim(),
+  ObjectiveId: objective.objectiveId,
+  Description: objective.description,
+  OwnerUPN: objective.ownerUpn,
+  SponsorUPN: objective.sponsorUpn,
+  StartDate: dayKeyToSharePoint(objective.startDate),
+  TargetDate: dayKeyToSharePoint(objective.targetDate),
+  Status: objective.status,
+  Priority: objective.priority,
+  Goal: objective.goal,
+  KpiId: objective.kpiId ?? ''
+});
+
+export const buildCasePayload = (businessCase: BusinessCase): Record<string, unknown> => ({
+  Title: businessCase.title.trim(),
+  CaseId: businessCase.caseId,
+  Problem: businessCase.problem,
+  Options: businessCase.options,
+  Recommendation: businessCase.recommendation,
+  Risks: businessCase.risks,
+  EstimatedCost: businessCase.estimatedCost,
+  AnnualBenefit: businessCase.annualBenefit,
+  ObjectiveId: businessCase.objectiveId ?? '',
+  InitiativeId: businessCase.initiativeId ?? '',
+  ProjectId: businessCase.projectId ?? '',
+  OwnerUPN: businessCase.ownerUpn,
+  Status: businessCase.status,
+  DecisionDate: dayKeyToSharePoint(businessCase.decisionDate),
+  DecisionNotes: businessCase.decisionNotes,
+  ...buildApprovalPayload(getApproval(businessCase))
+});
+
+export const buildWeeklyPayload = (review: WeeklyReview): Record<string, unknown> => ({
+  Title: review.title.trim(),
+  ReviewId: review.reviewId,
+  WeekStart: dayKeyToSharePoint(review.weekStart),
+  Status: review.status,
+  Happened: review.happened,
+  WentWell: review.wentWell,
+  WentWrong: review.wentWrong,
+  Attention: review.attention,
+  Decisions: review.decisions,
+  Risks: review.risks,
+  Priorities: review.priorities,
+  StopDoing: review.stopDoing,
+  StartDoing: review.startDoing,
+  OwnerUPN: review.ownerUpn
+});
+
 export const SELECT = {
   ideas: ['Id', 'Title', 'IdeaId', 'Description', 'Status', 'OwnerUPN', 'SponsorUPN', 'EstimatedValue', 'TargetDate', 'Tags', 'ConvertedInitiativeId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   initiatives: ['Id', 'Title', 'InitiativeId', 'Description', 'Status', 'OwnerUPN', 'ProgressPct', 'TargetDate', 'SourceIdeaId', 'PlannerPlanId', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
@@ -509,7 +559,10 @@ export const SELECT = {
   serviceMonths: ['Id', 'Title', 'MonthId', 'Period', 'Country', 'Incidents', 'Interactions', 'Requests', 'Calls', 'Users', 'SlaPct', 'NpsScore', 'NpsResponses', 'Backlog', 'Notes', 'Created', 'Modified', 'Editor/Title'],
   catalog: ['Id', 'Title', 'CatalogId', 'Category', 'Kind', 'Keywords', 'Guidance', 'ArticleId', 'Status', 'Created', 'Modified', 'Editor/Title'],
   stock: ['Id', 'Title', 'StockId', 'Category', 'Country', 'OnHand', 'MinLevel', 'InUse', 'OnOrder', 'ExpectedOn', 'UnitCost', 'Ownership', 'VendorId', 'Status', 'Notes', 'Created', 'Modified', 'Editor/Title'],
-  genius: ['Id', 'Title', 'SessionId', 'SessionType', 'Topic', 'Status', 'SessionDate', 'Audience', 'OwnerUPN', 'Invited', 'Attended', 'Satisfaction', 'MaterialUrl', 'ArticleId', 'CatalogId', 'Motivation', 'Created', 'Modified', 'Editor/Title']
+  genius: ['Id', 'Title', 'SessionId', 'SessionType', 'Topic', 'Status', 'SessionDate', 'Audience', 'OwnerUPN', 'Invited', 'Attended', 'Satisfaction', 'MaterialUrl', 'ArticleId', 'CatalogId', 'Motivation', 'Created', 'Modified', 'Editor/Title'],
+  objectives: ['Id', 'Title', 'ObjectiveId', 'Description', 'OwnerUPN', 'SponsorUPN', 'StartDate', 'TargetDate', 'Status', 'Priority', 'Goal', 'KpiId', 'Created', 'Modified', 'Editor/Title'],
+  businessCases: ['Id', 'Title', 'CaseId', 'Problem', 'Options', 'Recommendation', 'Risks', 'EstimatedCost', 'AnnualBenefit', 'ObjectiveId', 'InitiativeId', 'ProjectId', 'OwnerUPN', 'Status', 'DecisionDate', 'DecisionNotes', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
+  weeklyReviews: ['Id', 'Title', 'ReviewId', 'WeekStart', 'Status', 'Happened', 'WentWell', 'WentWrong', 'Attention', 'Decisions', 'Risks', 'Priorities', 'StopDoing', 'StartDoing', 'OwnerUPN', 'Created', 'Modified', 'Editor/Title']
 };
 
 export const EXPAND_EDITOR = ['Editor'];

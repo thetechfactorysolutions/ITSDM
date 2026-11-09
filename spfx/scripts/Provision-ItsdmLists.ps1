@@ -314,6 +314,23 @@ $genius = @(
   @{ Name = 'MaterialUrl'; Type = 'Note' }, @{ Name = 'ArticleId'; Type = 'Text' }, @{ Name = 'CatalogId'; Type = 'Text' }, @{ Name = 'Motivation'; Type = 'Note' }
 )
 
+$objectives = @(
+  @{ Name = 'ObjectiveId'; Type = 'Text' }, @{ Name = 'Description'; Type = 'Note' }, @{ Name = 'OwnerUPN'; Type = 'Text' }, @{ Name = 'SponsorUPN'; Type = 'Text' },
+  @{ Name = 'StartDate'; Type = 'Date' }, @{ Name = 'TargetDate'; Type = 'Date' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'DRAFT', 'ACTIVE', 'ACHIEVED', 'CANCELLED' },
+  @{ Name = 'Priority'; Type = 'Choice'; Choices = $level }, @{ Name = 'Goal'; Type = 'Note' }, @{ Name = 'KpiId'; Type = 'Text' }
+)
+$cases = @(
+  @{ Name = 'CaseId'; Type = 'Text' }, @{ Name = 'Problem'; Type = 'Note' }, @{ Name = 'Options'; Type = 'Note' }, @{ Name = 'Recommendation'; Type = 'Note' }, @{ Name = 'Risks'; Type = 'Note' },
+  @{ Name = 'EstimatedCost'; Type = 'Number' }, @{ Name = 'AnnualBenefit'; Type = 'Number' }, @{ Name = 'ObjectiveId'; Type = 'Text' }, @{ Name = 'InitiativeId'; Type = 'Text' },
+  @{ Name = 'ProjectId'; Type = 'Text' }, @{ Name = 'OwnerUPN'; Type = 'Text' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'ARCHIVED' },
+  @{ Name = 'DecisionDate'; Type = 'Date' }, @{ Name = 'DecisionNotes'; Type = 'Note' }
+)
+$weekly = @(
+  @{ Name = 'ReviewId'; Type = 'Text' }, @{ Name = 'WeekStart'; Type = 'Date' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'DRAFT', 'COMPLETED' },
+  @{ Name = 'Happened'; Type = 'Note' }, @{ Name = 'WentWell'; Type = 'Note' }, @{ Name = 'WentWrong'; Type = 'Note' }, @{ Name = 'Attention'; Type = 'Note' }, @{ Name = 'Decisions'; Type = 'Note' },
+  @{ Name = 'Risks'; Type = 'Note' }, @{ Name = 'Priorities'; Type = 'Note' }, @{ Name = 'StopDoing'; Type = 'Note' }, @{ Name = 'StartDoing'; Type = 'Note' }, @{ Name = 'OwnerUPN'; Type = 'Text' }
+)
+
 # Same seven approval columns on the four main lists (see src/rules/approvals.ts).
 $approval = @(
   @{ Name = 'ApprovalRule'; Type = 'Text' },
@@ -330,6 +347,7 @@ $opex += $approval
 $contracts += $approval
 $changes += $approval
 $knowledge += $approval
+$cases += $approval
 
 # ---------- create structure ----------
 Write-Host 'Creating lists and columns...' -ForegroundColor Cyan
@@ -364,6 +382,9 @@ Initialize-ItsdmList -Title 'IT_28_ServiceMonths' -Fields $serviceMonths
 Initialize-ItsdmList -Title 'IT_29_Catalog'     -Fields $catalog
 Initialize-ItsdmList -Title 'IT_30_Stock'       -Fields $stock
 Initialize-ItsdmList -Title 'IT_31_GeniusSessions' -Fields $genius
+Initialize-ItsdmList -Title 'IT_32_Objectives'  -Fields $objectives
+Initialize-ItsdmList -Title 'IT_33_BusinessCases' -Fields $cases
+Initialize-ItsdmList -Title 'IT_34_WeeklyReviews' -Fields $weekly
 
 # ---------- sample data ----------
 if ($SkipSampleData) {

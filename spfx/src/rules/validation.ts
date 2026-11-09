@@ -1,5 +1,5 @@
 import {
-  ActionItem, Area, Article, Budget, CatalogEntry, GeniusSession, NpsResponse, ServiceMonth, StockItem, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, MatterStatus, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Article, BusinessCase, Budget, CatalogEntry, GeniusSession, NpsResponse, Objective, ServiceMonth, StockItem, WeeklyReview, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, MatterStatus, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { isValidDayKey } from './dates';
 import { isSafeUrl } from './matters';
@@ -413,5 +413,36 @@ export const validateGenius = (session: GeniusSession): ValidationErrors => {
     errors.materialUrl = 'validation.urlInvalid';
   }
   validateOptionalEmail(errors, 'ownerUpn', session.ownerUpn, 'validation.ownerInvalid');
+  return errors;
+};
+
+export const validateObjective = (objective: Objective): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, objective.title);
+  validateOwner(errors, objective.ownerUpn);
+  validateOptionalEmail(errors, 'sponsorUpn', objective.sponsorUpn, 'validation.sponsorInvalid');
+  validateOptionalDate(errors, 'startDate', objective.startDate);
+  validateOptionalDate(errors, 'targetDate', objective.targetDate);
+  if (!errors.startDate && !errors.targetDate && objective.startDate && objective.targetDate && objective.targetDate < objective.startDate) {
+    errors.targetDate = 'validation.endBeforeStart';
+  }
+  return errors;
+};
+
+export const validateCase = (businessCase: BusinessCase): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, businessCase.title);
+  validateOwner(errors, businessCase.ownerUpn);
+  validateNonNegative(errors, 'estimatedCost', businessCase.estimatedCost);
+  validateNonNegative(errors, 'annualBenefit', businessCase.annualBenefit);
+  validateOptionalDate(errors, 'decisionDate', businessCase.decisionDate);
+  return errors;
+};
+
+export const validateWeekly = (review: WeeklyReview): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, review.title);
+  validateOptionalDate(errors, 'weekStart', review.weekStart);
+  validateOptionalEmail(errors, 'ownerUpn', review.ownerUpn, 'validation.ownerInvalid');
   return errors;
 };

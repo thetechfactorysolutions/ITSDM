@@ -201,7 +201,7 @@ const testMappers = (): void => {
 
 // ---------------------------------------------------------------- agenda
 const emptyInput = (): IAgendaInput => ({
-  matters: [], actions: [], contracts: [], entitlements: [], interactions: [], reviews: [], risks: [], trainings: [], skills: [], projects: [], articles: [], changes: [], incidents: [], stock: [], genius: []
+  matters: [], actions: [], contracts: [], entitlements: [], interactions: [], reviews: [], risks: [], trainings: [], skills: [], projects: [], articles: [], changes: [], incidents: [], stock: [], genius: [], objectives: []
 });
 
 const testAgenda = (): void => {

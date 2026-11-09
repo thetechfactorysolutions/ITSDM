@@ -85,3 +85,20 @@ export const useMatterLinkOptions = (): IMatterLinkOptions => {
   const vendorOptions = React.useMemo(() => vendors.items.map(v => ({ id: v.vendorId, title: v.title })), [vendors.items]);
   return { areaOptions, projectOptions, contractOptions, incidentOptions, vendorOptions };
 };
+
+export interface IStrategyLinkOptions {
+  objectiveOptions: ILinkOption[];
+  initiativeOptions: ILinkOption[];
+  projectOptions: ILinkOption[];
+  kpiOptions: ILinkOption[];
+}
+
+/** The choices for the pickers of objectives and business cases. */
+export const useStrategyLinkOptions = (): IStrategyLinkOptions => {
+  const { objectives, initiatives, projects, kpis } = useHubData();
+  const objectiveOptions = React.useMemo(() => objectives.items.map(o => ({ id: o.objectiveId, title: o.title })), [objectives.items]);
+  const initiativeOptions = React.useMemo(() => initiatives.items.map(i => ({ id: i.initiativeId, title: i.title })), [initiatives.items]);
+  const projectOptions = React.useMemo(() => projects.items.map(p => ({ id: p.projectId, title: p.title })), [projects.items]);
+  const kpiOptions = React.useMemo(() => kpis.items.map(k => ({ id: k.kpiId, title: k.title })), [kpis.items]);
+  return { objectiveOptions, initiativeOptions, projectOptions, kpiOptions };
+};

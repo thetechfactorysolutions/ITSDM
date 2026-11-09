@@ -4,6 +4,8 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { mapCatalog, mapNps, mapServiceMonth } from '../src/components/shared/mappers';
+import { mapCase, mapObjective, mapWeekly } from '../src/components/shared/mappers';
+import { casePaybackMonths, caseRoiPct, isCaseToDecide, isObjectiveLate, isWeeklyReviewMissing } from '../src/rules/strategy';
 import { isOrderLate, needsOrder, stockLevel } from '../src/rules/stock';
 import { attendanceRate, geniusImpact, isSessionLate, topicsWithoutSession } from '../src/rules/genius';
 import { mapGenius, mapStock } from '../src/components/shared/mappers';
@@ -70,7 +72,7 @@ const testEveryListAndSample = (): void => {
     'IT_05_KPIs', 'IT_13_Incidents', 'IT_14_Interactions', 'IT_15_ChangeRequests',
     'IT_16_TeamSkills', 'IT_17_TrainingPlans', 'IT_18_KnowledgeBase',
     'IT_11_Risks', 'IT_12_Decisions', 'IT_19_Reviews', 'IT_20_LessonsLearned', 'IT_21_Meetings', 'IT_22_Notes',
-    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements', 'IT_27_NpsResponses', 'IT_28_ServiceMonths', 'IT_29_Catalog', 'IT_30_Stock', 'IT_31_GeniusSessions'
+    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements', 'IT_27_NpsResponses', 'IT_28_ServiceMonths', 'IT_29_Catalog', 'IT_30_Stock', 'IT_31_GeniusSessions', 'IT_32_Objectives', 'IT_33_BusinessCases', 'IT_34_WeeklyReviews'
   ];
   assert.deepEqual(instances.map(i => i.title).sort(), expected.sort(), 'every list is in the package');
 
@@ -101,7 +103,7 @@ const testEveryListAndSample = (): void => {
 
 const testApprovalColumnsMatchTheRules = (): void => {
   // lists that carry an approval must have the seven columns, and every approval row must name a real rule
-  for (const title of ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests', 'IT_18_KnowledgeBase']) {
+  for (const title of ['IT_01_Ideas', 'IT_02_Initiatives', 'IT_03_Projects', 'IT_04_Actions', 'IT_07_CAPEX', 'IT_08_OPEX', 'IT_10_Contracts', 'IT_15_ChangeRequests', 'IT_18_KnowledgeBase', 'IT_33_BusinessCases']) {
     const instance = instances.filter(i => i.title === title)[0];
     const names = parseSchema(read(instance.schemaFile)).map(f => f.name);
     for (const column of ['ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment']) {
@@ -231,6 +233,24 @@ const testSamplesShowTheirCases = (): void => {
   assert.equal(impact.averageSatisfaction, 4.5);
   assert.equal(attendanceRate(sessions.filter(s => s.sessionId === 'GEN-DEMO-001')[0]), 45);
   assert.equal(topicsWithoutSession(catalog, sessions).length, catalog.length - 1, 'the delivered session covers one catalogue topic');
+
+  const objectives = rowsOf('IT_32_Objectives').map(mapObjective);
+  assert.deepEqual(objectives.filter(o => isObjectiveLate(o)).map(o => o.objectiveId), ['OBJ-DEMO-003'], 'one active objective is past its target date');
+  assert.ok(objectives.every(o => !o.kpiId || rowsOf('IT_05_KPIs').some(k => k.KpiId === o.kpiId)), 'objectives point to real KPIs');
+
+  const cases = rowsOf('IT_33_BusinessCases').map(mapCase);
+  const caseOf = (id: string): ReturnType<typeof mapCase> => cases.filter(c => c.caseId === id)[0];
+  assert.deepEqual(cases.filter(isCaseToDecide).map(c => c.caseId), ['CASE-DEMO-001'], 'one case waits for a decision');
+  assert.equal(caseRoiPct(caseOf('CASE-DEMO-001')), -40, 'the iPad case does not pay back in a year');
+  assert.equal(casePaybackMonths(caseOf('CASE-DEMO-001')), 20.2);
+  assert.equal(caseRoiPct(caseOf('CASE-DEMO-003')), 150);
+  assert.equal(casePaybackMonths(caseOf('CASE-DEMO-002')), undefined, 'a case with no benefit has no payback');
+  assert.ok(cases.filter(c => c.status === 'APPROVED').every(c => !!c.decisionDate), 'an approved case has its decision date');
+  assert.ok(cases.every(c => !c.objectiveId || objectives.some(o => o.objectiveId === c.objectiveId)), 'cases point to real objectives');
+
+  const weekly = rowsOf('IT_34_WeeklyReviews').map(mapWeekly);
+  assert.equal(isWeeklyReviewMissing(weekly), false, 'last week has a completed review');
+  assert.equal(weekly.filter(w => w.status === 'DRAFT').length, 1);
 
   const project = byId('IT_03_Projects', 'ProjectId', 'PROJ-DEMO-002');
   assert.equal(project.ApprovalStatus, 'PENDING', 'a project also waits for approval, from the earlier round');

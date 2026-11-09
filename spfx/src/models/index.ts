@@ -27,3 +27,4 @@ export * from './Entitlement';
 export * from './Service';
 export * from './Stock';
 export * from './Genius';
+export * from './Strategy';

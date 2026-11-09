@@ -66,7 +66,10 @@
             "schema_servicemonths.xml",
             "schema_catalog.xml",
             "schema_stock.xml",
-            "schema_genius.xml"
+            "schema_genius.xml",
+            "schema_objectives.xml",
+            "schema_businesscases.xml",
+            "schema_weeklyreviews.xml"
           ]
         }
       }

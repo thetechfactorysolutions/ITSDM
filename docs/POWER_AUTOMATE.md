@@ -153,6 +153,24 @@ Usa como `AreaId` ese resultado y como `Status`: `if(empty(outputs('Redactar_2')
 3. **Filtrar matriz** sobre `body/value`: `@less(ticks(item()?['ReceivedOn']), ticks(addDays(utcNow(), -3)))` (los antiguos).
 4. Correo a ti con *"Tienes N elementos en la bandeja, M con más de 3 días"* y una **tabla HTML** (`Title`, `Sender`, `ReceivedOn`), más el enlace a la aplicación.
 
+## Flujo 10: detractores sin llamar
+
+**Cuándo:** Recurrencia, cada día laborable a las 09:00.
+**Regla:** un detractor (puntuación de 0 a 6) está sin llamar si su estado es `PENDING`; está vencido a los 7 días de la respuesta (`AppConfig.service.npsFollowUpDays`).
+
+1. **Obtener elementos** de `IT_27_NpsResponses`, filtro: `Status eq 'PENDING' and RespondedOn lt '@{concat(addDays(utcNow('yyyy-MM-dd'), -7), 'T00:00:00Z')}'`.
+2. **Condición:** hay más de 0. Si no, termina.
+3. Correo a quien debe llamar (`OwnerUPN`, o a ti) con una **tabla HTML** (`Title`, `Score`, `Channel`, `RespondedOn`).
+
+## Flujo 11: stock bajo
+
+**Cuándo:** Recurrencia, lunes a las 08:30.
+**Regla:** un producto activo está bajo si lo que hay en el almacén (`OnHand`) es menor o igual que el nivel de alarma (`MinLevel`, mayor que 0) y el pedido en camino (`OnOrder`) no lo sube por encima. Si el pedido lo sube, la aplicación lo marca como "pedido en camino", no como bajo.
+
+1. **Obtener elementos** de `IT_30_Stock`, filtro: `Status eq 'ACTIVE' and MinLevel gt 0`.
+2. **Filtrar matriz**, modo avanzado: `@and(lessOrEquals(item()?['OnHand'], item()?['MinLevel']), lessOrEquals(add(item()?['OnHand'], item()?['OnOrder']), item()?['MinLevel']))`
+3. Si hay resultados, correo con `Title`, `Country`, `OnHand`, `MinLevel` y `OnOrder`.
+
 ## Garantías y licencias por renovar
 
 Es el **flujo 5** cambiando la lista a `IT_26_Entitlements`, el filtro a `Status eq 'ACTIVE'` y el título del correo ("garantías y licencias por renovar"). La expresión de *Filtrar matriz* es la misma, porque `EndDate` y `NoticeDays` se llaman igual.
