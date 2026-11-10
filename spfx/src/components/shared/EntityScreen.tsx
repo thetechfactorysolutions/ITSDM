@@ -88,6 +88,12 @@ export interface IEntityScreenProps<T extends IEntityBase> {
   initialView?: Partial<ITableView>;
   /** Hides the attachments in the edit panel for lists where they make no sense. */
   hideAttachments?: boolean;
+  /** Whether the person may edit this item. When not, double-clicking opens the details instead and Edit is disabled. */
+  canEdit?: (item: T) => boolean;
+  /** Whether the person may delete this item. */
+  canDelete?: (item: T) => boolean;
+  /** Hides Import CSV, for people who cannot create what it would add. */
+  hideImport?: boolean;
   /** Hides the "New" command, for views of a list that cannot create what they show (a history). */
   hideNew?: boolean;
   /** Hides the "Show closed" switch, for views whose scope already decides what is closed. */
@@ -340,7 +346,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   const commandItems: ICommandBarItemProps[] = props.hideNew ? [] : [
     { key: 'new', text: t(`${textKey}.new`), iconProps: { iconName: 'Add' }, onClick: openCreate }
   ];
-  commandItems.push({ key: 'edit', text: t('common.edit'), iconProps: { iconName: 'Edit' }, disabled: !selected, onClick: () => openEdit(selected) });
+  commandItems.push({ key: 'edit', text: t('common.edit'), iconProps: { iconName: 'Edit' }, disabled: !selected || (!!props.canEdit && !props.canEdit(selected)), onClick: () => openEdit(selected) });
   if (props.renderDetail) {
     commandItems.push({ key: 'details', text: t('common.details'), iconProps: { iconName: 'Info' }, disabled: !selected, onClick: () => setIsDetailOpen(true) });
   }
@@ -348,7 +354,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     commandItems.push({ key: 'archive', text: t('common.archive'), iconProps: { iconName: 'Archive' }, disabled: !selected || !props.canArchive(selected), onClick: () => setConfirm('archive') });
   }
   commandItems.push(
-    { key: 'delete', text: t('common.delete'), iconProps: { iconName: 'Delete' }, disabled: !selected, onClick: () => setConfirm('delete') }
+    { key: 'delete', text: t('common.delete'), iconProps: { iconName: 'Delete' }, disabled: !selected || (!!props.canDelete && !props.canDelete(selected)), onClick: () => setConfirm('delete') }
   );
   (props.extraCommands ? props.extraCommands(selected) : []).forEach(item => commandItems.push(item));
 
@@ -356,7 +362,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     { key: 'refresh', text: t('common.refresh'), iconProps: { iconName: 'Refresh' }, onClick: () => { state.reload().catch(() => undefined); } },
     { key: 'export', text: t('common.exportCsv'), iconProps: { iconName: 'Download' }, disabled: visible.length === 0, onClick: exportCsv },
     { key: 'import', text: t('common.importCsv'), iconProps: { iconName: 'Upload' }, onClick: () => setIsCsvOpen(true) }
-  ];
+  ].filter(item => !(props.hideImport && item.key === 'import'));
 
   const hasAnyItems = scoped.length > 0;
 
@@ -414,7 +420,16 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
             selectionMode={SelectionMode.single}
             setKey="entity"
             layoutMode={DetailsListLayoutMode.justified}
-            onItemInvoked={item => openEdit(item as T)}
+            onItemInvoked={item => {
+              if (props.canEdit && !props.canEdit(item as T)) {
+                if (props.renderDetail) {
+                  setSelectedId((item as T).id);
+                  setIsDetailOpen(true);
+                }
+                return;
+              }
+              openEdit(item as T);
+            }}
             ariaLabelForGrid={t(`${textKey}.title`)}
           />
         </div>

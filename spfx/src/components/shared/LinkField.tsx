@@ -14,6 +14,7 @@ export interface ILinkFieldProps {
   value: string | undefined;
   options: ILinkOption[];
   onChange: (id: string) => void;
+  disabled?: boolean;
 }
 
 /**
@@ -21,7 +22,7 @@ export interface ILinkFieldProps {
  * user searches by title. A stored id that no longer exists is still shown, so editing an item
  * never silently drops its link.
  */
-const LinkField: React.FC<ILinkFieldProps> = ({ label, value, options, onChange }) => {
+const LinkField: React.FC<ILinkFieldProps> = ({ label, value, options, onChange, disabled }) => {
   const t = useT();
 
   const comboOptions: IComboBoxOption[] = React.useMemo(() => {
@@ -38,6 +39,7 @@ const LinkField: React.FC<ILinkFieldProps> = ({ label, value, options, onChange 
   return (
     <ComboBox
       label={label}
+      disabled={disabled}
       options={comboOptions}
       selectedKey={value ?? ''}
       autoComplete="on"

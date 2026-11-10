@@ -1,5 +1,5 @@
 import {
-  ActionItem, Area, Article, BusinessCase, Budget, CatalogEntry, GeniusSession, NpsResponse, Objective, ServiceMonth, StockItem, WeeklyReview, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, MatterStatus, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Purchase, PurchaseOrder, PurchaseRoleEntry, Article, BusinessCase, Budget, CatalogEntry, GeniusSession, NpsResponse, Objective, ServiceMonth, StockItem, WeeklyReview, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, MatterStatus, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { isValidDayKey } from './dates';
 import { isSafeUrl } from './matters';
@@ -444,5 +444,34 @@ export const validateWeekly = (review: WeeklyReview): ValidationErrors => {
   validateTitle(errors, review.title);
   validateOptionalDate(errors, 'weekStart', review.weekStart);
   validateOptionalEmail(errors, 'ownerUpn', review.ownerUpn, 'validation.ownerInvalid');
+  return errors;
+};
+
+export const validatePurchase = (purchase: Purchase): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, purchase.title);
+  if (!isFinite(purchase.quantity) || purchase.quantity < 1) {
+    errors.quantity = 'validation.quantityInvalid';
+  }
+  validateNonNegative(errors, 'unitPrice', purchase.unitPrice);
+  validateNonNegative(errors, 'amount', purchase.amount);
+  validateOptionalDate(errors, 'requestedOn', purchase.requestedOn);
+  validateOptionalDate(errors, 'orderedOn', purchase.orderedOn);
+  validateOptionalDate(errors, 'receivedOn', purchase.receivedOn);
+  validateOptionalDate(errors, 'decisionDate', purchase.decisionDate);
+  return errors;
+};
+
+export const validatePurchaseOrder = (po: PurchaseOrder): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, po.title);
+  validateNonNegative(errors, 'amount', po.amount);
+  return errors;
+};
+
+export const validatePurchaseRole = (entry: PurchaseRoleEntry): ValidationErrors => {
+  const errors: ValidationErrors = {};
+  validateTitle(errors, entry.title);
+  validateOwner(errors, entry.userUpn);
   return errors;
 };

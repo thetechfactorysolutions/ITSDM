@@ -23,7 +23,7 @@ ITSDM is a SharePoint Framework (SPFx) web part for IT Service Delivery Manageme
 - Lists and sample data are created when the app is added to a site.
 - **Local mode (prototype):** the same app as a plain web page that keeps its data in a JSON file you choose, for example in your OneDrive folder, with no SharePoint and no installation (`docs/MODO_LOCAL.md`, `npm run standalone` in `spfx/`).
 
-Not implemented yet (see `docs/ROADMAP.md`): Planner and Graph integrations (automatic alerts are documented as Power Automate recipes in `docs/POWER_AUTOMATE.md`), app-level roles, automatic schema migration. All 34 lists have their screen.
+Not implemented yet (see `docs/ROADMAP.md`): Planner and Graph integrations (automatic alerts are documented as Power Automate recipes in `docs/POWER_AUTOMATE.md`), app-level roles beyond purchases, automatic schema migration. All 37 lists have their screen. Purchase requests, purchase orders and their roles are in `docs/PEDIDOS.md`.
 
 ## Architecture
 - SPFx web part host (`spfx/`), React 17 + Fluent UI v8, TypeScript, PnPjs

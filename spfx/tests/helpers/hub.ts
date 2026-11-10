@@ -25,7 +25,7 @@ export const list = <T,>(rows: T[], rec?: IRecorder): IListHookState<T> => ({
 
 const LIST_KEYS = [
   'ideas', 'initiatives', 'projects', 'actions', 'meetings', 'notes', 'risks', 'decisions', 'lessons', 'reviews', 'budgets', 'capex', 'opex', 'vendors', 'contracts', 'incidents',
-  'changes', 'interactions', 'kpis', 'skills', 'trainings', 'articles', 'matters', 'areas', 'links', 'entitlements', 'nps', 'serviceMonths', 'catalog', 'stock', 'genius', 'objectives', 'businessCases', 'weeklyReviews'
+  'changes', 'interactions', 'kpis', 'skills', 'trainings', 'articles', 'matters', 'areas', 'links', 'entitlements', 'nps', 'serviceMonths', 'catalog', 'stock', 'genius', 'objectives', 'businessCases', 'weeklyReviews', 'purchases', 'purchaseOrders', 'purchaseRoles'
 ];
 
 export type HubRows = Partial<Record<string, unknown[]>>;

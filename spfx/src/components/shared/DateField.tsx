@@ -9,10 +9,11 @@ export interface IDateFieldProps {
   value: string | undefined;
   onChange: (value: string) => void;
   errorMessage?: string;
+  disabled?: boolean;
 }
 
 /** Calendar date input that reads and writes YYYY-MM-DD day keys, with typing allowed. */
-const DateField: React.FC<IDateFieldProps> = ({ label, value, onChange, errorMessage }) => {
+const DateField: React.FC<IDateFieldProps> = ({ label, value, onChange, errorMessage, disabled }) => {
   const t = useT();
   // Text typed by the user that is not a valid date yet: keep showing it instead of erasing it.
   const [draft, setDraft] = React.useState<string | undefined>();
@@ -20,6 +21,7 @@ const DateField: React.FC<IDateFieldProps> = ({ label, value, onChange, errorMes
   return (
     <DatePicker
       label={label}
+      disabled={disabled}
       value={fromDayKey(value)}
       firstDayOfWeek={DayOfWeek.Monday}
       strings={defaultDatePickerStrings}

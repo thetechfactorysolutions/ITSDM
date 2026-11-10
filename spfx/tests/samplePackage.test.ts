@@ -5,6 +5,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { mapCatalog, mapNps, mapServiceMonth } from '../src/components/shared/mappers';
 import { mapCase, mapObjective, mapWeekly } from '../src/components/shared/mappers';
+import { mapPurchase, mapPurchaseOrder } from '../src/components/shared/mappers';
+import { poFigures, requestsToApprove } from '../src/rules/purchases';
 import { casePaybackMonths, caseRoiPct, isCaseToDecide, isObjectiveLate, isWeeklyReviewMissing } from '../src/rules/strategy';
 import { isOrderLate, needsOrder, stockLevel } from '../src/rules/stock';
 import { attendanceRate, geniusImpact, isSessionLate, topicsWithoutSession } from '../src/rules/genius';
@@ -72,7 +74,7 @@ const testEveryListAndSample = (): void => {
     'IT_05_KPIs', 'IT_13_Incidents', 'IT_14_Interactions', 'IT_15_ChangeRequests',
     'IT_16_TeamSkills', 'IT_17_TrainingPlans', 'IT_18_KnowledgeBase',
     'IT_11_Risks', 'IT_12_Decisions', 'IT_19_Reviews', 'IT_20_LessonsLearned', 'IT_21_Meetings', 'IT_22_Notes',
-    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements', 'IT_27_NpsResponses', 'IT_28_ServiceMonths', 'IT_29_Catalog', 'IT_30_Stock', 'IT_31_GeniusSessions', 'IT_32_Objectives', 'IT_33_BusinessCases', 'IT_34_WeeklyReviews'
+    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements', 'IT_27_NpsResponses', 'IT_28_ServiceMonths', 'IT_29_Catalog', 'IT_30_Stock', 'IT_31_GeniusSessions', 'IT_32_Objectives', 'IT_33_BusinessCases', 'IT_34_WeeklyReviews', 'IT_35_PurchaseOrders', 'IT_36_Purchases', 'IT_37_PurchaseRoles'
   ];
   assert.deepEqual(instances.map(i => i.title).sort(), expected.sort(), 'every list is in the package');
 
@@ -81,7 +83,7 @@ const testEveryListAndSample = (): void => {
     const byName: Record<string, ISchemaField> = {};
     fields.forEach(f => { byName[f.name] = f; });
     assert.ok(byName.Title, `${instance.title} has a Title column`);
-    assert.ok(instance.rows.length > 0, `${instance.title} has sample rows`);
+    assert.ok(instance.rows.length > 0 || instance.title === 'IT_37_PurchaseRoles', `${instance.title} has sample rows`);
 
     for (const row of instance.rows) {
       for (const key of Object.keys(row)) {
@@ -251,6 +253,17 @@ const testSamplesShowTheirCases = (): void => {
   const weekly = rowsOf('IT_34_WeeklyReviews').map(mapWeekly);
   assert.equal(isWeeklyReviewMissing(weekly), false, 'last week has a completed review');
   assert.equal(weekly.filter(w => w.status === 'DRAFT').length, 1);
+
+  const pos = rowsOf('IT_35_PurchaseOrders').map(mapPurchaseOrder);
+  const purchases = rowsOf('IT_36_Purchases').map(mapPurchase);
+  assert.equal(pos.length, 3);
+  assert.equal(rowsOf('IT_37_PurchaseRoles').length, 0, 'no roles in the sample: everybody can approve, so a first try works');
+  assert.equal(requestsToApprove(purchases).length, 2, 'two requests wait for approval');
+  assert.ok(purchases.every(p => !p.poNumber || pos.some(o => o.title === p.poNumber)), 'purchases point to real purchase orders');
+  const first = poFigures(pos.filter(p => p.title === 'PO-DEMO-100')[0], purchases);
+  assert.equal(first.spent, 164.8 + 180 + 260, 'the cables, the mice and the webcams are charged to the first order');
+  assert.equal(first.remaining, 5000 - 604.8);
+  assert.ok(purchases.every(p => p.amount === Math.round(p.quantity * p.unitPrice * 100) / 100), 'the amount is quantity times price');
 
   const project = byId('IT_03_Projects', 'ProjectId', 'PROJ-DEMO-002');
   assert.equal(project.ApprovalStatus, 'PENDING', 'a project also waits for approval, from the earlier round');

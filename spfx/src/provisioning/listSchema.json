@@ -2397,5 +2397,141 @@
     "type": "Text"
    }
   ]
+ },
+ {
+  "title": "IT_35_PurchaseOrders",
+  "description": "Purchase orders: a number and an amount that purchase requests are charged to",
+  "fields": [
+   {
+    "name": "PoId",
+    "type": "Text"
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "Amount",
+    "type": "Number"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "OPEN",
+     "CLOSED"
+    ]
+   },
+   {
+    "name": "Notes",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_36_Purchases",
+  "description": "Purchase requests: asked for, approved, ordered and received, charged to a purchase order",
+  "fields": [
+   {
+    "name": "PurchaseId",
+    "type": "Text"
+   },
+   {
+    "name": "Quantity",
+    "type": "Number"
+   },
+   {
+    "name": "UnitPrice",
+    "type": "Number"
+   },
+   {
+    "name": "Amount",
+    "type": "Number"
+   },
+   {
+    "name": "Category",
+    "type": "Text"
+   },
+   {
+    "name": "VendorId",
+    "type": "Text"
+   },
+   {
+    "name": "PoNumber",
+    "type": "Text"
+   },
+   {
+    "name": "Status",
+    "type": "Choice",
+    "choices": [
+     "REQUESTED",
+     "APPROVED",
+     "ORDERED",
+     "RECEIVED",
+     "REJECTED",
+     "CANCELLED"
+    ]
+   },
+   {
+    "name": "RequestedBy",
+    "type": "Text"
+   },
+   {
+    "name": "RequestedOn",
+    "type": "Date"
+   },
+   {
+    "name": "OrderedOn",
+    "type": "Date"
+   },
+   {
+    "name": "ReceivedOn",
+    "type": "Date"
+   },
+   {
+    "name": "DecisionBy",
+    "type": "Text"
+   },
+   {
+    "name": "DecisionDate",
+    "type": "Date"
+   },
+   {
+    "name": "DecisionNotes",
+    "type": "Note"
+   },
+   {
+    "name": "Reason",
+    "type": "Note"
+   },
+   {
+    "name": "Notes",
+    "type": "Note"
+   }
+  ]
+ },
+ {
+  "title": "IT_37_PurchaseRoles",
+  "description": "Who can request, order, approve or only view purchases",
+  "fields": [
+   {
+    "name": "UserUPN",
+    "type": "Text"
+   },
+   {
+    "name": "Role",
+    "type": "Choice",
+    "choices": [
+     "APPROVER",
+     "BUYER",
+     "REQUESTER",
+     "VIEWER"
+    ]
+   },
+   {
+    "name": "Notes",
+    "type": "Note"
+   }
+  ]
  }
 ]

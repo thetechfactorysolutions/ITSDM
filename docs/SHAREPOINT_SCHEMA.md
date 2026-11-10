@@ -108,6 +108,15 @@ Title, CaseId (Text), Problem, Options, Recommendation, Risks (Multiple lines), 
 ### IT_34_WeeklyReviews
 Title, ReviewId (Text), WeekStart (Date, the Monday), Status (Choice: DRAFT, COMPLETED), Happened, WentWell, WentWrong, Attention, Decisions, Risks, Priorities, StopDoing, StartDoing (Multiple lines), OwnerUPN (Text)
 
+### IT_35_PurchaseOrders
+Title (the PO number), PoId (Text), VendorId (Text), Amount (Number), Status (Choice: OPEN, CLOSED), Notes (Multiple lines)
+
+### IT_36_Purchases
+Title (the product), PurchaseId (Text), Quantity, UnitPrice, Amount (Number), Category (Text, free), VendorId (Text), PoNumber (Text, the Title of a PO), Status (Choice: REQUESTED, APPROVED, ORDERED, RECEIVED, REJECTED, CANCELLED), RequestedBy (Text), RequestedOn, OrderedOn, ReceivedOn (Date), DecisionBy (Text), DecisionDate (Date), DecisionNotes, Reason, Notes (Multiple lines)
+
+### IT_37_PurchaseRoles
+Title (a name), UserUPN (Text), Role (Choice: APPROVER, BUYER, REQUESTER, VIEWER), Notes (Multiple lines)
+
 ## Notes
 - Attachments use the list attachments of SharePoint; the Help tab has a button that turns them on for lists that were created without them.
 - Changing the columns of a list that already exists is not automated (see `ROADMAP.md`).

@@ -512,6 +512,44 @@ const LISTS = [
         Priorities: priorities, StopDoing: stop, StartDoing: start, OwnerUPN: SAMPLE_OWNER
       }));
     }
+  },
+  {
+    title: 'IT_35_PurchaseOrders', file: 'schema_purchaseorders.xml', description: 'Purchase orders: a number and an amount that purchase requests are charged to',
+    fields: [T('PoId'), T('VendorId'), NUM('Amount'), C('Status', ['OPEN', 'CLOSED']), N('Notes')],
+    rows: () => [
+      ['PO-DEMO-100', 'PO-DEMO-001', 'VEN-DEMO-001', 5000, 'OPEN'],
+      ['PO-DEMO-200', 'PO-DEMO-002', 'VEN-DEMO-002', 1200, 'OPEN'],
+      ['PO-DEMO-090', 'PO-DEMO-003', 'VEN-DEMO-001', 3000, 'CLOSED']
+    ].map(([t, id, ven, amount, st]) => ({ Title: t, PoId: id, VendorId: ven, Amount: amount, Status: st, Notes: 'Sample purchase order.' }))
+  },
+  {
+    title: 'IT_36_Purchases', file: 'schema_purchases.xml', description: 'Purchase requests: asked for, approved, ordered and received, charged to a purchase order',
+    fields: [T('PurchaseId'), NUM('Quantity'), NUM('UnitPrice'), NUM('Amount'), T('Category'), T('VendorId'), T('PoNumber'),
+      C('Status', ['REQUESTED', 'APPROVED', 'ORDERED', 'RECEIVED', 'REJECTED', 'CANCELLED']), T('RequestedBy'), D('RequestedOn'), D('OrderedOn'), D('ReceivedOn'),
+      T('DecisionBy'), D('DecisionDate'), N('DecisionNotes'), N('Reason'), N('Notes')],
+    rows: (day) => [
+      ['USB-C cables', 'PUR-DEMO-001', 40, 4.12, 'Cables', 'VEN-DEMO-001', 'PO-DEMO-100', 'RECEIVED', -40, -38, -30, -28],
+      ['Wireless mouse', 'PUR-DEMO-002', 10, 18, 'Peripherals', 'VEN-DEMO-001', 'PO-DEMO-100', 'ORDERED', -12, -10, -8, null],
+      ['Webcams for the meeting rooms', 'PUR-DEMO-003', 4, 65, 'Meeting rooms', 'VEN-DEMO-001', 'PO-DEMO-100', 'APPROVED', -5, -4, null, null],
+      ['Headsets', 'PUR-DEMO-004', 6, 42, 'Audio', 'VEN-DEMO-002', '', 'REQUESTED', -2, null, null, null],
+      ['Privacy filters', 'PUR-DEMO-005', 12, 15, 'Peripherals', 'VEN-DEMO-002', '', 'REQUESTED', -1, null, null, null],
+      ['Gaming chair', 'PUR-DEMO-006', 1, 320, 'Furniture', '', '', 'REJECTED', -20, -19, null, null]
+    ].map(([t, id, qty, price, cat, ven, po, st, asked, decided, ordered, received]) => {
+      const row = {
+        Title: t, PurchaseId: id, Quantity: qty, UnitPrice: price, Amount: Math.round(qty * price * 100) / 100, Category: cat, VendorId: ven, PoNumber: po, Status: st,
+        RequestedBy: asked === -1 || asked === -2 ? 'ana.lopez@example.com' : SAMPLE_OWNER, RequestedOn: day(asked), DecisionBy: '', DecisionNotes: '', Reason: 'Sample request.', Notes: ''
+      };
+      if (decided !== null) { row.DecisionBy = SAMPLE_OWNER; row.DecisionDate = day(decided); }
+      if (ordered !== null) { row.OrderedOn = day(ordered); }
+      if (received !== null) { row.ReceivedOn = day(received); }
+      return row;
+    })
+  },
+  {
+    // No sample rows: with nobody listed as approver everybody is one, which is what a first try needs.
+    title: 'IT_37_PurchaseRoles', file: 'schema_purchaseroles.xml', description: 'Who can request, order, approve or only view purchases',
+    fields: [T('UserUPN'), C('Role', ['APPROVER', 'BUYER', 'REQUESTER', 'VIEWER']), N('Notes')],
+    rows: () => []
   }
 ];
 

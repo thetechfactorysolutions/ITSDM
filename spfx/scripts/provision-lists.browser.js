@@ -175,7 +175,10 @@
     IT_32_Objectives: [T('ObjectiveId'), N('Description'), T('OwnerUPN'), T('SponsorUPN'), D('StartDate'), D('TargetDate'), C('Status', ['DRAFT', 'ACTIVE', 'ACHIEVED', 'CANCELLED']), C('Priority', level), N('Goal'), T('KpiId')],
     IT_33_BusinessCases: [T('CaseId'), N('Problem'), N('Options'), N('Recommendation'), N('Risks'), NUM('EstimatedCost'), NUM('AnnualBenefit'), T('ObjectiveId'), T('InitiativeId'), T('ProjectId'), T('OwnerUPN'),
       C('Status', ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'ARCHIVED']), D('DecisionDate'), N('DecisionNotes')],
-    IT_34_WeeklyReviews: [T('ReviewId'), D('WeekStart'), C('Status', ['DRAFT', 'COMPLETED']), N('Happened'), N('WentWell'), N('WentWrong'), N('Attention'), N('Decisions'), N('Risks'), N('Priorities'), N('StopDoing'), N('StartDoing'), T('OwnerUPN')]
+    IT_34_WeeklyReviews: [T('ReviewId'), D('WeekStart'), C('Status', ['DRAFT', 'COMPLETED']), N('Happened'), N('WentWell'), N('WentWrong'), N('Attention'), N('Decisions'), N('Risks'), N('Priorities'), N('StopDoing'), N('StartDoing'), T('OwnerUPN')],
+    IT_35_PurchaseOrders: [T('PoId'), T('VendorId'), NUM('Amount'), C('Status', ['OPEN', 'CLOSED']), N('Notes')],
+    IT_36_Purchases: [T('PurchaseId'), NUM('Quantity'), NUM('UnitPrice'), NUM('Amount'), T('Category'), T('VendorId'), T('PoNumber'), C('Status', ['REQUESTED', 'APPROVED', 'ORDERED', 'RECEIVED', 'REJECTED', 'CANCELLED']), T('RequestedBy'), D('RequestedOn'), D('OrderedOn'), D('ReceivedOn'), T('DecisionBy'), D('DecisionDate'), N('DecisionNotes'), N('Reason'), N('Notes')],
+    IT_37_PurchaseRoles: [T('UserUPN'), C('Role', ['APPROVER', 'BUYER', 'REQUESTER', 'VIEWER']), N('Notes')]
   };
 
   // Same seven approval columns on the four main lists (see src/rules/approvals.ts).

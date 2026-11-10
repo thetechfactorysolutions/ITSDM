@@ -1,5 +1,5 @@
 import {
-  BusinessCase, CaseStatus, Objective, ObjectiveStatus, WeeklyReview, WeeklyReviewStatus,
+  BusinessCase, CaseStatus, Purchase, PurchaseOrder, PurchaseRoleEntry, PurchaseRoleType, PurchaseStatus, PoStatus, Objective, ObjectiveStatus, WeeklyReview, WeeklyReviewStatus,
   GeniusSession, GeniusStatus, GeniusType, StockCategory, StockItem, StockOwnership, StockStatus,
   CatalogCategory, CatalogEntry, CatalogKind, CatalogStatus, Country, NpsChannel, NpsFollowUp, NpsResponse, ServiceMonth,
   Area, AreaStatus, Entitlement, EntitlementStatus, EntitlementType, LinkItem, LinkStatus, Matter, MatterPriority, MatterSource, MatterStatus,
@@ -697,6 +697,55 @@ export const mapWeekly = (item: Record<string, unknown>): WeeklyReview => ({
   stopDoing: readString(item, 'StopDoing'),
   startDoing: readString(item, 'StartDoing'),
   ownerUpn: readString(item, 'OwnerUPN'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapPurchase = (item: Record<string, unknown>): Purchase => ({
+  id: readId(item),
+  purchaseId: readString(item, 'PurchaseId'),
+  title: readString(item, 'Title'),
+  quantity: readNumber(item, 'Quantity'),
+  unitPrice: readNumber(item, 'UnitPrice'),
+  amount: readNumber(item, 'Amount'),
+  category: readString(item, 'Category'),
+  vendorId: readString(item, 'VendorId'),
+  poNumber: readString(item, 'PoNumber'),
+  status: readEnum(item, 'Status', enumValues(PurchaseStatus), PurchaseStatus.REQUESTED),
+  requestedBy: readString(item, 'RequestedBy'),
+  requestedOn: readDate(item, 'RequestedOn'),
+  orderedOn: readDate(item, 'OrderedOn'),
+  receivedOn: readDate(item, 'ReceivedOn'),
+  decisionBy: readString(item, 'DecisionBy'),
+  decisionDate: readDate(item, 'DecisionDate'),
+  decisionNotes: readString(item, 'DecisionNotes'),
+  reason: readString(item, 'Reason'),
+  notes: readString(item, 'Notes'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapPurchaseOrder = (item: Record<string, unknown>): PurchaseOrder => ({
+  id: readId(item),
+  poId: readString(item, 'PoId'),
+  title: readString(item, 'Title'),
+  vendorId: readString(item, 'VendorId'),
+  amount: readNumber(item, 'Amount'),
+  status: readEnum(item, 'Status', enumValues(PoStatus), PoStatus.OPEN),
+  notes: readString(item, 'Notes'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapPurchaseRole = (item: Record<string, unknown>): PurchaseRoleEntry => ({
+  id: readId(item),
+  title: readString(item, 'Title'),
+  userUpn: readString(item, 'UserUPN'),
+  role: readEnum(item, 'Role', enumValues(PurchaseRoleType), PurchaseRoleType.REQUESTER),
+  notes: readString(item, 'Notes'),
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
   editor: readExpandedTitle(item, 'Editor')

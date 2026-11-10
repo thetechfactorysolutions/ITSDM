@@ -1,5 +1,5 @@
 import {
-  ActionItem, Area, Article, BusinessCase, Budget, CatalogEntry, GeniusSession, NpsResponse, Objective, ServiceMonth, StockItem, WeeklyReview, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Purchase, PurchaseOrder, PurchaseRoleEntry, Article, BusinessCase, Budget, CatalogEntry, GeniusSession, NpsResponse, Objective, ServiceMonth, StockItem, WeeklyReview, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
@@ -562,7 +562,47 @@ export const SELECT = {
   genius: ['Id', 'Title', 'SessionId', 'SessionType', 'Topic', 'Status', 'SessionDate', 'Audience', 'OwnerUPN', 'Invited', 'Attended', 'Satisfaction', 'MaterialUrl', 'ArticleId', 'CatalogId', 'Motivation', 'Created', 'Modified', 'Editor/Title'],
   objectives: ['Id', 'Title', 'ObjectiveId', 'Description', 'OwnerUPN', 'SponsorUPN', 'StartDate', 'TargetDate', 'Status', 'Priority', 'Goal', 'KpiId', 'Created', 'Modified', 'Editor/Title'],
   businessCases: ['Id', 'Title', 'CaseId', 'Problem', 'Options', 'Recommendation', 'Risks', 'EstimatedCost', 'AnnualBenefit', 'ObjectiveId', 'InitiativeId', 'ProjectId', 'OwnerUPN', 'Status', 'DecisionDate', 'DecisionNotes', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
+  purchaseOrders: ['Id', 'Title', 'PoId', 'VendorId', 'Amount', 'Status', 'Notes', 'Created', 'Modified', 'Editor/Title'],
+  purchases: ['Id', 'Title', 'PurchaseId', 'Quantity', 'UnitPrice', 'Amount', 'Category', 'VendorId', 'PoNumber', 'Status', 'RequestedBy', 'RequestedOn', 'OrderedOn', 'ReceivedOn', 'DecisionBy', 'DecisionDate', 'DecisionNotes', 'Reason', 'Notes', 'Created', 'Modified', 'Editor/Title'],
+  purchaseRoles: ['Id', 'Title', 'UserUPN', 'Role', 'Notes', 'Created', 'Modified', 'Editor/Title'],
   weeklyReviews: ['Id', 'Title', 'ReviewId', 'WeekStart', 'Status', 'Happened', 'WentWell', 'WentWrong', 'Attention', 'Decisions', 'Risks', 'Priorities', 'StopDoing', 'StartDoing', 'OwnerUPN', 'Created', 'Modified', 'Editor/Title']
 };
 
 export const EXPAND_EDITOR = ['Editor'];
+
+export const buildPurchasePayload = (purchase: Purchase): Record<string, unknown> => ({
+  Title: purchase.title.trim(),
+  PurchaseId: purchase.purchaseId,
+  Quantity: purchase.quantity,
+  UnitPrice: purchase.unitPrice,
+  Amount: purchase.amount,
+  Category: purchase.category.trim(),
+  VendorId: purchase.vendorId ?? '',
+  PoNumber: purchase.poNumber.trim(),
+  Status: purchase.status,
+  RequestedBy: purchase.requestedBy,
+  RequestedOn: dayKeyToSharePoint(purchase.requestedOn),
+  OrderedOn: dayKeyToSharePoint(purchase.orderedOn),
+  ReceivedOn: dayKeyToSharePoint(purchase.receivedOn),
+  DecisionBy: purchase.decisionBy,
+  DecisionDate: dayKeyToSharePoint(purchase.decisionDate),
+  DecisionNotes: purchase.decisionNotes,
+  Reason: purchase.reason,
+  Notes: purchase.notes
+});
+
+export const buildPurchaseOrderPayload = (po: PurchaseOrder): Record<string, unknown> => ({
+  Title: po.title.trim(),
+  PoId: po.poId,
+  VendorId: po.vendorId ?? '',
+  Amount: po.amount,
+  Status: po.status,
+  Notes: po.notes
+});
+
+export const buildPurchaseRolePayload = (entry: PurchaseRoleEntry): Record<string, unknown> => ({
+  Title: entry.title.trim(),
+  UserUPN: entry.userUpn.trim(),
+  Role: entry.role,
+  Notes: entry.notes
+});

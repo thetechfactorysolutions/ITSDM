@@ -21,6 +21,9 @@ import BarChart from '../shared/Charts';
 import { useHubData } from '../shared/HubData';
 import { AttentionRow, Card, Hero, Section, StatCard, Tone } from '../shared/ui';
 import QuickLinks from '../Links/QuickLinks';
+import { usePurchaseRole } from '../Purchases/usePurchaseRole';
+import { awaitingDelivery, isApprover as isPurchaseApprover, posToWatch, requestsToApprove, visiblePurchases } from '../../rules/purchases';
+import { PurchaseRoleType } from '../../models';
 
 interface IAttention {
   tone: Tone;
@@ -50,7 +53,8 @@ const Dashboard: React.FC = () => {
   const { userEmail, ideas: ideasState, initiatives: initiativesState, projects: projectsState, actions: actionsState, risks: risksState,
     budgets: budgetsState, capex: capexState, opex: opexState, contracts: contractsState,
     incidents: incidentsState, changes: changesState, interactions: interactionsState, kpis: kpisState, skills: skillsState, trainings: trainingsState, articles: articlesState,
-    matters: mattersState, entitlements: entitlementsState, links: linksState, nps: npsState, serviceMonths: monthsState, stock: stockState, genius: geniusState, businessCases: casesState, objectives: objectivesState, weeklyReviews: weeklyState } = useHubData();
+    matters: mattersState, entitlements: entitlementsState, links: linksState, nps: npsState, serviceMonths: monthsState, stock: stockState, genius: geniusState, businessCases: casesState, objectives: objectivesState, weeklyReviews: weeklyState, purchases: purchasesState, purchaseOrders: posState } = useHubData();
+  const purchaseRole = usePurchaseRole();
   const [actionError, setActionError] = React.useState<string | undefined>();
   const [deciding, setDeciding] = React.useState<{ row: IPendingApproval; decision: ApprovalStatus.APPROVED | ApprovalStatus.REJECTED } | undefined>();
 
@@ -114,6 +118,11 @@ const Dashboard: React.FC = () => {
   const callsOverdue = npsState.items.filter(r => isCallOverdue(r, now));
   const latestMonths = latestByCountry(monthsState.items);
   const lowSlaCountries = Object.keys(latestMonths).filter(key => { const m = latestMonths[key as keyof typeof latestMonths]; return !!m && slaLevel(m) === 'LOW'; });
+
+  const myPurchases = visiblePurchases(purchasesState.items, userEmail, purchaseRole);
+  const purchasesToApprove = isPurchaseApprover(purchaseRole) ? requestsToApprove(purchasesState.items) : [];
+  const purchasesToReceive = awaitingDelivery(myPurchases);
+  const posNearLimit = purchaseRole === PurchaseRoleType.REQUESTER ? [] : posToWatch(posState.items, purchasesState.items);
 
   const initiativeColumns: IColumn[] = [
     { key: 'title', name: t('field.initiative'), fieldName: 'title', minWidth: 180, isResizable: true },
@@ -213,6 +222,8 @@ const Dashboard: React.FC = () => {
   flag(trainingsOverdue.length > 0, 'warning', 'people', t('dashboard.attentionTrainings', { count: trainingsOverdue.length }));
   flag(articlesToReview.length > 0, 'info', 'people', t('dashboard.attentionArticles', { count: articlesToReview.length }));
   flag(contractsToAttend.length > 0, 'warning', 'vendors', t('dashboard.attentionContracts', { count: contractsToAttend.length }));
+  flag(purchasesToApprove.length > 0, 'warning', 'purchases', t('dashboard.attentionPurchases', { count: purchasesToApprove.length }));
+  flag(posNearLimit.length > 0, 'warning', 'purchases', t('dashboard.attentionPos', { count: posNearLimit.length }));
   flag(overBudgets.length > 0, 'danger', 'finance', t('dashboard.attentionBudgetsOver', { count: overBudgets.length }));
   flag(nearBudgets.length > 0, 'warning', 'finance', t('dashboard.attentionBudgetsNear', { count: nearBudgets.length }));
   // the most serious first; the order inside each group stays as above
@@ -220,7 +231,7 @@ const Dashboard: React.FC = () => {
   const sortedAttention = attention.map((a, i) => ({ a, i })).sort((x, y) => toneOrder[x.a.tone] - toneOrder[y.a.tone] || x.i - y.i).map(x => x.a);
 
   const hasLoading = ideasState.loading || initiativesState.loading || projectsState.loading || actionsState.loading || risksState.loading || budgetsState.loading || contractsState.loading || incidentsState.loading || kpisState.loading;
-  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, mattersState.error, entitlementsState.error, linksState.error, npsState.error, monthsState.error, stockState.error, geniusState.error, casesState.error, objectivesState.error, weeklyState.error, actionError].filter(Boolean);
+  const errors = [ideasState.error, initiativesState.error, projectsState.error, actionsState.error, risksState.error, budgetsState.error, contractsState.error, incidentsState.error, kpisState.error, mattersState.error, entitlementsState.error, linksState.error, npsState.error, monthsState.error, stockState.error, geniusState.error, casesState.error, objectivesState.error, weeklyState.error, purchasesState.error, actionError].filter(Boolean);
 
   const hour = now.getHours();
   const greetingKey = hour < 12 ? 'dashboard.goodMorning' : hour < 20 ? 'dashboard.goodAfternoon' : 'dashboard.goodEvening';
@@ -272,6 +283,9 @@ const Dashboard: React.FC = () => {
         <StatCard icon="refresh" tab="vendors" label={t('dashboard.contractsToRenew')} value={contractsToAttend.length} tone={level(lapsedContracts.length > 0, contractsToAttend.length > 0)} />
         <StatCard icon="refresh" tab="vendors" label={t('dashboard.entitlementsToRenew')} value={entitlementsToAttend.length} tone={level(lapsedEntitlements.length > 0, entitlementsToAttend.length > 0)} />
         <StatCard icon="wallet" tab="finance" label={t('dashboard.budgetsOver')} value={overBudgets.length} tone={level(overBudgets.length > 0, nearBudgets.length > 0)} />
+        <StatCard icon="shield" tab="purchases" label={t('dashboard.purchasesToApprove')} value={purchasesToApprove.length} tone={level(false, purchasesToApprove.length > 0)} />
+        <StatCard icon="box" tab="purchases" label={t('dashboard.purchasesToReceive')} value={purchasesToReceive.length} tone="info" />
+        <StatCard icon="wallet" tab="purchases" label={t('dashboard.posNearLimit')} value={posNearLimit.length} tone={level(false, posNearLimit.length > 0)} />
         <StatCard icon="box" tab="devices" label={t('dashboard.lowStock')} value={lowStock.length} tone={level(lowStock.length > 0, lateOrders.length > 0)} />
       </Section>
 

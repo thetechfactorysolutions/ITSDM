@@ -330,6 +330,18 @@ $weekly = @(
   @{ Name = 'Happened'; Type = 'Note' }, @{ Name = 'WentWell'; Type = 'Note' }, @{ Name = 'WentWrong'; Type = 'Note' }, @{ Name = 'Attention'; Type = 'Note' }, @{ Name = 'Decisions'; Type = 'Note' },
   @{ Name = 'Risks'; Type = 'Note' }, @{ Name = 'Priorities'; Type = 'Note' }, @{ Name = 'StopDoing'; Type = 'Note' }, @{ Name = 'StartDoing'; Type = 'Note' }, @{ Name = 'OwnerUPN'; Type = 'Text' }
 )
+$purchaseOrders = @(
+  @{ Name = 'PoId'; Type = 'Text' }, @{ Name = 'VendorId'; Type = 'Text' }, @{ Name = 'Amount'; Type = 'Number' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'OPEN', 'CLOSED' }, @{ Name = 'Notes'; Type = 'Note' }
+)
+$purchases = @(
+  @{ Name = 'PurchaseId'; Type = 'Text' }, @{ Name = 'Quantity'; Type = 'Number' }, @{ Name = 'UnitPrice'; Type = 'Number' }, @{ Name = 'Amount'; Type = 'Number' }, @{ Name = 'Category'; Type = 'Text' },
+  @{ Name = 'VendorId'; Type = 'Text' }, @{ Name = 'PoNumber'; Type = 'Text' }, @{ Name = 'Status'; Type = 'Choice'; Choices = 'REQUESTED', 'APPROVED', 'ORDERED', 'RECEIVED', 'REJECTED', 'CANCELLED' },
+  @{ Name = 'RequestedBy'; Type = 'Text' }, @{ Name = 'RequestedOn'; Type = 'Date' }, @{ Name = 'OrderedOn'; Type = 'Date' }, @{ Name = 'ReceivedOn'; Type = 'Date' }, @{ Name = 'DecisionBy'; Type = 'Text' },
+  @{ Name = 'DecisionDate'; Type = 'Date' }, @{ Name = 'DecisionNotes'; Type = 'Note' }, @{ Name = 'Reason'; Type = 'Note' }, @{ Name = 'Notes'; Type = 'Note' }
+)
+$purchaseRoles = @(
+  @{ Name = 'UserUPN'; Type = 'Text' }, @{ Name = 'Role'; Type = 'Choice'; Choices = 'APPROVER', 'BUYER', 'REQUESTER', 'VIEWER' }, @{ Name = 'Notes'; Type = 'Note' }
+)
 
 # Same seven approval columns on the four main lists (see src/rules/approvals.ts).
 $approval = @(
@@ -385,6 +397,9 @@ Initialize-ItsdmList -Title 'IT_31_GeniusSessions' -Fields $genius
 Initialize-ItsdmList -Title 'IT_32_Objectives'  -Fields $objectives
 Initialize-ItsdmList -Title 'IT_33_BusinessCases' -Fields $cases
 Initialize-ItsdmList -Title 'IT_34_WeeklyReviews' -Fields $weekly
+Initialize-ItsdmList -Title 'IT_35_PurchaseOrders' -Fields $purchaseOrders
+Initialize-ItsdmList -Title 'IT_36_Purchases' -Fields $purchases
+Initialize-ItsdmList -Title 'IT_37_PurchaseRoles' -Fields $purchaseRoles
 
 # ---------- sample data ----------
 if ($SkipSampleData) {

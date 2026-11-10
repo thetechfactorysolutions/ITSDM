@@ -33,6 +33,9 @@ export interface ISharePointListMap {
   objectives: string;
   businessCases: string;
   weeklyReviews: string;
+  purchaseOrders: string;
+  purchases: string;
+  purchaseRoles: string;
 }
 
 export interface IAppConfig {
@@ -62,6 +65,10 @@ export interface IAppConfig {
   matters: {
     /** An inbox item that waits longer than this many days without being classified is flagged. */
     inboxStaleDays: number;
+  };
+  purchases: {
+    /** An order that has used this share of its amount is flagged. */
+    nearRatio: number;
   };
   entitlements: {
     /** Notice days given to a new warranty or licence. */
@@ -115,7 +122,10 @@ export const AppConfig: IAppConfig = {
       genius: 'IT_31_GeniusSessions',
       objectives: 'IT_32_Objectives',
       businessCases: 'IT_33_BusinessCases',
-      weeklyReviews: 'IT_34_WeeklyReviews'
+      weeklyReviews: 'IT_34_WeeklyReviews',
+      purchaseOrders: 'IT_35_PurchaseOrders',
+      purchases: 'IT_36_Purchases',
+      purchaseRoles: 'IT_37_PurchaseRoles'
     }
   },
   service: {
@@ -132,6 +142,9 @@ export const AppConfig: IAppConfig = {
   },
   matters: {
     inboxStaleDays: 3
+  },
+  purchases: {
+    nearRatio: 0.9
   },
   entitlements: {
     defaultNoticeDays: 60

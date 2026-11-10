@@ -22,6 +22,7 @@ import Notes from '../Notes/Notes';
 import Operations from '../Operations/Operations';
 import PeopleTab from '../People/PeopleTab';
 import Projects from '../Projects/Projects';
+import PurchasesTab from '../Purchases/PurchasesTab';
 import VendorsTab from '../Vendors/VendorsTab';
 import { useT } from '../../i18n/I18n';
 import { NavContext } from '../shared/Nav';
@@ -59,6 +60,7 @@ const HubTabs: React.FC<{ description: string }> = ({ description }) => {
         <PivotItem headerText={t('nav.initiatives')} itemKey="initiatives"><Initiatives /></PivotItem>
         <PivotItem headerText={t('nav.projects')} itemKey="projects"><Projects /></PivotItem>
         <PivotItem headerText={t('nav.actions')} itemKey="actions"><Actions /></PivotItem>
+        <PivotItem headerText={t('nav.purchases')} itemKey="purchases"><PurchasesTab /></PivotItem>
         <PivotItem headerText={t('nav.finance')} itemKey="finance"><Finance /></PivotItem>
         <PivotItem headerText={t('nav.vendorsTab')} itemKey="vendors"><VendorsTab /></PivotItem>
         <PivotItem headerText={t('nav.operations')} itemKey="operations"><Operations /></PivotItem>

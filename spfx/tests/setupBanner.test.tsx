@@ -44,18 +44,19 @@ const run = async (): Promise<void> => {
 
   // some lists missing: the banner says how many and creates only those
   const existing = LIST_DEFS.slice(0, 22).map(d => d.title);
+  const missing = LIST_DEFS.length - 22;
   const site = fakeSite(existing);
   await mount(render(site, { count: 0 }));
   await settle();
   assert.ok(text().indexOf('Some lists are missing on this site.') > -1);
-  assert.ok(text().indexOf('12 list(s) to create') > -1, 'it counts the lists to create');
+  assert.ok(text().indexOf(`${missing} list(s) to create`) > -1, 'it counts the lists to create');
   assert.ok(text().indexOf(LIST_DEFS[22].title) > -1, 'and names the first ones');
   await click(button('Create the missing lists') as HTMLButtonElement);
   await settle(200);
-  assert.equal(site.created.length, 12, 'only the missing lists are created');
+  assert.equal(site.created.length, missing, 'only the missing lists are created');
   assert.deepEqual(site.created, LIST_DEFS.slice(22).map(d => d.title));
   assert.ok(site.fields > 100, 'with their columns');
-  assert.ok(text().indexOf('12 list(s) created.') > -1);
+  assert.ok(text().indexOf(`${missing} list(s) created.`) > -1);
   assert.equal(button('Create the missing lists'), undefined, 'the banner is gone');
   await unmount();
 

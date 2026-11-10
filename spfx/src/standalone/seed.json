@@ -1212,7 +1212,7 @@
   {
    "Title": "Spain, two months ago",
    "MonthId": "MON-DEMO-001",
-   "Period": "@day:-69",
+   "Period": "@day:-70",
    "Country": "ES",
    "Incidents": 205,
    "Interactions": 118,
@@ -1228,7 +1228,7 @@
   {
    "Title": "Spain, last month",
    "MonthId": "MON-DEMO-002",
-   "Period": "@day:-39",
+   "Period": "@day:-40",
    "Country": "ES",
    "Incidents": 190,
    "Interactions": 163,
@@ -1244,7 +1244,7 @@
   {
    "Title": "Portugal, two months ago",
    "MonthId": "MON-DEMO-003",
-   "Period": "@day:-69",
+   "Period": "@day:-70",
    "Country": "PT",
    "Incidents": 4,
    "Interactions": 80,
@@ -1260,7 +1260,7 @@
   {
    "Title": "Portugal, last month",
    "MonthId": "MON-DEMO-004",
-   "Period": "@day:-39",
+   "Period": "@day:-40",
    "Country": "PT",
    "Incidents": 3,
    "Interactions": 88,
@@ -1546,7 +1546,7 @@
   {
    "Title": "Review of last week",
    "ReviewId": "WEEK-DEMO-001",
-   "WeekStart": "@day:-7",
+   "WeekStart": "@day:-8",
    "Status": "COMPLETED",
    "Happened": "Monthly figures received from the service provider.",
    "WentWell": "The NPS call-backs are up to date.",
@@ -1562,7 +1562,7 @@
   {
    "Title": "Review of this week",
    "ReviewId": "WEEK-DEMO-002",
-   "WeekStart": "@day:0",
+   "WeekStart": "@day:-1",
    "Status": "DRAFT",
    "Happened": "",
    "WentWell": "",
@@ -1575,5 +1575,143 @@
    "StartDoing": "",
    "OwnerUPN": "demo.owner@example.com"
   }
- ]
+ ],
+ "IT_35_PurchaseOrders": [
+  {
+   "Title": "PO-DEMO-100",
+   "PoId": "PO-DEMO-001",
+   "VendorId": "VEN-DEMO-001",
+   "Amount": 5000,
+   "Status": "OPEN",
+   "Notes": "Sample purchase order."
+  },
+  {
+   "Title": "PO-DEMO-200",
+   "PoId": "PO-DEMO-002",
+   "VendorId": "VEN-DEMO-002",
+   "Amount": 1200,
+   "Status": "OPEN",
+   "Notes": "Sample purchase order."
+  },
+  {
+   "Title": "PO-DEMO-090",
+   "PoId": "PO-DEMO-003",
+   "VendorId": "VEN-DEMO-001",
+   "Amount": 3000,
+   "Status": "CLOSED",
+   "Notes": "Sample purchase order."
+  }
+ ],
+ "IT_36_Purchases": [
+  {
+   "Title": "USB-C cables",
+   "PurchaseId": "PUR-DEMO-001",
+   "Quantity": 40,
+   "UnitPrice": 4.12,
+   "Amount": 164.8,
+   "Category": "Cables",
+   "VendorId": "VEN-DEMO-001",
+   "PoNumber": "PO-DEMO-100",
+   "Status": "RECEIVED",
+   "RequestedBy": "demo.owner@example.com",
+   "RequestedOn": "@day:-40",
+   "DecisionBy": "demo.owner@example.com",
+   "DecisionNotes": "",
+   "Reason": "Sample request.",
+   "Notes": "",
+   "DecisionDate": "@day:-38",
+   "OrderedOn": "@day:-30",
+   "ReceivedOn": "@day:-28"
+  },
+  {
+   "Title": "Wireless mouse",
+   "PurchaseId": "PUR-DEMO-002",
+   "Quantity": 10,
+   "UnitPrice": 18,
+   "Amount": 180,
+   "Category": "Peripherals",
+   "VendorId": "VEN-DEMO-001",
+   "PoNumber": "PO-DEMO-100",
+   "Status": "ORDERED",
+   "RequestedBy": "demo.owner@example.com",
+   "RequestedOn": "@day:-12",
+   "DecisionBy": "demo.owner@example.com",
+   "DecisionNotes": "",
+   "Reason": "Sample request.",
+   "Notes": "",
+   "DecisionDate": "@day:-10",
+   "OrderedOn": "@day:-8"
+  },
+  {
+   "Title": "Webcams for the meeting rooms",
+   "PurchaseId": "PUR-DEMO-003",
+   "Quantity": 4,
+   "UnitPrice": 65,
+   "Amount": 260,
+   "Category": "Meeting rooms",
+   "VendorId": "VEN-DEMO-001",
+   "PoNumber": "PO-DEMO-100",
+   "Status": "APPROVED",
+   "RequestedBy": "demo.owner@example.com",
+   "RequestedOn": "@day:-5",
+   "DecisionBy": "demo.owner@example.com",
+   "DecisionNotes": "",
+   "Reason": "Sample request.",
+   "Notes": "",
+   "DecisionDate": "@day:-4"
+  },
+  {
+   "Title": "Headsets",
+   "PurchaseId": "PUR-DEMO-004",
+   "Quantity": 6,
+   "UnitPrice": 42,
+   "Amount": 252,
+   "Category": "Audio",
+   "VendorId": "VEN-DEMO-002",
+   "PoNumber": "",
+   "Status": "REQUESTED",
+   "RequestedBy": "ana.lopez@example.com",
+   "RequestedOn": "@day:-2",
+   "DecisionBy": "",
+   "DecisionNotes": "",
+   "Reason": "Sample request.",
+   "Notes": ""
+  },
+  {
+   "Title": "Privacy filters",
+   "PurchaseId": "PUR-DEMO-005",
+   "Quantity": 12,
+   "UnitPrice": 15,
+   "Amount": 180,
+   "Category": "Peripherals",
+   "VendorId": "VEN-DEMO-002",
+   "PoNumber": "",
+   "Status": "REQUESTED",
+   "RequestedBy": "ana.lopez@example.com",
+   "RequestedOn": "@day:-1",
+   "DecisionBy": "",
+   "DecisionNotes": "",
+   "Reason": "Sample request.",
+   "Notes": ""
+  },
+  {
+   "Title": "Gaming chair",
+   "PurchaseId": "PUR-DEMO-006",
+   "Quantity": 1,
+   "UnitPrice": 320,
+   "Amount": 320,
+   "Category": "Furniture",
+   "VendorId": "",
+   "PoNumber": "",
+   "Status": "REJECTED",
+   "RequestedBy": "demo.owner@example.com",
+   "RequestedOn": "@day:-20",
+   "DecisionBy": "demo.owner@example.com",
+   "DecisionNotes": "",
+   "Reason": "Sample request.",
+   "Notes": "",
+   "DecisionDate": "@day:-19"
+  }
+ ],
+ "IT_37_PurchaseRoles": []
 }
