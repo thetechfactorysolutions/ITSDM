@@ -364,4 +364,11 @@
       </Rows>
     </Data>
   </ListInstance>
+  <ListInstance Title="IT_39_FileLinks" Description="Files linked to records by their link, from any list" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_39_FileLinks" CustomSchema="schema_filelinks.xml">
+    <Data>
+      <Rows>
+          
+      </Rows>
+    </Data>
+  </ListInstance>
 </Elements>

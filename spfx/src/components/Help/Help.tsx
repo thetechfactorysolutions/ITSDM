@@ -5,6 +5,7 @@ import { useT } from '../../i18n/I18n';
 import { LIST_DEFS } from '../App/SetupBanner';
 import { ensureLists, IEnsureResult } from '../../provisioning/provision';
 import { useHubData } from '../shared/HubData';
+import BackupPanel from './BackupPanel';
 
 const Section: React.FC<{ title: string; children?: React.ReactNode }> = ({ title, children }) => (
   <Stack tokens={{ childrenGap: 4 }}>
@@ -151,6 +152,7 @@ const Help: React.FC = () => {
           <Link href="https://github.com/thetechfactorysolutions/ITSDM" target="_blank" rel="noopener noreferrer">GitHub</Link>
         </Text>
       </Section>
+      <Section title={t('backup.title')}><BackupPanel /></Section>
       {service.provisioner && <Section title={t('help.repairTitle')}>
         <Text>{t('help.repairText')}</Text>
         <Stack horizontal><DefaultButton text={t('help.repairButton')} disabled={busy} onClick={() => { repairLists().catch(() => undefined); }} /></Stack>

@@ -34,6 +34,7 @@ const labelled = (label: string): HTMLButtonElement | undefined =>
 
 const testStrip = async (): Promise<void> => {
   window.localStorage.clear();
+  window.localStorage.setItem('itsdm.layout.default', '"table"');
   await mount(renderWith(React.createElement(Initiatives), { initiatives: items }));
   await settle();
   assert.ok(text().indexOf('Summary') > -1, 'every list opens with its summary');
@@ -76,6 +77,7 @@ const testStrip = async (): Promise<void> => {
   assert.equal(stat('Total'), undefined, 'and it stays folded the next time');
   await unmount();
   window.localStorage.clear();
+  window.localStorage.setItem('itsdm.layout.default', '"table"');
 
   await mount(renderWith(React.createElement(Initiatives), { initiatives: items }, newRec(), 'es'));
   await settle();
@@ -85,6 +87,7 @@ const testStrip = async (): Promise<void> => {
 
 const testFavorites = async (): Promise<void> => {
   window.localStorage.clear();
+  window.localStorage.setItem('itsdm.layout.default', '"table"');
   const rec = newRec();
   await mount(renderWith(React.createElement(Initiatives), { initiatives: items }, rec));
   await settle();
@@ -115,6 +118,7 @@ const testFavorites = async (): Promise<void> => {
 
 const testVendors = async (): Promise<void> => {
   window.localStorage.clear();
+  window.localStorage.setItem('itsdm.layout.default', '"table"');
   const vendor = (id: number, title: string): Record<string, unknown> => ({ id, vendorId: `VEN-${id}`, title, description: '', status: 'ACTIVE', category: 'HARDWARE', contactName: '', contactEmail: '', website: '', ownerUpn: 'me@x.com' });
   const data = {
     vendors: [vendor(1, 'Lyreco'), vendor(2, 'Bechtle'), vendor(3, 'Quiet Co')],

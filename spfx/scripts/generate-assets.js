@@ -556,6 +556,12 @@ const LISTS = [
     title: 'IT_38_Favorites', file: 'schema_favorites.xml', description: 'Items each person starred, from any list',
     fields: [T('ListName'), T('ItemKey'), T('UserUPN')],
     rows: () => []
+  },
+  {
+    // Files linked to any record by their link (OneDrive...). No sample rows.
+    title: 'IT_39_FileLinks', file: 'schema_filelinks.xml', description: 'Files linked to records by their link, from any list',
+    fields: [T('ListName'), T('ItemKey'), N('Url')],
+    rows: () => []
   }
 ];
 

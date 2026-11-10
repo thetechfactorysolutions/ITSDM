@@ -120,6 +120,9 @@ Title (a name), UserUPN (Text), Role (Choice: APPROVER, BUYER, REQUESTER, VIEWER
 ### IT_38_Favorites
 Title (the title of the starred item), ListName (Text, the SharePoint name of its list), ItemKey (Text, its id), UserUPN (Text, whose star it is)
 
+### IT_39_FileLinks
+Title (the name shown for the file), ListName (Text, the SharePoint name of the record's list), ItemKey (Text, the record's id), Url (Multiple lines, the link to the file)
+
 ## Notes
 - Attachments use the list attachments of SharePoint; the Help tab has a button that turns them on for lists that were created without them.
 - Changing the columns of a list that already exists is not automated (see `ROADMAP.md`).

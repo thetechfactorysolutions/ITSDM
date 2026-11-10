@@ -59,6 +59,7 @@ const testPalette = async (): Promise<void> => {
 
 const testSeed = async (): Promise<void> => {
   window.localStorage.clear();
+  window.localStorage.setItem('itsdm.layout.default', '"table"');
   let cleared = 0;
   const seed: INavSeed = { listName: 'IT_09_Vendors', search: 'Bechtle' };
   const nav: INav = { goTo: () => undefined, seed, clearSeed: () => { cleared++; } };

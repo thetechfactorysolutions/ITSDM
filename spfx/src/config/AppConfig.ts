@@ -37,6 +37,7 @@ export interface ISharePointListMap {
   purchases: string;
   purchaseRoles: string;
   favorites: string;
+  fileLinks: string;
 }
 
 export interface IAppConfig {
@@ -127,7 +128,8 @@ export const AppConfig: IAppConfig = {
       purchaseOrders: 'IT_35_PurchaseOrders',
       purchases: 'IT_36_Purchases',
       purchaseRoles: 'IT_37_PurchaseRoles',
-      favorites: 'IT_38_Favorites'
+      favorites: 'IT_38_Favorites',
+      fileLinks: 'IT_39_FileLinks'
     }
   },
   service: {

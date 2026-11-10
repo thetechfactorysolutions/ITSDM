@@ -49,6 +49,7 @@ const render = (files: IFileAccess): React.ReactElement => React.createElement(S
 
 const testStartScreenAndDemo = async (): Promise<void> => {
   window.localStorage.clear();
+  window.localStorage.setItem('itsdm.layout.default', '"table"');
   await mount(render(fakeFiles(undefined)));
   await settle();
   assert.ok(text().indexOf('Your data stays in a file you choose') > -1, 'the start screen explains where the data goes');
@@ -80,7 +81,7 @@ const testStartScreenAndDemo = async (): Promise<void> => {
   await settle(100);
   assert.equal(text().indexOf('Good morning, Me') + text().indexOf('Good afternoon, Me') + text().indexOf('Good evening, Me'), -3, 'the dashboard is closed');
   assert.ok(/Matters/.test(text()), 'the matters tab is open');
-  const dashboardTab = Array.from(document.body.querySelectorAll('[role="tab"]')).filter(b => (b.textContent ?? '').trim() === 'Dashboard')[0] as HTMLElement;
+  const dashboardTab = Array.from(document.body.querySelectorAll('[role="tab"]')).filter(b => (b.textContent ?? '').trim().endsWith('Dashboard'))[0] as HTMLElement;
   await click(dashboardTab);
   await settle(100);
   assert.ok(text().indexOf('Management dashboard') > -1, 'and the dashboard tab brings it back');
@@ -121,12 +122,12 @@ const testCreateAndResume = async (): Promise<void> => {
   assert.equal(files.remembered, file, 'the file is remembered for next time');
   const saved = JSON.parse(file.text) as IDatabase;
   assert.equal(saved.format, 1);
-  assert.equal(Object.keys(saved.lists).length, 38, 'all 38 lists were written');
+  assert.equal(Object.keys(saved.lists).length, 39, 'all 39 lists were written');
   assert.equal(saved.lists.IT_04_Actions.items[0].OwnerUPN, 'me@x.com');
 
   // a change made in the app is written to the file
   const modifiedBefore = file.modified;
-  await click(button('Actions') as HTMLButtonElement);
+  await click(Array.from(document.body.querySelectorAll('[role="tab"]')).filter(b => (b.textContent ?? '').trim().endsWith('Actions'))[0] as HTMLElement);
   await settle();
   await click(button('New action') as HTMLButtonElement);
   await settle();

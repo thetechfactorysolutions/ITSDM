@@ -10,17 +10,24 @@ import { ApprovalStatus, IApprovalState } from '../../models';
 import { IDataStore } from '../../data/IDataStore';
 import { ApprovalEntity, decideApproval, EMPTY_APPROVAL, evaluateAnyChange, getApproval, IGateResult, requestApproval } from '../../rules/approvals';
 import { ICsvColumn, toCsv } from '../../rules/csv';
+import { isClosedStatus } from '../../rules/transitions';
 import { applyView, DEFAULT_VIEW, ITableView } from '../../rules/tableView';
 import { hasErrors, ValidationErrors } from '../../rules/validation';
 import { downloadTextFile } from '../../utils/download';
 import ApprovalSection from './ApprovalSection';
 import AttachmentsSection from './AttachmentsSection';
+import FileLinksSection from './FileLinksSection';
 import ConfirmDialog from './ConfirmDialog';
 import CsvImportPanel from './CsvImportPanel';
 import { FormGrid } from './FormGrid';
 import { useHubData } from './HubData';
 import { useNav } from './Nav';
 import { decorateColumn, ItemCards, StatusPill } from './cells';
+import { identityForList } from '../../config/identity';
+import { linksFor } from '../../rules/fileLinks';
+import { readField } from '../../rules/insights';
+import { DUE_COLUMNS, OWNER_COLUMNS } from '../../rules/visual';
+import { EmptyState, ModuleHeader } from './ui';
 import Insights, { IChip, IInsightsConfig } from './Insights';
 import { useFavorites } from './useFavorites';
 import { readMemory, writeMemory } from './viewMemory';
@@ -110,7 +117,7 @@ export interface IEntityScreenProps<T extends IEntityBase> {
 function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): React.ReactElement {
   const t = useT();
   const language = useLanguage();
-  const { userEmail } = useHubData();
+  const { userEmail, fileLinks } = useHubData();
   const { textKey, state, service, statuses, getStatus, columns, sortAccessors, searchFields } = props;
 
   const viewKey = `view.${props.listName}`;
@@ -124,8 +131,8 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   const [chip, setChip] = React.useState<IChip<T> | undefined>();
   const [insightsOpen, setInsightsOpen] = React.useState<boolean>(() => readMemory<boolean>(`insights.${props.listName}`) !== false);
   const searchRef = React.useRef<ISearchBox>(null);
-  const [layout, setLayoutState] = React.useState<'table' | 'cards'>(() => readMemory<'table' | 'cards'>(`layout.${props.listName}`) ?? (window.innerWidth < 700 ? 'cards' : 'table'));
-  const setLayout = (next: 'table' | 'cards'): void => { setLayoutState(next); writeMemory(`layout.${props.listName}`, next); };
+  const [layout, setLayoutState] = React.useState<'table' | 'cards'>(() => readMemory<'table' | 'cards'>(`layout.${props.listName}`) ?? readMemory<'table' | 'cards'>('layout.default') ?? 'cards');
+  const setLayout = (next: 'table' | 'cards'): void => { setLayoutState(next); writeMemory(`layout.${props.listName}`, next); writeMemory('layout.default', next); };
   const favorites = useFavorites(props.listName);
   // arriving from the quick search: show the record that was looked for
   const nav = useNav();
@@ -448,6 +455,15 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     }
   };
 
+  const identity = identityForList(props.listName);
+
+  // the facts a card shows besides the tags: the first few columns that are not already a tag or the title
+  const TAGGED = ['favorite', 'status', 'approval', 'title', 'priority', 'severity'].concat(DUE_COLUMNS, OWNER_COLUMNS);
+  const cardColumns = tableColumns.filter(c => TAGGED.indexOf(c.fieldName ?? c.key) === -1 && TAGGED.indexOf(c.key) === -1 && !/Id$/.test(c.fieldName ?? c.key)).slice(0, 3);
+  const cardFields = (item: T): Array<{ label: string; node: React.ReactNode }> => cardColumns
+    .map(c => ({ label: String(c.name), node: c.onRender ? c.onRender(item, 0, c) : readField(item, c.fieldName ?? c.key) }))
+    .filter(f => f.node !== '' && f.node !== undefined && f.node !== null && f.label !== '');
+
   const invoke = (item: T): void => {
     if (props.canEdit && !props.canEdit(item)) {
       if (props.renderDetail) {
@@ -484,7 +500,11 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
 
   return (
     <Stack tokens={{ childrenGap: 12 }}>
-      <Text variant="xLarge" as="h2">{t(`${textKey}.title`)}</Text>
+      <ModuleHeader
+        identity={identity}
+        title={t(`${textKey}.title`)}
+        subtitle={scoped.length > 0 ? t('screen.subtitle', { total: scoped.length, open: statuses.length > 0 ? scoped.filter(i => !isClosedStatus(getStatus(i))).length : scoped.length }) : undefined}
+      />
 
       <CommandBar items={commandItems} farItems={farItems} ariaLabel={t(`${textKey}.title`)} />
 
@@ -555,13 +575,10 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
       {props.extraContent}
 
       {!state.loading && !hasAnyItems && !state.error && (
-        <Stack tokens={{ childrenGap: 8 }}>
-          <Text>{t(`${textKey}.empty`)}</Text>
-          <Stack horizontal wrap tokens={{ childrenGap: 8 }}>
-            {!props.hideNew && <PrimaryButton text={t(`${textKey}.new`)} iconProps={{ iconName: 'Add' }} onClick={openCreate} />}
-            {!props.hideImport && <DefaultButton text={t('common.importCsv')} iconProps={{ iconName: 'Upload' }} onClick={() => setIsCsvOpen(true)} />}
-          </Stack>
-        </Stack>
+        <EmptyState identity={identity} text={t(`${textKey}.empty`)}>
+          {!props.hideNew && <PrimaryButton text={t(`${textKey}.new`)} iconProps={{ iconName: 'Add' }} onClick={openCreate} />}
+          {!props.hideImport && <DefaultButton text={t('common.importCsv')} iconProps={{ iconName: 'Upload' }} onClick={() => setIsCsvOpen(true)} />}
+        </EmptyState>
       )}
       {hasAnyItems && visible.length === 0 && <Text>{t('common.noResults')}</Text>}
 
@@ -577,6 +594,9 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
           onToggleFavorite={item => { favorites.toggle(item, props.getTitle(item)).catch(err => setLocalError(err instanceof Error ? err.message : t('common.unknownError'))); }}
           onSelect={item => setSelectedId(item.id)}
           onOpen={invoke}
+          identity={identity}
+          extraFields={cardFields}
+          fileCount={item => (fileLinks ? linksFor(fileLinks.items, props.listName, item.id).length : 0)}
           t={t}
         />
       )}
@@ -629,6 +649,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
           {service.capabilities.attachments && !props.hideAttachments && (
             <AttachmentsSection service={service} listName={props.listName} itemId={selected ? selected.id : undefined} />
           )}
+          <FileLinksSection listName={props.listName} itemId={selected ? selected.id : undefined} />
           {selected && (selected.modified || selected.editor) && (
             <Text variant="small">{t('common.lastModified', { date: (selected.modified ?? '').slice(0, 10), user: selected.editor || '—' })}</Text>
           )}

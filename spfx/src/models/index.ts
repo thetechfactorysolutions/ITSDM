@@ -30,3 +30,4 @@ export * from './Genius';
 export * from './Strategy';
 export * from './Purchase';
 export * from './Favorite';
+export * from './FileLink';

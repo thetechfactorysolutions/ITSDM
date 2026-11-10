@@ -3,6 +3,7 @@ import { DefaultButton, getTheme, Modal, SearchBox } from '@fluentui/react';
 import { AppConfig } from '../../config/AppConfig';
 import { useT } from '../../i18n/I18n';
 import { IPaletteEntry, searchEntries } from '../../rules/palette';
+import { identityForTab } from '../../config/identity';
 import { SOURCES, TABS } from '../../config/navMap';
 import { useHubData } from '../shared/HubData';
 import { useNav } from '../shared/Nav';
@@ -101,7 +102,7 @@ const CommandPalette: React.FC = () => {
                 onMouseEnter={() => setActive(index)}
                 style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '8px 10px', borderRadius: 8, cursor: 'pointer', background: index === active ? theme.palette.themeLighter : undefined }}
               >
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.label}</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}><span aria-hidden="true">{identityForTab(entry.tab).emoji}</span> {entry.label}</span>
                 <span style={{ color: theme.palette.neutralSecondary, fontSize: 12 }}>{entry.kind}</span>
               </li>
             ))}

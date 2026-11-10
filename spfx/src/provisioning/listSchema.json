@@ -2551,5 +2551,23 @@
     "type": "Text"
    }
   ]
+ },
+ {
+  "title": "IT_39_FileLinks",
+  "description": "Files linked to records by their link, from any list",
+  "fields": [
+   {
+    "name": "ListName",
+    "type": "Text"
+   },
+   {
+    "name": "ItemKey",
+    "type": "Text"
+   },
+   {
+    "name": "Url",
+    "type": "Note"
+   }
+  ]
  }
 ]

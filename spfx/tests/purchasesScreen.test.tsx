@@ -17,7 +17,7 @@ const po = (id: number, title: string, amount: number): PurchaseOrder => ({ id, 
 const role = (id: number, userUpn: string, r: R): PurchaseRoleEntry => ({ id, title: userUpn, userUpn, role: r, notes: '' });
 
 const tab = (label: string): HTMLElement | undefined =>
-  Array.from(document.body.querySelectorAll('[role="tab"]')).filter(b => (b.textContent ?? '').trim() === label)[0] as HTMLElement | undefined;
+  Array.from(document.body.querySelectorAll('[role="tab"]')).filter(b => (b.textContent ?? '').trim().endsWith(label))[0] as HTMLElement | undefined;
 const byLabel = (label: string): HTMLButtonElement | undefined =>
   Array.from(document.body.querySelectorAll('button')).filter(b => b.getAttribute('aria-label') === label)[0] as HTMLButtonElement | undefined;
 

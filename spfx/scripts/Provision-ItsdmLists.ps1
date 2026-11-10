@@ -342,6 +342,9 @@ $purchases = @(
 $purchaseRoles = @(
   @{ Name = 'UserUPN'; Type = 'Text' }, @{ Name = 'Role'; Type = 'Choice'; Choices = 'APPROVER', 'BUYER', 'REQUESTER', 'VIEWER' }, @{ Name = 'Notes'; Type = 'Note' }
 )
+$fileLinks = @(
+  @{ Name = 'ListName'; Type = 'Text' }, @{ Name = 'ItemKey'; Type = 'Text' }, @{ Name = 'Url'; Type = 'Note' }
+)
 $favorites = @(
   @{ Name = 'ListName'; Type = 'Text' }, @{ Name = 'ItemKey'; Type = 'Text' }, @{ Name = 'UserUPN'; Type = 'Text' }
 )
@@ -404,6 +407,7 @@ Initialize-ItsdmList -Title 'IT_35_PurchaseOrders' -Fields $purchaseOrders
 Initialize-ItsdmList -Title 'IT_36_Purchases' -Fields $purchases
 Initialize-ItsdmList -Title 'IT_37_PurchaseRoles' -Fields $purchaseRoles
 Initialize-ItsdmList -Title 'IT_38_Favorites' -Fields $favorites
+Initialize-ItsdmList -Title 'IT_39_FileLinks' -Fields $fileLinks
 
 # ---------- sample data ----------
 if ($SkipSampleData) {

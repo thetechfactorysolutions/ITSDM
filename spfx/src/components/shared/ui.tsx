@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { getTheme, keyframes, mergeStyleSets } from '@fluentui/react';
+import { gradientOf, IIdentity } from '../../config/identity';
 import { LookTone, initialsOf } from '../../rules/visual';
 import { useNav } from './Nav';
 
@@ -310,6 +311,42 @@ export const Spark: React.FC<{ values: number[]; labels?: string[]; height?: num
           style={{ flex: 1, minWidth: 6, height: `${Math.max(6, Math.round((v / max) * 100))}%`, borderRadius: 4, background: i === values.length - 1 ? theme.palette.themePrimary : theme.palette.themeTertiary, opacity: v === 0 ? 0.35 : 1, transition: 'height 400ms ease' }}
         />
       ))}
+    </div>
+  );
+};
+
+/** A rounded tile with a gradient and the emoji of a module or list. */
+export const IdentityTile: React.FC<{ identity: IIdentity; size?: number }> = ({ identity, size = 44 }) => (
+  <span
+    aria-hidden="true"
+    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: size, height: size, borderRadius: Math.round(size * 0.28), background: gradientOf(identity), fontSize: Math.round(size * 0.52), lineHeight: 1, flex: 'none', boxShadow: `0 4px 12px ${identity.from}55` }}
+  >
+    {identity.emoji}
+  </span>
+);
+
+/** The head of a screen: the tile, the title and a line saying what is in it. */
+export const ModuleHeader: React.FC<{ identity: IIdentity; title: string; subtitle?: string }> = ({ identity, title, subtitle }) => {
+  const theme = getTheme();
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+      <IdentityTile identity={identity} />
+      <div>
+        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 600, color: theme.palette.neutralPrimary }}>{title}</h2>
+        {subtitle && <div style={{ fontSize: 13, color: theme.palette.neutralSecondary }}>{subtitle}</div>}
+      </div>
+    </div>
+  );
+};
+
+/** What a list shows when it has nothing yet: a big tile, a sentence and the buttons that start it. */
+export const EmptyState: React.FC<{ identity: IIdentity; text: string; children?: React.ReactNode }> = ({ identity, text, children }) => {
+  const theme = getTheme();
+  return (
+    <div style={{ display: 'grid', justifyItems: 'center', gap: 12, padding: '32px 16px', textAlign: 'center', borderRadius: 16, border: `2px dashed ${theme.palette.neutralLight}`, color: theme.palette.neutralPrimary }}>
+      <IdentityTile identity={identity} size={72} />
+      <div style={{ fontSize: 16, maxWidth: 420 }}>{text}</div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>{children}</div>
     </div>
   );
 };

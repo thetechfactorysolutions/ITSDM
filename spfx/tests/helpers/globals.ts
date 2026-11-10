@@ -31,4 +31,7 @@ console.warn = (...args: unknown[]): void => {
 const fluent = require('@fluentui/react');
 fluent.setResponsiveMode(fluent.ResponsiveMode.large);
 
+// The screens open as cards unless a person chose otherwise; the older tests look at table rows.
+dom.window.localStorage.setItem('itsdm.layout.default', '"table"');
+
 export const jsdomWindow = dom.window;

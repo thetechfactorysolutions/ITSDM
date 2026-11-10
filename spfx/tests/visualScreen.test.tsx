@@ -28,15 +28,12 @@ const testCards = async (): Promise<void> => {
   const rec = newRec();
   await mount(renderWith(React.createElement(Initiatives), { initiatives: items }, rec));
   await settle();
-  assert.equal(cards().length, 0, 'a wide screen starts with the table');
-  assert.equal(button('Table')?.getAttribute('aria-pressed'), 'true');
+  assert.equal(cards().length, 4, 'a list opens as cards, one per item');
+  assert.equal(button('Cards')?.getAttribute('aria-pressed'), 'true');
 
-  await click(button('Cards') as HTMLButtonElement);
-  await settle();
-  assert.equal(cards().length, 4, 'one card per item');
-  assert.equal(window.localStorage.getItem('itsdm.layout.IT_02_Initiatives'), '"cards"', 'and the choice is remembered');
-
+  assert.ok(text().indexOf('4 in total · 4 open') > -1, 'the head of the screen says what is in it');
   const alpha = cardOf('Alpha rollout').textContent ?? '';
+  assert.ok(alpha.indexOf('🚀') > -1, 'each card carries the emoji of its list');
   assert.ok(alpha.indexOf('5 d late') > -1, 'a late item says how late');
   assert.ok(alpha.indexOf('Active') > -1 && alpha.indexOf('🟢') > -1, 'the status has its emoji');
   assert.ok(alpha.indexOf('AL') > -1, 'and the owner a badge with the initials');
@@ -75,11 +72,14 @@ const testCards = async (): Promise<void> => {
   await click(button('Table') as HTMLButtonElement);
   await settle();
   assert.equal(cards().length, 0, 'back to the table');
+  assert.equal(window.localStorage.getItem('itsdm.layout.default'), '"table"', 'and the choice becomes the one for the other lists');
+  assert.equal(window.localStorage.getItem('itsdm.layout.IT_02_Initiatives'), '"table"');
   await unmount();
 };
 
 const testTableLook = async (): Promise<void> => {
   window.localStorage.clear();
+  window.localStorage.setItem('itsdm.layout.default', '"table"');
   await mount(renderWith(React.createElement(Initiatives), { initiatives: items }));
   await settle();
   const rows = Array.from(document.body.querySelectorAll('[role="row"]')).map(r => r.textContent ?? '');

@@ -74,7 +74,7 @@ const testEveryListAndSample = (): void => {
     'IT_05_KPIs', 'IT_13_Incidents', 'IT_14_Interactions', 'IT_15_ChangeRequests',
     'IT_16_TeamSkills', 'IT_17_TrainingPlans', 'IT_18_KnowledgeBase',
     'IT_11_Risks', 'IT_12_Decisions', 'IT_19_Reviews', 'IT_20_LessonsLearned', 'IT_21_Meetings', 'IT_22_Notes',
-    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements', 'IT_27_NpsResponses', 'IT_28_ServiceMonths', 'IT_29_Catalog', 'IT_30_Stock', 'IT_31_GeniusSessions', 'IT_32_Objectives', 'IT_33_BusinessCases', 'IT_34_WeeklyReviews', 'IT_35_PurchaseOrders', 'IT_36_Purchases', 'IT_37_PurchaseRoles', 'IT_38_Favorites'
+    'IT_23_Matters', 'IT_24_Areas', 'IT_25_Links', 'IT_26_Entitlements', 'IT_27_NpsResponses', 'IT_28_ServiceMonths', 'IT_29_Catalog', 'IT_30_Stock', 'IT_31_GeniusSessions', 'IT_32_Objectives', 'IT_33_BusinessCases', 'IT_34_WeeklyReviews', 'IT_35_PurchaseOrders', 'IT_36_Purchases', 'IT_37_PurchaseRoles', 'IT_38_Favorites', 'IT_39_FileLinks'
   ];
   assert.deepEqual(instances.map(i => i.title).sort(), expected.sort(), 'every list is in the package');
 
@@ -83,7 +83,7 @@ const testEveryListAndSample = (): void => {
     const byName: Record<string, ISchemaField> = {};
     fields.forEach(f => { byName[f.name] = f; });
     assert.ok(byName.Title, `${instance.title} has a Title column`);
-    assert.ok(instance.rows.length > 0 || instance.title === 'IT_37_PurchaseRoles' || instance.title === 'IT_38_Favorites', `${instance.title} has sample rows`);
+    assert.ok(instance.rows.length > 0 || instance.title === 'IT_37_PurchaseRoles' || instance.title === 'IT_38_Favorites' || instance.title === 'IT_39_FileLinks', `${instance.title} has sample rows`);
 
     for (const row of instance.rows) {
       for (const key of Object.keys(row)) {
