@@ -1,6 +1,6 @@
 # Paneles, favoritos y búsqueda rápida
 
-Diseño en `superpowers/specs/2026-11-10-paneles-ux-diseno.md`. Paquete 1.12.0.0 (38 listas).
+Diseño en `superpowers/specs/2026-11-10-paneles-ux-diseno.md`. Paquete 1.13.0.0 (38 listas).
 
 ## Resumen en cada pantalla
 
@@ -29,6 +29,15 @@ Columna **Pendiente**: la cifra suma incidencias abiertas, contratos y garantía
 - Se recuerdan por pantalla el filtro de estado, *Mostrar cerrados* y el orden.
 - La tecla **/** salta a la búsqueda.
 - Una lista vacía ofrece *Nuevo* e *Importar CSV* en lugar de un texto.
+
+## Aspecto visual (1.13)
+
+- **Cabecera de tabla fija**: la tabla vive en su propio recuadro con desplazamiento (máximo 72 % de la altura de la ventana) y la fila de títulos se queda pegada arriba, así que ya no se solapa con las filas. Hasta 300 filas se dibujan todas (sin el cálculo de alturas que producía el solape); a partir de ahí vuelve la virtualización.
+- **Estados con emoji y color** (🟢 abierto, 🚧 en curso, ⛔ bloqueado, ✅ aprobado, 🎉 hecho…), **prioridad y gravedad** como etiquetas (🔥 crítica, 🟠 alta, 🟡 media, 🟢 baja), **vencimientos** con aviso (🔥 hace 5 d, ⏰ hoy, 📅 en 3 d; nada si queda lejos o está cerrado) y **responsables con insignia** de iniciales.
+- **Resumen con gráficos**: un anillo de estados (pulsar un arco filtra) con su leyenda, y las barras de **actividad de las últimas 8 semanas**. El panel de inicio suma la actividad de toda la aplicación.
+- **Vista Tarjetas**: junto a la búsqueda, *Tabla / Tarjetas*. Se recuerda por pantalla y en pantallas estrechas (menos de 700 px) es la de inicio. Clic selecciona, doble clic o Enter abre.
+- **Deshacer**: al cambiar un estado en la tabla o al archivar, aparece una barra con *Deshacer* durante 9 segundos. No cubre *Eliminar* (eso es definitivo) ni los cambios que gastan una aprobación.
+- Aparición suave de los paneles (se desactiva si el sistema pide menos movimiento).
 
 ## Límites
 

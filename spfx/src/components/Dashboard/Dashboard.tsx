@@ -19,7 +19,8 @@ import { dayKeyToSharePoint, toDayKey } from '../../rules/dates';
 import ApprovalDecisionDialog from '../shared/ApprovalDecisionDialog';
 import BarChart from '../shared/Charts';
 import { useHubData } from '../shared/HubData';
-import { AttentionRow, Card, Hero, Section, StatCard, Tone } from '../shared/ui';
+import { weeklyActivity } from '../../rules/visual';
+import { AttentionRow, Card, Hero, Section, Spark, StatCard, Tone } from '../shared/ui';
 import QuickLinks from '../Links/QuickLinks';
 import { usePurchaseRole } from '../Purchases/usePurchaseRole';
 import { useNav } from '../shared/Nav';
@@ -245,6 +246,12 @@ const Dashboard: React.FC = () => {
   const dateLabel = now.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   const summary = hasLoading && attention.length === 0 ? t('common.loading') : attention.length === 0 ? t('dashboard.heroClear') : t('dashboard.heroCount', { count: attention.length });
 
+  // everything that was touched, week by week: a quick feeling of how alive the panel is
+  const hubState = useHubData() as unknown as Record<string, { items?: unknown[] } | undefined>;
+  const everything: unknown[] = [];
+  Object.keys(hubState).forEach(key => { const list = hubState[key]; if (list && Array.isArray(list.items)) { list.items.forEach(i => everything.push(i)); } });
+  const activity = weeklyActivity(everything, 8, now);
+
   const level = (danger: boolean, warning: boolean): Tone => danger ? 'danger' : warning ? 'warning' : 'good';
 
   return (
@@ -310,6 +317,12 @@ const Dashboard: React.FC = () => {
         <StatCard icon="book" tab="people" label={t('dashboard.trainingsOverdue')} value={trainingsOverdue.length} tone={level(false, trainingsOverdue.length > 0)} />
         <StatCard icon="book" tab="people" label={t('dashboard.articlesToReview')} value={articlesToReview.length} tone={level(false, articlesToReview.length > 0)} />
       </Section>
+
+      {activity.some(n => n > 0) && (
+        <Card title={t('dashboard.activity')}>
+          <Spark values={activity} labels={activity.map((_, i) => t('insights.activityWeek', { n: i + 1 }))} height={64} ariaLabel={t('dashboard.activity')} />
+        </Card>
+      )}
 
       <Card title={t('dashboard.favorites')}>
         {myFavorites.length === 0 ? (

@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { getTheme, mergeStyleSets } from '@fluentui/react';
+import { getTheme, keyframes, mergeStyleSets } from '@fluentui/react';
+import { LookTone, initialsOf } from '../../rules/visual';
 import { useNav } from './Nav';
 
 export type Tone = 'good' | 'info' | 'warning' | 'danger';
@@ -47,12 +48,18 @@ export const toneColor = (tone: Tone): string => {
   return tone === 'good' ? p.green : tone === 'info' ? p.themePrimary : tone === 'warning' ? p.orange : p.redDark;
 };
 
+const appear = keyframes({ from: { opacity: 0, transform: 'translateY(8px)' }, to: { opacity: 1, transform: 'none' } });
+
 const classes = mergeStyleSets({
   card: {
+    animationName: appear,
+    animationDuration: '320ms',
+    animationFillMode: 'backwards',
     borderRadius: 12,
     padding: 16,
     boxSizing: 'border-box',
-    transition: 'box-shadow 160ms ease, transform 160ms ease'
+    transition: 'box-shadow 160ms ease, transform 160ms ease',
+    selectors: { '@media (prefers-reduced-motion: reduce)': { animation: 'none', transition: 'none' } }
   },
   stat: {
     display: 'grid',
@@ -211,5 +218,98 @@ export const Hero: React.FC<{ title: string; greeting: string; date: string; sum
         <span>{summary}</span>
       </div>
     </header>
+  );
+};
+
+/** Colour for a tone of the visual rules, which also has a quiet "neutral". */
+export const lookColor = (tone: LookTone): string => (tone === 'neutral' ? getTheme().palette.neutralSecondary : toneColor(tone));
+
+/** A rounded tag: an emoji and a short text on a soft background of the tone's colour. */
+export const Pill: React.FC<{ tone: LookTone; emoji?: string; children: React.ReactNode; title?: string }> = ({ tone, emoji, children, title }) => {
+  const color = lookColor(tone);
+  return (
+    <span
+      title={title}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '1px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, lineHeight: '20px', whiteSpace: 'nowrap', background: `${color}1f`, color: getTheme().palette.neutralPrimary, border: `1px solid ${color}55` }}
+    >
+      {emoji && <span aria-hidden="true">{emoji}</span>}
+      <span>{children}</span>
+    </span>
+  );
+};
+
+const AVATAR_COLORS = ['#0f6cbd', '#8764b8', '#038387', '#c239b3', '#ca5010', '#498205', '#986f0b', '#5c2e91'];
+
+/** A round badge with the initials of a person; the colour is always the same for the same person. */
+export const Avatar: React.FC<{ text: string; size?: number }> = ({ text, size = 24 }) => {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = (hash * 31 + text.charCodeAt(i)) % 997;
+  }
+  return (
+    <span
+      aria-hidden="true"
+      title={text}
+      style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: size, height: size, borderRadius: '50%', background: AVATAR_COLORS[hash % AVATAR_COLORS.length], color: '#fff', fontSize: Math.round(size * 0.42), fontWeight: 600, flex: 'none' }}
+    >
+      {initialsOf(text)}
+    </span>
+  );
+};
+
+export interface IDonutSlice {
+  key: string;
+  label: string;
+  count: number;
+  color: string;
+}
+
+/** A ring split in as many arcs as slices, with a number in the middle. Pressing an arc calls onPress(key). */
+export const Donut: React.FC<{ slices: IDonutSlice[]; size?: number; centre?: string; caption?: string; onPress?: (key: string) => void }> = ({ slices, size = 120, centre, caption, onPress }) => {
+  const theme = getTheme();
+  const total = slices.reduce((sum, s) => sum + s.count, 0);
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  let offset = 0;
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" role="img" aria-label={slices.map(s => `${s.label}: ${s.count}`).join(', ')}>
+      <circle cx="50" cy="50" r={radius} fill="none" stroke={theme.palette.neutralLighter} strokeWidth={12} />
+      {total > 0 && slices.map(s => {
+        const length = (s.count / total) * circumference;
+        const arc = (
+          <circle
+            key={s.key}
+            cx="50" cy="50" r={radius} fill="none" stroke={s.color} strokeWidth={12}
+            strokeDasharray={`${Math.max(0, length - 1.2)} ${circumference}`} strokeDashoffset={-offset}
+            transform="rotate(-90 50 50)"
+            style={{ cursor: onPress ? 'pointer' : undefined, transition: 'stroke-dasharray 400ms ease' }}
+            onClick={onPress ? () => onPress(s.key) : undefined}
+          >
+            <title>{`${s.label}: ${s.count}`}</title>
+          </circle>
+        );
+        offset += length;
+        return arc;
+      })}
+      {centre !== undefined && <text x="50" y={caption ? 51 : 56} textAnchor="middle" fontSize="22" fontWeight="600" fill={theme.palette.neutralPrimary}>{centre}</text>}
+      {caption && <text x="50" y="65" textAnchor="middle" fontSize="9" fill={theme.palette.neutralSecondary}>{caption}</text>}
+    </svg>
+  );
+};
+
+/** Small bars, one per number, the last one highlighted. Used for activity over time. */
+export const Spark: React.FC<{ values: number[]; labels?: string[]; height?: number; ariaLabel: string }> = ({ values, labels, height = 48, ariaLabel }) => {
+  const theme = getTheme();
+  const max = Math.max(1, ...values);
+  return (
+    <div role="img" aria-label={ariaLabel} style={{ display: 'flex', alignItems: 'flex-end', gap: 4, height }}>
+      {values.map((v, i) => (
+        <span
+          key={i}
+          title={`${labels ? labels[i] : i + 1}: ${v}`}
+          style={{ flex: 1, minWidth: 6, height: `${Math.max(6, Math.round((v / max) * 100))}%`, borderRadius: 4, background: i === values.length - 1 ? theme.palette.themePrimary : theme.palette.themeTertiary, opacity: v === 0 ? 0.35 : 1, transition: 'height 400ms ease' }}
+        />
+      ))}
+    </div>
   );
 };

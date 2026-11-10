@@ -3,7 +3,7 @@
   "solution": {
     "name": "itsdm-client-side-solution",
     "id": "0c53f3a8-ee89-4924-802e-fc71d0d5f607",
-    "version": "1.12.0.0",
+    "version": "1.13.0.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": false,
     "isDomainIsolated": false,

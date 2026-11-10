@@ -5,7 +5,11 @@ import {
   autoGroupFields, countBy, hasDueDates, isMine, isOpenItem, isPastDue, ownerOfItem, readField, recentlyUpdated, statusCounts, updatedWithin
 } from '../../rules/insights';
 import { useHubData } from './HubData';
-import { Icon, IconName, Tone, toneColor } from './ui';
+import { statusLook, weeklyActivity } from '../../rules/visual';
+import { Donut, Icon, IconName, Spark, Tone, toneColor } from './ui';
+
+/** One colour per status, the same in the ring and in the tag that filters it. */
+const RING = ['#0f6cbd', '#038387', '#8764b8', '#ca5010', '#498205', '#c239b3', '#986f0b', '#5c2e91', '#69797e'];
 
 /** A filter over the table, set by pressing a number, a status or a bar. */
 export interface IChip<T> {
@@ -192,6 +196,7 @@ const Insights = <T extends IItemLike>(props: IInsightsProps<T>): React.ReactEle
   (config?.groups ?? []).forEach(g => groups.push(g));
 
   const statusBars = statusCounts(items, getStatus, statuses);
+  const activity = React.useMemo(() => weeklyActivity(items, 8), [items]);
   const starred = items.filter(isFav).slice(0, 8);
   const recent = items.length > 8 ? recentlyUpdated(items.filter(i => isOpenItem(getStatus(i)) || statuses.length === 0), 5) : [];
 
@@ -238,25 +243,45 @@ const Insights = <T extends IItemLike>(props: IInsightsProps<T>): React.ReactEle
             ))}
           </div>
 
-          {statusBars.length > 1 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }} role="group" aria-label={t('insights.byStatus')}>
-              {statusBars.map(b => (
-                <button
-                  key={b.key}
-                  type="button"
-                  aria-pressed={activeStatus === b.key}
-                  className={classes.pill}
-                  style={{ background: activeStatus === b.key ? theme.palette.themePrimary : theme.palette.neutralLighter, color: activeStatus === b.key ? theme.palette.white : theme.palette.neutralPrimary }}
-                  onClick={() => onStatus(activeStatus === b.key ? '' : b.key)}
-                >
-                  {t(`status.${b.key}`)} <strong>{b.count}</strong>
-                </button>
-              ))}
+          {(statusBars.length > 1 || activity.some(n => n > 0)) && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'center' }}>
+              {statusBars.length > 1 && (
+                <>
+                  <Donut
+                    slices={statusBars.map((b, i) => ({ key: b.key, label: t(`status.${b.key}`), count: b.count, color: RING[i % RING.length] }))}
+                    centre={String(items.length)}
+                    caption={t('insights.items')}
+                    onPress={key => onStatus(activeStatus === key ? '' : key)}
+                  />
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, flex: '1 1 260px' }} role="group" aria-label={t('insights.byStatus')}>
+                    {statusBars.map((b, i) => (
+                      <button
+                        key={b.key}
+                        type="button"
+                        aria-pressed={activeStatus === b.key}
+                        className={classes.pill}
+                        style={{ background: activeStatus === b.key ? theme.palette.themePrimary : theme.palette.neutralLighter, color: activeStatus === b.key ? theme.palette.white : theme.palette.neutralPrimary }}
+                        onClick={() => onStatus(activeStatus === b.key ? '' : b.key)}
+                      >
+                        <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: RING[i % RING.length], display: 'inline-block' }} />
+                        <span aria-hidden="true">{statusLook(b.key).emoji}</span>
+                        {t(`status.${b.key}`)} <strong>{b.count}</strong>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              {activity.some(n => n > 0) && (
+                <div style={{ flex: '1 1 200px', maxWidth: 320 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.6, color: theme.palette.neutralSecondary, marginBottom: 6 }}>📈 {t('insights.activity')}</div>
+                  <Spark values={activity} labels={activity.map((_, i) => t('insights.activityWeek', { n: i + 1 }))} ariaLabel={t('insights.activity')} />
+                </div>
+              )}
             </div>
           )}
 
           {groups.length > 0 && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 380px))', gap: 24 }}>
               {groups.map(g => {
                 const bars = g.bars(items);
                 const max = Math.max(1, ...bars.map(b => b.count));

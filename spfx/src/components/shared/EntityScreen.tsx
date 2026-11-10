@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
   CommandBar, DefaultButton, DetailsList, DetailsListLayoutMode, Dropdown, IColumn, ICommandBarItemProps, IDropdownOption, MessageBar,
-  ISearchBox, MessageBarType, Panel, PanelType, PrimaryButton, SearchBox, Selection, SelectionMode, Stack, Text, Toggle
+  ISearchBox, getTheme, MessageBarType, Panel, PanelType, PrimaryButton, SearchBox, Selection, SelectionMode, Stack, Text, Toggle
 } from '@fluentui/react';
 import { buildApprovalPayload } from '../../entities/payloads';
 import { useLanguage, useT } from '../../i18n/I18n';
@@ -20,6 +20,7 @@ import CsvImportPanel from './CsvImportPanel';
 import { FormGrid } from './FormGrid';
 import { useHubData } from './HubData';
 import { useNav } from './Nav';
+import { decorateColumn, ItemCards, StatusPill } from './cells';
 import Insights, { IChip, IInsightsConfig } from './Insights';
 import { useFavorites } from './useFavorites';
 import { readMemory, writeMemory } from './viewMemory';
@@ -123,6 +124,8 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   const [chip, setChip] = React.useState<IChip<T> | undefined>();
   const [insightsOpen, setInsightsOpen] = React.useState<boolean>(() => readMemory<boolean>(`insights.${props.listName}`) !== false);
   const searchRef = React.useRef<ISearchBox>(null);
+  const [layout, setLayoutState] = React.useState<'table' | 'cards'>(() => readMemory<'table' | 'cards'>(`layout.${props.listName}`) ?? (window.innerWidth < 700 ? 'cards' : 'table'));
+  const setLayout = (next: 'table' | 'cards'): void => { setLayoutState(next); writeMemory(`layout.${props.listName}`, next); };
   const favorites = useFavorites(props.listName);
   // arriving from the quick search: show the record that was looked for
   const nav = useNav();
@@ -143,6 +146,21 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   const [localError, setLocalError] = React.useState<string | undefined>();
   const [form, setFormState] = React.useState<T>(props.newItem);
   const [gate, setGate] = React.useState<IGateResult | undefined>();
+  const [undo, setUndo] = React.useState<{ text: string; run: () => Promise<void> } | undefined>();
+  React.useEffect(() => {
+    if (!undo) {
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setUndo(undefined), 9000);
+    return () => window.clearTimeout(timer);
+  }, [undo]);
+  const runUndo = (): void => {
+    const pending = undo;
+    setUndo(undefined);
+    if (pending) {
+      pending.run().catch(err => setLocalError(err instanceof Error ? err.message : t('common.unknownError')));
+    }
+  };
 
   const selectionRef = React.useRef<Selection>();
   if (!selectionRef.current) {
@@ -286,7 +304,13 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
           setLocalError(t('approval.quickBlocked', { rule: t(blocked.titleKey) }));
           return;
         }
+        const before = selected;
+        const previous = getStatus(before);
         await state.update(selected.id, { Status: props.archiveStatus, ...(blocked ? buildApprovalPayload(EMPTY_APPROVAL) : {}) });
+        if (!blocked && before.id) {
+          const id = before.id;
+          setUndo({ text: t('undo.archived', { title: props.getTitle(before) }), run: () => state.update(id, props.quickPayload ? props.quickPayload(before, previous) : { Status: previous }) });
+        }
       }
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : t('common.unknownError'));
@@ -306,7 +330,15 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     const base = props.quickPayload ? props.quickPayload(item, status) : { Status: status };
     // The approval given for this change is used up by it.
     const payload = blocked ? { ...base, ...buildApprovalPayload(EMPTY_APPROVAL) } : base;
-    state.update(item.id, payload).catch(err => setLocalError(err instanceof Error ? err.message : t('common.unknownError')));
+    const previous = getStatus(item);
+    const id = item.id;
+    state.update(id, payload)
+      .then(() => {
+        if (!blocked) {
+          setUndo({ text: t('undo.changed', { title: props.getTitle(item), status: t(`status.${status}`) }), run: () => state.update(id, props.quickPayload ? props.quickPayload(item, previous) : { Status: previous }) });
+        }
+      })
+      .catch(err => setLocalError(err instanceof Error ? err.message : t('common.unknownError')));
   };
 
   const exportCsv = (): void => {
@@ -362,7 +394,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     };
 
     if (column.key !== 'status') {
-      return base;
+      return decorateColumn<T>(base, t, getStatus);
     }
 
     return {
@@ -371,7 +403,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
       onRender: (item: T) => {
         const allowed = props.quickStatuses ? props.quickStatuses(item) : [];
         if (allowed.length <= 1) {
-          return <span>{t(`status.${getStatus(item)}`)}</span>;
+          return <StatusPill status={getStatus(item)} t={t} />;
         }
 
         return (
@@ -387,7 +419,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   });
 
   const starColumn: IColumn = {
-    key: 'favorite', name: t('fav.column'), ariaLabel: t('fav.column'), minWidth: 28, maxWidth: 28,
+    key: 'favorite', name: '', ariaLabel: t('fav.column'), minWidth: 28, maxWidth: 28,
     onRender: (item: T) => {
       const on = favorites.isFavorite(item.id);
       const title = props.getTitle(item);
@@ -414,6 +446,17 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     } else {
       openEdit(item);
     }
+  };
+
+  const invoke = (item: T): void => {
+    if (props.canEdit && !props.canEdit(item)) {
+      if (props.renderDetail) {
+        setSelectedId(item.id);
+        setIsDetailOpen(true);
+      }
+      return;
+    }
+    openEdit(item);
   };
 
   const commandItems: ICommandBarItemProps[] = props.hideNew ? [] : [
@@ -489,11 +532,24 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
             onChange={(_, checked) => setView(prev => ({ ...prev, showClosed: !!checked }))}
           />
         )}
+        <Stack horizontal tokens={{ childrenGap: 4 }} role="group" aria-label={t('view.label')}>
+          <DefaultButton text={t('view.table')} iconProps={{ iconName: 'Table' }} toggle checked={layout === 'table'} onClick={() => setLayout('table')} />
+          <DefaultButton text={t('view.cards')} iconProps={{ iconName: 'GridViewMedium' }} toggle checked={layout === 'cards'} onClick={() => setLayout('cards')} />
+        </Stack>
       </Stack>
 
       <div aria-live="polite">
         {shownError && <MessageBar messageBarType={MessageBarType.error} onDismiss={() => setLocalError(undefined)}>{shownError}</MessageBar>}
         {state.loading && <MessageBar>{t('common.loading')}</MessageBar>}
+        {undo && (
+          <MessageBar
+            messageBarType={MessageBarType.success}
+            onDismiss={() => setUndo(undefined)}
+            actions={<div><DefaultButton text={t('undo.button')} iconProps={{ iconName: 'Undo' }} onClick={runUndo} /></div>}
+          >
+            {undo.text}
+          </MessageBar>
+        )}
       </div>
 
       {props.extraContent}
@@ -509,8 +565,24 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
       )}
       {hasAnyItems && visible.length === 0 && <Text>{t('common.noResults')}</Text>}
 
-      {visible.length > 0 && (
-        <div style={{ overflowX: 'auto' }}>
+      {visible.length > 0 && layout === 'cards' && (
+        <ItemCards<T>
+          items={visible}
+          selectedId={selectedId}
+          getId={item => item.id}
+          getTitle={props.getTitle}
+          getStatus={getStatus}
+          hasStatus={statuses.length > 0}
+          isFavorite={item => favorites.isFavorite(item.id)}
+          onToggleFavorite={item => { favorites.toggle(item, props.getTitle(item)).catch(err => setLocalError(err instanceof Error ? err.message : t('common.unknownError'))); }}
+          onSelect={item => setSelectedId(item.id)}
+          onOpen={invoke}
+          t={t}
+        />
+      )}
+
+      {visible.length > 0 && layout === 'table' && (
+        <div style={{ overflow: 'auto', maxHeight: '72vh', borderRadius: 12, border: `1px solid ${getTheme().palette.neutralLighter}`, background: getTheme().palette.white }}>
           <DetailsList
             items={visible}
             columns={tableColumns}
@@ -518,16 +590,9 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
             selectionMode={SelectionMode.single}
             setKey="entity"
             layoutMode={DetailsListLayoutMode.justified}
-            onItemInvoked={item => {
-              if (props.canEdit && !props.canEdit(item as T)) {
-                if (props.renderDetail) {
-                  setSelectedId((item as T).id);
-                  setIsDetailOpen(true);
-                }
-                return;
-              }
-              openEdit(item as T);
-            }}
+            onShouldVirtualize={() => visible.length > 300}
+            styles={{ root: { overflow: 'visible' }, headerWrapper: { position: 'sticky', top: 0, zIndex: 2, background: getTheme().palette.white } }}
+            onItemInvoked={item => invoke(item as T)}
             ariaLabelForGrid={t(`${textKey}.title`)}
           />
         </div>
