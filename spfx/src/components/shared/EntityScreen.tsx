@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
   CommandBar, DefaultButton, DetailsList, DetailsListLayoutMode, Dropdown, IColumn, ICommandBarItemProps, IDropdownOption, MessageBar,
-  MessageBarType, Panel, PanelType, PrimaryButton, SearchBox, Selection, SelectionMode, Stack, Text, Toggle
+  ISearchBox, MessageBarType, Panel, PanelType, PrimaryButton, SearchBox, Selection, SelectionMode, Stack, Text, Toggle
 } from '@fluentui/react';
 import { buildApprovalPayload } from '../../entities/payloads';
 import { useLanguage, useT } from '../../i18n/I18n';
@@ -19,6 +19,10 @@ import ConfirmDialog from './ConfirmDialog';
 import CsvImportPanel from './CsvImportPanel';
 import { FormGrid } from './FormGrid';
 import { useHubData } from './HubData';
+import { useNav } from './Nav';
+import Insights, { IChip, IInsightsConfig } from './Insights';
+import { useFavorites } from './useFavorites';
+import { readMemory, writeMemory } from './viewMemory';
 
 export interface IEntityBase {
   id?: number;
@@ -88,6 +92,8 @@ export interface IEntityScreenProps<T extends IEntityBase> {
   initialView?: Partial<ITableView>;
   /** Hides the attachments in the edit panel for lists where they make no sense. */
   hideAttachments?: boolean;
+  /** Extra figures and charts for the summary above the table; the usual ones (totals, late, mine, favourites, what is most used) come with every screen. */
+  insights?: IInsightsConfig<T>;
   /** Whether the person may edit this item. When not, double-clicking opens the details instead and Edit is disabled. */
   canEdit?: (item: T) => boolean;
   /** Whether the person may delete this item. */
@@ -106,7 +112,28 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   const { userEmail } = useHubData();
   const { textKey, state, service, statuses, getStatus, columns, sortAccessors, searchFields } = props;
 
-  const [view, setView] = React.useState<ITableView>({ ...DEFAULT_VIEW, ...props.initialView });
+  const viewKey = `view.${props.listName}`;
+  const [view, setView] = React.useState<ITableView>(() => {
+    const remembered = props.initialView ? undefined : readMemory<Partial<ITableView>>(viewKey);
+    return { ...DEFAULT_VIEW, ...(remembered ?? {}), search: '', ...props.initialView };
+  });
+  React.useEffect(() => {
+    writeMemory(viewKey, { status: view.status, showClosed: view.showClosed, sortKey: view.sortKey, sortDescending: view.sortDescending });
+  }, [viewKey, view.status, view.showClosed, view.sortKey, view.sortDescending]);
+  const [chip, setChip] = React.useState<IChip<T> | undefined>();
+  const [insightsOpen, setInsightsOpen] = React.useState<boolean>(() => readMemory<boolean>(`insights.${props.listName}`) !== false);
+  const searchRef = React.useRef<ISearchBox>(null);
+  const favorites = useFavorites(props.listName);
+  // arriving from the quick search: show the record that was looked for
+  const nav = useNav();
+  React.useEffect(() => {
+    const seed = nav.seed;
+    if (seed && seed.listName === props.listName) {
+      setChip(undefined);
+      setView(prev => ({ ...prev, search: seed.search, status: '', showClosed: true }));
+      nav.clearSeed();
+    }
+  }, [nav.seed, props.listName]);
   const [selectedId, setSelectedId] = React.useState<number | undefined>();
   const [isFormOpen, setIsFormOpen] = React.useState<boolean>(false);
   const [isDetailOpen, setIsDetailOpen] = React.useState<boolean>(false);
@@ -138,10 +165,26 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     [state.items, props.scope]
   );
 
+  const chipped = React.useMemo(() => (chip ? scoped.filter(chip.test) : scoped), [scoped, chip]);
+
   const visible = React.useMemo(
-    () => applyView(scoped, view, getStatus, searchFields, sortAccessors),
-    [scoped, view, getStatus, searchFields, sortAccessors]
+    () => applyView(chipped, view, getStatus, searchFields, sortAccessors),
+    [chipped, view, getStatus, searchFields, sortAccessors]
   );
+
+  // "/" jumps to the search box, like in most tools
+  React.useEffect(() => {
+    const onKey = (event: KeyboardEvent): void => {
+      const target = event.target as HTMLElement | null;
+      const typing = !!target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+      if (event.key === '/' && !typing && !event.ctrlKey && !event.metaKey && searchRef.current) {
+        event.preventDefault();
+        searchRef.current.focus();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
   const errors: ValidationErrors = submitted ? props.validate(form) : {};
   const shownError = localError || state.error;
@@ -343,6 +386,36 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     };
   });
 
+  const starColumn: IColumn = {
+    key: 'favorite', name: t('fav.column'), ariaLabel: t('fav.column'), minWidth: 28, maxWidth: 28,
+    onRender: (item: T) => {
+      const on = favorites.isFavorite(item.id);
+      const title = props.getTitle(item);
+      return (
+        <button
+          type="button"
+          aria-pressed={on}
+          aria-label={`${on ? t('fav.remove') : t('fav.add')}: ${title}`}
+          title={on ? t('fav.remove') : t('fav.add')}
+          onClick={event => { event.stopPropagation(); favorites.toggle(item, title).catch(err => setLocalError(err instanceof Error ? err.message : t('common.unknownError'))); }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 0, color: on ? '#d29200' : undefined }}
+        >
+          <span aria-hidden="true">{on ? '★' : '☆'}</span>
+        </button>
+      );
+    }
+  };
+  tableColumns.unshift(starColumn);
+
+  const openFromInsights = (item: T): void => {
+    setSelectedId(item.id);
+    if (props.renderDetail) {
+      setIsDetailOpen(true);
+    } else {
+      openEdit(item);
+    }
+  };
+
   const commandItems: ICommandBarItemProps[] = props.hideNew ? [] : [
     { key: 'new', text: t(`${textKey}.new`), iconProps: { iconName: 'Add' }, onClick: openCreate }
   ];
@@ -372,9 +445,26 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
 
       <CommandBar items={commandItems} farItems={farItems} ariaLabel={t(`${textKey}.title`)} />
 
+      <Insights<T>
+        items={scoped}
+        statuses={statuses}
+        getStatus={getStatus}
+        getTitle={props.getTitle}
+        config={props.insights}
+        favoriteIds={favorites.ids}
+        activeChip={chip}
+        onChip={setChip}
+        activeStatus={view.status}
+        onStatus={status => setView(prev => ({ ...prev, status }))}
+        onOpen={openFromInsights}
+        open={insightsOpen}
+        onToggle={() => setInsightsOpen(prev => { writeMemory(`insights.${props.listName}`, !prev); return !prev; })}
+      />
+
       <Stack horizontal wrap verticalAlign="end" tokens={{ childrenGap: 12 }}>
         <Stack.Item grow styles={{ root: { minWidth: 220, maxWidth: 420 } }}>
           <SearchBox
+            componentRef={searchRef}
             placeholder={t('common.search')}
             ariaLabel={t('common.search')}
             value={view.search}
@@ -408,7 +498,15 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
 
       {props.extraContent}
 
-      {!state.loading && !hasAnyItems && !state.error && <Text>{t(`${textKey}.empty`)}</Text>}
+      {!state.loading && !hasAnyItems && !state.error && (
+        <Stack tokens={{ childrenGap: 8 }}>
+          <Text>{t(`${textKey}.empty`)}</Text>
+          <Stack horizontal wrap tokens={{ childrenGap: 8 }}>
+            {!props.hideNew && <PrimaryButton text={t(`${textKey}.new`)} iconProps={{ iconName: 'Add' }} onClick={openCreate} />}
+            {!props.hideImport && <DefaultButton text={t('common.importCsv')} iconProps={{ iconName: 'Upload' }} onClick={() => setIsCsvOpen(true)} />}
+          </Stack>
+        </Stack>
+      )}
       {hasAnyItems && visible.length === 0 && <Text>{t('common.noResults')}</Text>}
 
       {visible.length > 0 && (

@@ -107,7 +107,7 @@ const testEnsure = async (): Promise<void> => {
   // the real schema on an empty site
   const site = new FakeSite();
   const all = await ensureLists(site, defs);
-  assert.equal(all.created.length, 37);
+  assert.equal(all.created.length, 38);
   assert.deepEqual(all.failed, []);
   assert.equal(site.lists[AppConfig.sharePoint.listNames.matters].length, 1 + defs.filter(d => d.title === AppConfig.sharePoint.listNames.matters)[0].fields.length);
 };

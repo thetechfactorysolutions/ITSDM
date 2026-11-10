@@ -22,6 +22,8 @@ import { useHubData } from '../shared/HubData';
 import { AttentionRow, Card, Hero, Section, StatCard, Tone } from '../shared/ui';
 import QuickLinks from '../Links/QuickLinks';
 import { usePurchaseRole } from '../Purchases/usePurchaseRole';
+import { useNav } from '../shared/Nav';
+import { tabForList } from '../../config/navMap';
 import { awaitingDelivery, isApprover as isPurchaseApprover, posToWatch, requestsToApprove, visiblePurchases } from '../../rules/purchases';
 import { PurchaseRoleType } from '../../models';
 
@@ -53,7 +55,8 @@ const Dashboard: React.FC = () => {
   const { userEmail, ideas: ideasState, initiatives: initiativesState, projects: projectsState, actions: actionsState, risks: risksState,
     budgets: budgetsState, capex: capexState, opex: opexState, contracts: contractsState,
     incidents: incidentsState, changes: changesState, interactions: interactionsState, kpis: kpisState, skills: skillsState, trainings: trainingsState, articles: articlesState,
-    matters: mattersState, entitlements: entitlementsState, links: linksState, nps: npsState, serviceMonths: monthsState, stock: stockState, genius: geniusState, businessCases: casesState, objectives: objectivesState, weeklyReviews: weeklyState, purchases: purchasesState, purchaseOrders: posState } = useHubData();
+    matters: mattersState, entitlements: entitlementsState, links: linksState, nps: npsState, serviceMonths: monthsState, stock: stockState, genius: geniusState, businessCases: casesState, objectives: objectivesState, weeklyReviews: weeklyState, purchases: purchasesState, purchaseOrders: posState, favorites: favoritesState } = useHubData();
+  const nav = useNav();
   const purchaseRole = usePurchaseRole();
   const [actionError, setActionError] = React.useState<string | undefined>();
   const [deciding, setDeciding] = React.useState<{ row: IPendingApproval; decision: ApprovalStatus.APPROVED | ApprovalStatus.REJECTED } | undefined>();
@@ -123,6 +126,8 @@ const Dashboard: React.FC = () => {
   const purchasesToApprove = isPurchaseApprover(purchaseRole) ? requestsToApprove(purchasesState.items) : [];
   const purchasesToReceive = awaitingDelivery(myPurchases);
   const posNearLimit = purchaseRole === PurchaseRoleType.REQUESTER ? [] : posToWatch(posState.items, purchasesState.items);
+
+  const myFavorites = (favoritesState ? favoritesState.items : []).filter(f => f.userUpn.toLowerCase() === userEmail.toLowerCase()).slice(0, 24);
 
   const initiativeColumns: IColumn[] = [
     { key: 'title', name: t('field.initiative'), fieldName: 'title', minWidth: 180, isResizable: true },
@@ -305,6 +310,25 @@ const Dashboard: React.FC = () => {
         <StatCard icon="book" tab="people" label={t('dashboard.trainingsOverdue')} value={trainingsOverdue.length} tone={level(false, trainingsOverdue.length > 0)} />
         <StatCard icon="book" tab="people" label={t('dashboard.articlesToReview')} value={articlesToReview.length} tone={level(false, articlesToReview.length > 0)} />
       </Section>
+
+      <Card title={t('dashboard.favorites')}>
+        {myFavorites.length === 0 ? (
+          <Text>{t('dashboard.favoritesNone')}</Text>
+        ) : (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {myFavorites.map(f => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => nav.goTo(tabForList(f.listName) ?? 'dashboard', { listName: f.listName, search: f.title })}
+                style={{ background: theme.palette.neutralLighter, color: theme.palette.neutralPrimary, border: 'none', borderRadius: 999, padding: '4px 12px', cursor: 'pointer', font: 'inherit', fontSize: 13 }}
+              >
+                <span aria-hidden="true" style={{ color: '#d29200' }}>★</span> {f.title}
+              </button>
+            ))}
+          </div>
+        )}
+      </Card>
 
       <Card title={t('dashboard.quickLinks')}>
         {pinnedLinks.length === 0 ? <Text>{t('dashboard.quickLinksNone')}</Text> : <QuickLinks links={pinnedLinks} />}

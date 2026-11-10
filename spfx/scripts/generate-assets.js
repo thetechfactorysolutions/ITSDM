@@ -550,6 +550,12 @@ const LISTS = [
     title: 'IT_37_PurchaseRoles', file: 'schema_purchaseroles.xml', description: 'Who can request, order, approve or only view purchases',
     fields: [T('UserUPN'), C('Role', ['APPROVER', 'BUYER', 'REQUESTER', 'VIEWER']), N('Notes')],
     rows: () => []
+  },
+  {
+    // Stars of every screen, per person. No sample rows.
+    title: 'IT_38_Favorites', file: 'schema_favorites.xml', description: 'Items each person starred, from any list',
+    fields: [T('ListName'), T('ItemKey'), T('UserUPN')],
+    rows: () => []
   }
 ];
 

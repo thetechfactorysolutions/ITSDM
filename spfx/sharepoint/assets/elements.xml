@@ -357,4 +357,11 @@
       </Rows>
     </Data>
   </ListInstance>
+  <ListInstance Title="IT_38_Favorites" Description="Items each person starred, from any list" OnQuickLaunch="TRUE" TemplateType="100" FeatureId="00bfea71-de22-43b2-a848-c05709900100" Url="Lists/IT_38_Favorites" CustomSchema="schema_favorites.xml">
+    <Data>
+      <Rows>
+          
+      </Rows>
+    </Data>
+  </ListInstance>
 </Elements>

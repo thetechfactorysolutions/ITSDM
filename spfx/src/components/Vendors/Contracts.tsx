@@ -5,7 +5,8 @@ import { csvDate, csvEnum, csvNumber, enumValues } from '../../entities/csvHelpe
 import { buildContractPayload } from '../../entities/payloads';
 import { TranslateFn, useT } from '../../i18n/I18n';
 import { AutoRenew, Contract, ContractStatus } from '../../models';
-import { contractAlert, getAllowedContractStatuses, opexAnnualAmount } from '../../rules/finance';
+import { contractAlert, getAllowedContractStatuses, needsContractAttention, opexAnnualAmount } from '../../rules/finance';
+import { IInsightsConfig } from '../shared/Insights';
 import { generateBusinessId } from '../../rules/ids';
 import { validateContract } from '../../rules/validation';
 import { formatMoney } from '../../utils/format';
@@ -49,6 +50,12 @@ const alertText = (t: TranslateFn, contract: Contract): string => {
 
 const Contracts: React.FC = () => {
   const t = useT();
+  const contractInsights: IInsightsConfig<Contract> = {
+    stats: items => {
+      const renew = items.filter(c => needsContractAttention(c));
+      return [{ key: 'renew', label: t('dashboard.contractsToRenew'), icon: 'refresh', tone: renew.length > 0 ? 'warning' : 'good', count: renew.length, chip: { key: 'renew', label: t('dashboard.contractsToRenew'), test: (c: Contract) => needsContractAttention(c) } }];
+    }
+  };
   const { service, userEmail, contracts: state, vendors, opex, projects } = useHubData();
   const { vendorOptions, projectOptions } = useFinanceLinkOptions();
 
@@ -136,6 +143,7 @@ const Contracts: React.FC = () => {
       columns={columns}
       sortAccessors={sortAccessors}
       searchFields={searchFields}
+      insights={contractInsights}
       newItem={newItem}
       validate={validateContract}
       buildPayload={buildContractPayload}

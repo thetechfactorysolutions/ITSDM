@@ -46,6 +46,7 @@ Diseño en `docs/superpowers/specs/2026-11-08-ronda-2-diseno.md`: vínculos con 
 
 - **Servicio, stock, Genius y gestión:** NPS con seguimiento de detractores, cifras mensuales por país con el reparto interacción/incidencia, catálogo de clasificación con probador de frases, stock de dispositivos con alarma, sesiones Genius con impacto, objetivos estratégicos, casos de negocio con ROI y aprobación, y revisión semanal (`docs/superpowers/specs/2026-11-09-modulos-servicio-diseno.md`). Paquete 1.9.0.0, 34 listas. Probado con jsdom; falta probarlo en el tenant.
 - **Pedidos:** solicitudes de compra con aprobación, POs con restante calculado, varios proveedores, categorías libres, roles dentro de la app (aprobador, gestor de pedidos, solicitante, solo lectura) e importación del CSV de la app anterior (`docs/PEDIDOS.md`, `docs/superpowers/specs/2026-11-10-pedidos-diseno.md`). Paquete 1.11.0.0, 37 listas. Probado con jsdom; falta probarlo en el tenant. Queda pendiente el acceso de proveedor.
+- **Paneles y agilidad:** franja de resumen en las 36 pantallas de lista (cifras pulsables que filtran, estados, lo más usado, favoritos, lo reciente), favoritos por persona en una sola lista, proveedores con columna de pendientes y los más usados, búsqueda rápida Ctrl+K y filtros recordados (`docs/PANELES.md`). Paquete 1.12.0.0, 38 listas. Probado con jsdom; falta probarlo en el tenant.
 
 ## Aplazado tras la ronda 2 (pendiente de retomar)
 Quedó fuera a propósito. Para retomarlo, pedir "retoma el roadmap".

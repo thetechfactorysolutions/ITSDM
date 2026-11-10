@@ -29,3 +29,4 @@ export * from './Stock';
 export * from './Genius';
 export * from './Strategy';
 export * from './Purchase';
+export * from './Favorite';

@@ -117,6 +117,9 @@ Title (the product), PurchaseId (Text), Quantity, UnitPrice, Amount (Number), Ca
 ### IT_37_PurchaseRoles
 Title (a name), UserUPN (Text), Role (Choice: APPROVER, BUYER, REQUESTER, VIEWER), Notes (Multiple lines)
 
+### IT_38_Favorites
+Title (the title of the starred item), ListName (Text, the SharePoint name of its list), ItemKey (Text, its id), UserUPN (Text, whose star it is)
+
 ## Notes
 - Attachments use the list attachments of SharePoint; the Help tab has a button that turns them on for lists that were created without them.
 - Changing the columns of a list that already exists is not automated (see `ROADMAP.md`).

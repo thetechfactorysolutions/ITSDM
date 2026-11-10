@@ -25,14 +25,16 @@ import Projects from '../Projects/Projects';
 import PurchasesTab from '../Purchases/PurchasesTab';
 import VendorsTab from '../Vendors/VendorsTab';
 import { useT } from '../../i18n/I18n';
-import { NavContext } from '../shared/Nav';
+import { INavSeed, NavContext } from '../shared/Nav';
+import CommandPalette from './CommandPalette';
 
 /** Tabs, translated. Separate from the root so it can read the language set by the provider. */
 const HubTabs: React.FC<{ description: string }> = ({ description }) => {
   const t = useT();
   const theme = getTheme();
   const [tab, setTab] = React.useState<string>('dashboard');
-  const nav = React.useMemo(() => ({ goTo: (key: string): void => { setTab(key); } }), []);
+  const [seed, setSeed] = React.useState<INavSeed | undefined>();
+  const nav = React.useMemo(() => ({ goTo: (key: string, from?: INavSeed): void => { setTab(key); setSeed(from); }, seed, clearSeed: (): void => setSeed(undefined) }), [seed]);
   const pivotStyles: Partial<IPivotStyles> = {
     root: { borderBottom: `1px solid ${theme.palette.neutralLighter}`, marginBottom: 4 },
     link: { borderRadius: 8, margin: '0 2px', selectors: { ':hover': { background: theme.palette.neutralLighter } } },
@@ -45,6 +47,7 @@ const HubTabs: React.FC<{ description: string }> = ({ description }) => {
       <Stack horizontal wrap verticalAlign="center" tokens={{ childrenGap: 16 }}>
         <Text variant="xxLarge" as="h1">{AppConfig.appName}</Text>
         <QuickAdd />
+        <NavContext.Provider value={nav}><CommandPalette /></NavContext.Provider>
       </Stack>
       <Text variant="large">{t('app.tagline')}</Text>
       {description && <Text>{description}</Text>}

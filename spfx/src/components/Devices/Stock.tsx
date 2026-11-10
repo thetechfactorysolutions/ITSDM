@@ -6,6 +6,7 @@ import { buildStockPayload } from '../../entities/payloads';
 import { TranslateFn, useT } from '../../i18n/I18n';
 import { Country, StockCategory, StockItem, StockOwnership, StockStatus } from '../../models';
 import { generateBusinessId } from '../../rules/ids';
+import { IInsightsConfig } from '../shared/Insights';
 import { coverage, fleetSize, isOrderLate, orderValue, projectedStock, stockLevel } from '../../rules/stock';
 import { validateStock } from '../../rules/validation';
 import { formatMoney } from '../../utils/format';
@@ -59,6 +60,16 @@ const numberField = (t: TranslateFn, label: string, value: number, error: string
 /** The devices on the shelf, in use and on order, with an alarm when the stock runs low. */
 const Stock: React.FC = () => {
   const t = useT();
+  const stockInsights: IInsightsConfig<StockItem> = {
+    stats: items => {
+      const low = items.filter(i => stockLevel(i) === 'LOW');
+      const late = items.filter(i => isOrderLate(i));
+      return [
+        { key: 'low', label: t('dashboard.lowStock'), icon: 'box', tone: low.length > 0 ? 'danger' : 'good', count: low.length, chip: { key: 'low', label: t('dashboard.lowStock'), test: (i: StockItem) => stockLevel(i) === 'LOW' } },
+        { key: 'lateOrders', label: t('stock.lateOrders'), icon: 'clock', tone: late.length > 0 ? 'warning' : 'good', count: late.length, chip: { key: 'lateOrders', label: t('stock.lateOrders'), test: (i: StockItem) => isOrderLate(i) } }
+      ];
+    }
+  };
   const { service, stock: state, vendors } = useHubData();
   const columns = React.useMemo(() => makeColumns(t), [t]);
   const vendorOptions = React.useMemo(() => vendors.items.map(v => ({ id: v.vendorId, title: v.title })), [vendors.items]);
@@ -131,6 +142,7 @@ const Stock: React.FC = () => {
       columns={columns}
       sortAccessors={sortAccessors}
       searchFields={searchFields}
+      insights={stockInsights}
       newItem={newItem}
       validate={validateStock}
       buildPayload={buildStockPayload}

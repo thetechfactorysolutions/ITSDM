@@ -22,6 +22,7 @@ import { FormRow } from '../shared/FormGrid';
 import { useHubData } from '../shared/HubData';
 import LinkField from '../shared/LinkField';
 import { toOptions } from '../shared/options';
+import { IInsightsConfig } from '../shared/Insights';
 import { Card, Section, StatCard } from '../shared/ui';
 import { usePurchaseRole } from './usePurchaseRole';
 
@@ -90,6 +91,17 @@ const Purchases: React.FC = () => {
   const toApprove = requestsToApprove(scoped);
   const chosenPo = purchaseOrders.items.filter(po => po.title === poNumber)[0];
   const figures = chosenPo ? poFigures(chosenPo, state.items) : undefined;
+
+  const insights: IInsightsConfig<Purchase> = {
+    stats: items => {
+      const waiting = items.filter(p => p.status === PurchaseStatus.REQUESTED);
+      const arriving = items.filter(p => p.status === PurchaseStatus.APPROVED || p.status === PurchaseStatus.ORDERED);
+      return [
+        { key: 'toApprove', label: t('dashboard.purchasesToApprove'), icon: 'shield', tone: waiting.length > 0 ? 'warning' : 'good', count: waiting.length, chip: { key: 'toApprove', label: t('dashboard.purchasesToApprove'), test: (p: Purchase) => p.status === PurchaseStatus.REQUESTED } },
+        { key: 'arriving', label: t('dashboard.purchasesToReceive'), icon: 'box', tone: 'info', count: arriving.length, chip: { key: 'arriving', label: t('dashboard.purchasesToReceive'), test: (p: Purchase) => p.status === PurchaseStatus.APPROVED || p.status === PurchaseStatus.ORDERED } }
+      ];
+    }
+  };
 
   const newItem = React.useCallback((): Purchase => ({
     purchaseId: generateBusinessId('PUR'), title: '', quantity: 1, unitPrice: 0, amount: 0, category: '', vendorId: '', poNumber: '', status: PurchaseStatus.REQUESTED,
@@ -253,6 +265,7 @@ const Purchases: React.FC = () => {
         columns={columns}
         sortAccessors={sortAccessors}
         searchFields={searchFields}
+        insights={insights}
         newItem={newItem}
         validate={validatePurchase}
         buildPayload={buildPurchasePayload}

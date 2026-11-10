@@ -121,7 +121,7 @@ const testCreateAndResume = async (): Promise<void> => {
   assert.equal(files.remembered, file, 'the file is remembered for next time');
   const saved = JSON.parse(file.text) as IDatabase;
   assert.equal(saved.format, 1);
-  assert.equal(Object.keys(saved.lists).length, 37, 'all 37 lists were written');
+  assert.equal(Object.keys(saved.lists).length, 38, 'all 38 lists were written');
   assert.equal(saved.lists.IT_04_Actions.items[0].OwnerUPN, 'me@x.com');
 
   // a change made in the app is written to the file

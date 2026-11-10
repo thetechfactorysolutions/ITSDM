@@ -178,7 +178,8 @@
     IT_34_WeeklyReviews: [T('ReviewId'), D('WeekStart'), C('Status', ['DRAFT', 'COMPLETED']), N('Happened'), N('WentWell'), N('WentWrong'), N('Attention'), N('Decisions'), N('Risks'), N('Priorities'), N('StopDoing'), N('StartDoing'), T('OwnerUPN')],
     IT_35_PurchaseOrders: [T('PoId'), T('VendorId'), NUM('Amount'), C('Status', ['OPEN', 'CLOSED']), N('Notes')],
     IT_36_Purchases: [T('PurchaseId'), NUM('Quantity'), NUM('UnitPrice'), NUM('Amount'), T('Category'), T('VendorId'), T('PoNumber'), C('Status', ['REQUESTED', 'APPROVED', 'ORDERED', 'RECEIVED', 'REJECTED', 'CANCELLED']), T('RequestedBy'), D('RequestedOn'), D('OrderedOn'), D('ReceivedOn'), T('DecisionBy'), D('DecisionDate'), N('DecisionNotes'), N('Reason'), N('Notes')],
-    IT_37_PurchaseRoles: [T('UserUPN'), C('Role', ['APPROVER', 'BUYER', 'REQUESTER', 'VIEWER']), N('Notes')]
+    IT_37_PurchaseRoles: [T('UserUPN'), C('Role', ['APPROVER', 'BUYER', 'REQUESTER', 'VIEWER']), N('Notes')],
+    IT_38_Favorites: [T('ListName'), T('ItemKey'), T('UserUPN')]
   };
 
   // Same seven approval columns on the four main lists (see src/rules/approvals.ts).

@@ -2533,5 +2533,23 @@
     "type": "Note"
    }
   ]
+ },
+ {
+  "title": "IT_38_Favorites",
+  "description": "Items each person starred, from any list",
+  "fields": [
+   {
+    "name": "ListName",
+    "type": "Text"
+   },
+   {
+    "name": "ItemKey",
+    "type": "Text"
+   },
+   {
+    "name": "UserUPN",
+    "type": "Text"
+   }
+  ]
  }
 ]

@@ -1,5 +1,5 @@
 import {
-  BusinessCase, CaseStatus, Purchase, PurchaseOrder, PurchaseRoleEntry, PurchaseRoleType, PurchaseStatus, PoStatus, Objective, ObjectiveStatus, WeeklyReview, WeeklyReviewStatus,
+  BusinessCase, CaseStatus, Favorite, Purchase, PurchaseOrder, PurchaseRoleEntry, PurchaseRoleType, PurchaseStatus, PoStatus, Objective, ObjectiveStatus, WeeklyReview, WeeklyReviewStatus,
   GeniusSession, GeniusStatus, GeniusType, StockCategory, StockItem, StockOwnership, StockStatus,
   CatalogCategory, CatalogEntry, CatalogKind, CatalogStatus, Country, NpsChannel, NpsFollowUp, NpsResponse, ServiceMonth,
   Area, AreaStatus, Entitlement, EntitlementStatus, EntitlementType, LinkItem, LinkStatus, Matter, MatterPriority, MatterSource, MatterStatus,
@@ -746,6 +746,17 @@ export const mapPurchaseRole = (item: Record<string, unknown>): PurchaseRoleEntr
   userUpn: readString(item, 'UserUPN'),
   role: readEnum(item, 'Role', enumValues(PurchaseRoleType), PurchaseRoleType.REQUESTER),
   notes: readString(item, 'Notes'),
+  created: readString(item, 'Created'),
+  modified: readString(item, 'Modified'),
+  editor: readExpandedTitle(item, 'Editor')
+});
+
+export const mapFavorite = (item: Record<string, unknown>): Favorite => ({
+  id: readId(item),
+  title: readString(item, 'Title'),
+  listName: readString(item, 'ListName'),
+  itemKey: readString(item, 'ItemKey'),
+  userUpn: readString(item, 'UserUPN'),
   created: readString(item, 'Created'),
   modified: readString(item, 'Modified'),
   editor: readExpandedTitle(item, 'Editor')

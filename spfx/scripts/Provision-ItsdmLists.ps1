@@ -342,6 +342,9 @@ $purchases = @(
 $purchaseRoles = @(
   @{ Name = 'UserUPN'; Type = 'Text' }, @{ Name = 'Role'; Type = 'Choice'; Choices = 'APPROVER', 'BUYER', 'REQUESTER', 'VIEWER' }, @{ Name = 'Notes'; Type = 'Note' }
 )
+$favorites = @(
+  @{ Name = 'ListName'; Type = 'Text' }, @{ Name = 'ItemKey'; Type = 'Text' }, @{ Name = 'UserUPN'; Type = 'Text' }
+)
 
 # Same seven approval columns on the four main lists (see src/rules/approvals.ts).
 $approval = @(
@@ -400,6 +403,7 @@ Initialize-ItsdmList -Title 'IT_34_WeeklyReviews' -Fields $weekly
 Initialize-ItsdmList -Title 'IT_35_PurchaseOrders' -Fields $purchaseOrders
 Initialize-ItsdmList -Title 'IT_36_Purchases' -Fields $purchases
 Initialize-ItsdmList -Title 'IT_37_PurchaseRoles' -Fields $purchaseRoles
+Initialize-ItsdmList -Title 'IT_38_Favorites' -Fields $favorites
 
 # ---------- sample data ----------
 if ($SkipSampleData) {

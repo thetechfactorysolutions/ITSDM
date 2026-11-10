@@ -3,12 +3,12 @@ import { AppConfig } from '../../config/AppConfig';
 import { EXPAND_EDITOR, SELECT } from '../../entities/payloads';
 import { IListHookState, useListItems } from '../../hooks/useListItems';
 import {
-  ActionItem, Area, Purchase, PurchaseOrder, PurchaseRoleEntry, Article, BusinessCase, Budget, CatalogEntry, GeniusSession, NpsResponse, Objective, ServiceMonth, StockItem, WeeklyReview, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Favorite, Purchase, PurchaseOrder, PurchaseRoleEntry, Article, BusinessCase, Budget, CatalogEntry, GeniusSession, NpsResponse, Objective, ServiceMonth, StockItem, WeeklyReview, CapexItem, ChangeRequest, Contract, Decision, Entitlement, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../../models';
 import { IDataStore, IQueryOptions } from '../../data/IDataStore';
 import {
   mapAction, mapBudget, mapCapex, mapChange, mapContract, mapDecision, mapIdea, mapIncident, mapInitiative, mapInteraction, mapKpi, mapLesson, mapMeeting, mapNote, mapOpex, mapProject,
-  mapPurchase, mapPurchaseOrder, mapPurchaseRole, mapArea, mapArticle, mapCase, mapCatalog, mapGenius, mapObjective, mapStock, mapWeekly, mapNps, mapServiceMonth, mapEntitlement, mapLink, mapMatter, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
+  mapFavorite, mapPurchase, mapPurchaseOrder, mapPurchaseRole, mapArea, mapArticle, mapCase, mapCatalog, mapGenius, mapObjective, mapStock, mapWeekly, mapNps, mapServiceMonth, mapEntitlement, mapLink, mapMatter, mapReview, mapRisk, mapSkill, mapTraining, mapVendor
 } from './mappers';
 
 export interface IHubData {
@@ -51,6 +51,7 @@ export interface IHubData {
   purchases: IListHookState<Purchase>;
   purchaseOrders: IListHookState<PurchaseOrder>;
   purchaseRoles: IListHookState<PurchaseRoleEntry>;
+  favorites: IListHookState<Favorite>;
   /** Loads every list again, e.g. after the lists were created. */
   reloadAll: () => Promise<void>;
 }
@@ -103,6 +104,7 @@ const WEEKLY_QUERY = query(SELECT.weeklyReviews);
 const PURCHASES_QUERY = query(SELECT.purchases);
 const PURCHASE_ORDERS_QUERY = query(SELECT.purchaseOrders);
 const PURCHASE_ROLES_QUERY = query(SELECT.purchaseRoles);
+const FAVORITES_QUERY = query(SELECT.favorites);
 
 /**
  * Loads each list once for the whole web part. Every tab reads the same state, so switching
@@ -148,10 +150,11 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEm
   const purchases = useListItems<Purchase>(service, listNames.purchases, mapPurchase, PURCHASES_QUERY);
   const purchaseOrders = useListItems<PurchaseOrder>(service, listNames.purchaseOrders, mapPurchaseOrder, PURCHASE_ORDERS_QUERY);
   const purchaseRoles = useListItems<PurchaseRoleEntry>(service, listNames.purchaseRoles, mapPurchaseRole, PURCHASE_ROLES_QUERY);
+  const favorites = useListItems<Favorite>(service, listNames.favorites, mapFavorite, FAVORITES_QUERY);
 
   const everyList: Array<IListHookState<unknown>> = [
     ideas, initiatives, projects, actions, meetings, notes, risks, decisions, lessons, reviews, budgets, capex, opex, vendors, contracts, incidents, changes, interactions, kpis, skills,
-    trainings, articles, matters, areas, links, entitlements, nps, serviceMonths, catalog, stock, genius, objectives, businessCases, weeklyReviews, purchases, purchaseOrders, purchaseRoles
+    trainings, articles, matters, areas, links, entitlements, nps, serviceMonths, catalog, stock, genius, objectives, businessCases, weeklyReviews, purchases, purchaseOrders, purchaseRoles, favorites
   ] as Array<IListHookState<unknown>>;
   const reloadAll = async (): Promise<void> => {
     await Promise.all(everyList.map(state => state.reload().catch(() => undefined)));
@@ -197,6 +200,7 @@ export const HubDataProvider: React.FC<IHubDataProviderProps> = ({ store, userEm
     purchases,
     purchaseOrders,
     purchaseRoles,
+    favorites,
     reloadAll
   };
 

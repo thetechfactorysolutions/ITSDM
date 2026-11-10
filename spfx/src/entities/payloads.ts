@@ -1,5 +1,5 @@
 import {
-  ActionItem, Area, Purchase, PurchaseOrder, PurchaseRoleEntry, Article, BusinessCase, Budget, CatalogEntry, GeniusSession, NpsResponse, Objective, ServiceMonth, StockItem, WeeklyReview, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
+  ActionItem, Area, Favorite, Purchase, PurchaseOrder, PurchaseRoleEntry, Article, BusinessCase, Budget, CatalogEntry, GeniusSession, NpsResponse, Objective, ServiceMonth, StockItem, WeeklyReview, CapexItem, ChangeRequest, Contract, Decision, Entitlement, IApprovalState, Idea, Incident, Initiative, Interaction, Kpi, Lesson, LinkItem, Matter, Meeting, Note, OpexItem, Project, Review, Risk, Skill, Training, Vendor
 } from '../models';
 import { getApproval } from '../rules/approvals';
 import { dayKeyToSharePoint } from '../rules/dates';
@@ -564,6 +564,7 @@ export const SELECT = {
   businessCases: ['Id', 'Title', 'CaseId', 'Problem', 'Options', 'Recommendation', 'Risks', 'EstimatedCost', 'AnnualBenefit', 'ObjectiveId', 'InitiativeId', 'ProjectId', 'OwnerUPN', 'Status', 'DecisionDate', 'DecisionNotes', 'ApprovalRule', 'ApprovalStatus', 'Approver', 'ApprovalRequestedOn', 'ApprovalDecidedOn', 'ApprovalDecidedBy', 'ApprovalComment', 'Created', 'Modified', 'Editor/Title'],
   purchaseOrders: ['Id', 'Title', 'PoId', 'VendorId', 'Amount', 'Status', 'Notes', 'Created', 'Modified', 'Editor/Title'],
   purchases: ['Id', 'Title', 'PurchaseId', 'Quantity', 'UnitPrice', 'Amount', 'Category', 'VendorId', 'PoNumber', 'Status', 'RequestedBy', 'RequestedOn', 'OrderedOn', 'ReceivedOn', 'DecisionBy', 'DecisionDate', 'DecisionNotes', 'Reason', 'Notes', 'Created', 'Modified', 'Editor/Title'],
+  favorites: ['Id', 'Title', 'ListName', 'ItemKey', 'UserUPN', 'Created', 'Modified', 'Editor/Title'],
   purchaseRoles: ['Id', 'Title', 'UserUPN', 'Role', 'Notes', 'Created', 'Modified', 'Editor/Title'],
   weeklyReviews: ['Id', 'Title', 'ReviewId', 'WeekStart', 'Status', 'Happened', 'WentWell', 'WentWrong', 'Attention', 'Decisions', 'Risks', 'Priorities', 'StopDoing', 'StartDoing', 'OwnerUPN', 'Created', 'Modified', 'Editor/Title']
 };
@@ -605,4 +606,11 @@ export const buildPurchaseRolePayload = (entry: PurchaseRoleEntry): Record<strin
   UserUPN: entry.userUpn.trim(),
   Role: entry.role,
   Notes: entry.notes
+});
+
+export const buildFavoritePayload = (favorite: Favorite): Record<string, unknown> => ({
+  Title: favorite.title.trim().slice(0, 255) || favorite.itemKey,
+  ListName: favorite.listName,
+  ItemKey: favorite.itemKey,
+  UserUPN: favorite.userUpn
 });
