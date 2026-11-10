@@ -27,7 +27,7 @@ export const TAB_IDENTITY: Record<string, IIdentity> = {
   dashboard: on('🏠', BLUE), matters: on('📥', ORANGE), agenda: on('🗓️', TEAL), links: on('🔗', BLUE), ideas: on('💡', GOLD), initiatives: on('🚀', PURPLE),
   projects: on('🧭', TEAL), actions: on('✅', GREEN), purchases: on('🛒', ORANGE), finance: on('💶', GREEN), vendors: on('🤝', BLUE), operations: on('🛠️', SLATE),
   people: on('🎓', PINK), devices: on('💻', SLATE), genius: on('🧠', PURPLE), strategy: on('🎯', RED), weekly: on('📝', TEAL), governance: on('⚖️', SLATE),
-  notes: on('🗒️', GOLD), import: on('📤', BLUE), help: on('❓', SLATE)
+  notes: on('🗒️', GOLD), alerts: on('🔔', RED), import: on('📤', BLUE), help: on('❓', SLATE)
 };
 
 /** By the list's number (the part of its title before the name): IT_04_Actions → '04'. */

@@ -8,6 +8,7 @@ import Genius from '../Genius/Genius';
 import WeeklyReviews from '../Management/WeeklyReviews';
 import StrategyTab from '../Strategy/StrategyTab';
 import Governance from '../Governance/Governance';
+import Alerts from '../Alerts/Alerts';
 import Help from '../Help/Help';
 import Ideas from '../Ideas/Ideas';
 import Import from '../Import/Import';
@@ -80,6 +81,7 @@ const HubTabs: React.FC<{ description: string }> = ({ description }) => {
         <PivotItem headerText={t('nav.weeklyReview')} itemKey="weekly" onRenderItemLink={withEmoji('weekly')}><WeeklyReviews /></PivotItem>
         <PivotItem headerText={t('nav.governance')} itemKey="governance" onRenderItemLink={withEmoji('governance')}><Governance /></PivotItem>
         <PivotItem headerText={t('nav.notes')} itemKey="notes" onRenderItemLink={withEmoji('notes')}><Notes /></PivotItem>
+        <PivotItem headerText={t('nav.alerts')} itemKey="alerts" onRenderItemLink={withEmoji('alerts')}><Alerts /></PivotItem>
         <PivotItem headerText={t('nav.import')} itemKey="import" onRenderItemLink={withEmoji('import')}><Import /></PivotItem>
         <PivotItem headerText={t('nav.help')} itemKey="help" onRenderItemLink={withEmoji('help')}><Help /></PivotItem>
       </Pivot>

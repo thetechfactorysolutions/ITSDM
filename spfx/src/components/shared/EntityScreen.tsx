@@ -29,6 +29,9 @@ import { readField } from '../../rules/insights';
 import { DUE_COLUMNS, OWNER_COLUMNS } from '../../rules/visual';
 import { EmptyState, ModuleHeader } from './ui';
 import Insights, { IChip, IInsightsConfig } from './Insights';
+import BulkBar from './BulkBar';
+import SavedViewsMenu from './SavedViewsMenu';
+import { planBulkStatus } from '../../rules/bulk';
 import { useFavorites } from './useFavorites';
 import { readMemory, writeMemory } from './viewMemory';
 
@@ -153,6 +156,10 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   const [localError, setLocalError] = React.useState<string | undefined>();
   const [form, setFormState] = React.useState<T>(props.newItem);
   const [gate, setGate] = React.useState<IGateResult | undefined>();
+  const [multi, setMulti] = React.useState<boolean>(false);
+  const [checked, setChecked] = React.useState<Set<number>>(new Set());
+  const [restoreChip, setRestoreChip] = React.useState<string | undefined>();
+  const [bulkNote, setBulkNote] = React.useState<string | undefined>();
   const [undo, setUndo] = React.useState<{ text: string; run: () => Promise<void> } | undefined>();
   React.useEffect(() => {
     if (!undo) {
@@ -176,6 +183,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
       onSelectionChanged: () => {
         const chosen = (selectionRef.current as Selection).getSelection() as T[];
         setSelectedId(chosen.length > 0 ? chosen[0].id : undefined);
+        setChecked(new Set(chosen.map(c => c.id as number)));
       }
     });
   }
@@ -455,6 +463,72 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     }
   };
 
+  // ----- several at once -----
+  const checkedItems = (): T[] => visible.filter(i => i.id !== undefined && checked.has(i.id as number));
+
+  const toggleChecked = (item: T): void => {
+    if (item.id === undefined) {
+      return;
+    }
+    const id = item.id;
+    setChecked(prev => { const next = new Set<number>(); prev.forEach(v => next.add(v)); if (next.has(id)) { next.delete(id); } else { next.add(id); } return next; });
+  };
+
+  const setMultiMode = (on: boolean): void => {
+    setMulti(on);
+    setChecked(new Set());
+    setBulkNote(undefined);
+    if (selectionRef.current) {
+      selectionRef.current.setAllSelected(false);
+    }
+  };
+
+  const runBulk = async (target: string, archive: boolean): Promise<void> => {
+    setLocalError(undefined);
+    setBulkNote(undefined);
+    const plan = planBulkStatus(
+      checkedItems(),
+      target,
+      getStatus,
+      item => (archive ? (props.canArchive(item) ? undefined : []) : props.quickStatuses ? props.quickStatuses(item) : undefined),
+      item => { const b = blockingRuleFor(item, target); return !!b && !b.consumes; }
+    );
+    const done: Array<{ item: T; previous: string }> = [];
+    for (const item of plan.apply) {
+      if (item.id === undefined) {
+        continue;
+      }
+      const blocked = blockingRuleFor(item, target);
+      const base = props.quickPayload ? props.quickPayload(item, target) : { Status: target };
+      try {
+        await state.update(item.id, blocked ? { ...base, ...buildApprovalPayload(EMPTY_APPROVAL) } : base);
+        done.push({ item, previous: getStatus(item) });
+      } catch (err) {
+        setLocalError(err instanceof Error ? err.message : t('common.unknownError'));
+        break;
+      }
+    }
+    setBulkNote(t('bulk.result', { done: done.length, skipped: plan.skipped.length }));
+    setChecked(new Set());
+    if (selectionRef.current) {
+      selectionRef.current.setAllSelected(false);
+    }
+    if (done.length > 0) {
+      setUndo({
+        text: t('bulk.undoText', { count: done.length, status: t(`status.${target}`) }),
+        run: async () => {
+          for (const entry of done) {
+            await state.update(entry.item.id as number, props.quickPayload ? props.quickPayload(entry.item, entry.previous) : { Status: entry.previous });
+          }
+        }
+      });
+    }
+  };
+
+  const exportChecked = (): void => {
+    downloadTextFile(props.csvFileName, toCsv(checkedItems(), props.csvColumns));
+  };
+
   const identity = identityForList(props.listName);
 
   // the facts a card shows besides the tags: the first few columns that are not already a tag or the title
@@ -521,6 +595,8 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
         onStatus={status => setView(prev => ({ ...prev, status }))}
         onOpen={openFromInsights}
         open={insightsOpen}
+        restoreChipKey={restoreChip}
+        onRestored={() => setRestoreChip(undefined)}
         onToggle={() => setInsightsOpen(prev => { writeMemory(`insights.${props.listName}`, !prev); return !prev; })}
       />
 
@@ -552,13 +628,34 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
             onChange={(_, checked) => setView(prev => ({ ...prev, showClosed: !!checked }))}
           />
         )}
+        <SavedViewsMenu
+          listName={props.listName}
+          current={view}
+          chipKey={chip ? chip.key : undefined}
+          onApply={(applied, chipKey) => { setChip(undefined); setView(prev => ({ ...prev, ...applied })); setRestoreChip(chipKey); }}
+        />
+        <Toggle label={t('bulk.mode')} inlineLabel checked={multi} onChange={(_, on) => setMultiMode(!!on)} />
         <Stack horizontal tokens={{ childrenGap: 4 }} role="group" aria-label={t('view.label')}>
           <DefaultButton text={t('view.table')} iconProps={{ iconName: 'Table' }} toggle checked={layout === 'table'} onClick={() => setLayout('table')} />
           <DefaultButton text={t('view.cards')} iconProps={{ iconName: 'GridViewMedium' }} toggle checked={layout === 'cards'} onClick={() => setLayout('cards')} />
         </Stack>
       </Stack>
 
+      {multi && (
+        <BulkBar
+          count={checked.size}
+          statuses={statuses}
+          canArchive={!props.hideArchive}
+          onStatus={status => { runBulk(status, false).catch(() => undefined); }}
+          onArchive={() => { runBulk(props.archiveStatus, true).catch(() => undefined); }}
+          onExport={exportChecked}
+          onSelectAll={() => setChecked(new Set(visible.filter(i => i.id !== undefined).map(i => i.id as number)))}
+          onClear={() => { setChecked(new Set()); if (selectionRef.current) { selectionRef.current.setAllSelected(false); } }}
+        />
+      )}
+
       <div aria-live="polite">
+        {bulkNote && <MessageBar onDismiss={() => setBulkNote(undefined)}>{bulkNote}</MessageBar>}
         {shownError && <MessageBar messageBarType={MessageBarType.error} onDismiss={() => setLocalError(undefined)}>{shownError}</MessageBar>}
         {state.loading && <MessageBar>{t('common.loading')}</MessageBar>}
         {undo && (
@@ -595,6 +692,8 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
           onSelect={item => setSelectedId(item.id)}
           onOpen={invoke}
           identity={identity}
+          checkedIds={multi ? checked : undefined}
+          onCheck={multi ? toggleChecked : undefined}
           extraFields={cardFields}
           fileCount={item => (fileLinks ? linksFor(fileLinks.items, props.listName, item.id).length : 0)}
           t={t}
@@ -607,7 +706,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
             items={visible}
             columns={tableColumns}
             selection={selectionRef.current}
-            selectionMode={SelectionMode.single}
+            selectionMode={multi ? SelectionMode.multiple : SelectionMode.single}
             setKey="entity"
             layoutMode={DetailsListLayoutMode.justified}
             onShouldVirtualize={() => visible.length > 300}

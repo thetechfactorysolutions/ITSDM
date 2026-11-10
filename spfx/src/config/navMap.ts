@@ -6,7 +6,7 @@ export const TABS: Array<[string, string]> = [
   ['dashboard', 'nav.dashboard'], ['matters', 'nav.matters'], ['agenda', 'nav.agenda'], ['links', 'nav.links'], ['ideas', 'nav.ideas'], ['initiatives', 'nav.initiatives'],
   ['projects', 'nav.projects'], ['actions', 'nav.actions'], ['purchases', 'nav.purchases'], ['finance', 'nav.finance'], ['vendors', 'nav.vendorsTab'], ['operations', 'nav.operations'],
   ['people', 'nav.people'], ['devices', 'nav.devices'], ['genius', 'nav.genius'], ['strategy', 'nav.strategy'], ['weekly', 'nav.weeklyReview'], ['governance', 'nav.governance'],
-  ['notes', 'nav.notes'], ['import', 'nav.import'], ['help', 'nav.help']
+  ['notes', 'nav.notes'], ['alerts', 'nav.alerts'], ['import', 'nav.import'], ['help', 'nav.help']
 ];
 
 export type ListNames = typeof AppConfig.sharePoint.listNames;

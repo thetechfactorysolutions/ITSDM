@@ -81,13 +81,16 @@ export interface IItemCardsProps<T> {
   /** More facts about the item (a label and what to show), after the tags. */
   extraFields: (item: T) => Array<{ label: string; node: React.ReactNode }>;
   fileCount: (item: T) => number;
+  /** Set while several can be chosen: the ticked ids and what to do when one is (un)ticked. */
+  checkedIds?: Set<number>;
+  onCheck?: (item: T) => void;
   t: TranslateFn;
 }
 
 /** The same rows as cards: one per item, with what matters on the surface. Easier to use on a phone. */
 export function ItemCards<T>(props: IItemCardsProps<T>): React.ReactElement {
   const theme = getTheme();
-  const { items, selectedId, getId, getTitle, getStatus, hasStatus, isFavorite, onToggleFavorite, onSelect, onOpen, identity, extraFields, fileCount, t } = props;
+  const { items, selectedId, getId, getTitle, getStatus, hasStatus, isFavorite, onToggleFavorite, onSelect, onOpen, identity, extraFields, fileCount, checkedIds, onCheck, t } = props;
   return (
     <div role="list" aria-label={t('view.cards')} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
       {items.map(item => {
@@ -117,6 +120,9 @@ export function ItemCards<T>(props: IItemCardsProps<T>): React.ReactElement {
           >
             <span aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 4, background: gradientOf(identity) }} />
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+              {checkedIds && onCheck && (
+                <input type="checkbox" checked={id !== undefined && checkedIds.has(id)} aria-label={`${t('bulk.tick')}: ${getTitle(item)}`} onClick={event => event.stopPropagation()} onChange={() => onCheck(item)} style={{ width: 18, height: 18, marginTop: 8 }} />
+              )}
               <IdentityTile identity={identity} size={34} />
               <strong style={{ flex: 1, fontSize: 15, lineHeight: '20px', overflowWrap: 'anywhere' }}>{getTitle(item)}</strong>
               <button

@@ -66,6 +66,9 @@ export interface IInsightsProps<T extends IItemLike> {
   onOpen: (item: T) => void;
   open: boolean;
   onToggle: () => void;
+  /** Key of a summary filter to press, once, when a saved view asks for it. */
+  restoreChipKey?: string;
+  onRestored?: () => void;
 }
 
 const classes = mergeStyleSets({
@@ -194,6 +197,30 @@ const Insights = <T extends IItemLike>(props: IInsightsProps<T>): React.ReactEle
     bars: (all: T[]) => countBy(all, i => readField(i, field), 5).map(b => ({ key: b.key, label: label(field, b.key), count: b.count, test: (i: T) => readField(i, field) === b.key }))
   }));
   (config?.groups ?? []).forEach(g => groups.push(g));
+
+  // a saved view asks for the filter it had: find it among the figures and the bars and press it
+  const { restoreChipKey, onRestored } = props;
+  React.useEffect(() => {
+    if (!restoreChipKey) {
+      return;
+    }
+    const fromStats = stats.filter(s => s.chip && s.chip.key === restoreChipKey).map(s => s.chip as IChip<T>)[0];
+    const fromBars = groups.reduce<IChip<T> | undefined>((found, g) => {
+      if (found) {
+        return found;
+      }
+      const bar = g.bars(items).filter(b => `${g.key}:${b.key}` === restoreChipKey)[0];
+      return bar ? { key: restoreChipKey, label: bar.label, test: bar.test } : undefined;
+    }, undefined);
+    const chip = fromStats ?? fromBars;
+    if (chip) {
+      onChip(chip);
+    }
+    if (onRestored) {
+      onRestored();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restoreChipKey]);
 
   const statusBars = statusCounts(items, getStatus, statuses);
   const activity = React.useMemo(() => weeklyActivity(items, 8), [items]);
