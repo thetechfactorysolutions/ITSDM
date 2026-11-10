@@ -29,7 +29,10 @@ import { readField } from '../../rules/insights';
 import { DUE_COLUMNS, OWNER_COLUMNS } from '../../rules/visual';
 import { EmptyState, ModuleHeader } from './ui';
 import Insights, { IChip, IInsightsConfig } from './Insights';
+import BoardView from './BoardView';
 import BulkBar from './BulkBar';
+import CalendarView from './CalendarView';
+import { hasDueDates } from '../../rules/insights';
 import SavedViewsMenu from './SavedViewsMenu';
 import { planBulkStatus } from '../../rules/bulk';
 import { useFavorites } from './useFavorites';
@@ -117,6 +120,8 @@ export interface IEntityScreenProps<T extends IEntityBase> {
   hideClosedToggle?: boolean;
 }
 
+type Layout = 'table' | 'cards' | 'board' | 'calendar';
+
 function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): React.ReactElement {
   const t = useT();
   const language = useLanguage();
@@ -134,8 +139,14 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   const [chip, setChip] = React.useState<IChip<T> | undefined>();
   const [insightsOpen, setInsightsOpen] = React.useState<boolean>(() => readMemory<boolean>(`insights.${props.listName}`) !== false);
   const searchRef = React.useRef<ISearchBox>(null);
-  const [layout, setLayoutState] = React.useState<'table' | 'cards'>(() => readMemory<'table' | 'cards'>(`layout.${props.listName}`) ?? readMemory<'table' | 'cards'>('layout.default') ?? 'cards');
-  const setLayout = (next: 'table' | 'cards'): void => { setLayoutState(next); writeMemory(`layout.${props.listName}`, next); writeMemory('layout.default', next); };
+  const [layout, setLayoutState] = React.useState<Layout>(() => readMemory<Layout>(`layout.${props.listName}`) ?? readMemory<Layout>('layout.default') ?? 'cards');
+  const setLayout = (next: Layout): void => {
+    setLayoutState(next);
+    writeMemory(`layout.${props.listName}`, next);
+    if (next === 'table' || next === 'cards') {
+      writeMemory('layout.default', next);
+    }
+  };
   const favorites = useFavorites(props.listName);
   // arriving from the quick search: show the record that was looked for
   const nav = useNav();
@@ -151,11 +162,13 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
   const [isFormOpen, setIsFormOpen] = React.useState<boolean>(false);
   const [isDetailOpen, setIsDetailOpen] = React.useState<boolean>(false);
   const [isCsvOpen, setIsCsvOpen] = React.useState<boolean>(false);
-  const [confirm, setConfirm] = React.useState<'delete' | 'archive' | undefined>();
+  const [confirm, setConfirm] = React.useState<'delete' | 'archive' | 'discard' | undefined>();
+  const initialForm = React.useRef<string>('');
   const [submitted, setSubmitted] = React.useState<boolean>(false);
   const [localError, setLocalError] = React.useState<string | undefined>();
   const [form, setFormState] = React.useState<T>(props.newItem);
   const [gate, setGate] = React.useState<IGateResult | undefined>();
+  const [hiddenCols, setHiddenCols] = React.useState<string[]>(() => readMemory<string[]>(`cols.${props.listName}`) ?? []);
   const [multi, setMulti] = React.useState<boolean>(false);
   const [checked, setChecked] = React.useState<Set<number>>(new Set());
   const [restoreChip, setRestoreChip] = React.useState<string | undefined>();
@@ -205,20 +218,6 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     [chipped, view, getStatus, searchFields, sortAccessors]
   );
 
-  // "/" jumps to the search box, like in most tools
-  React.useEffect(() => {
-    const onKey = (event: KeyboardEvent): void => {
-      const target = event.target as HTMLElement | null;
-      const typing = !!target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
-      if (event.key === '/' && !typing && !event.ctrlKey && !event.metaKey && searchRef.current) {
-        event.preventDefault();
-        searchRef.current.focus();
-      }
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, []);
-
   const errors: ValidationErrors = submitted ? props.validate(form) : {};
   const shownError = localError || state.error;
   const setForm = (update: (previous: T) => T): void => setFormState(update);
@@ -233,7 +232,9 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     setSubmitted(false);
     setLocalError(undefined);
     setGate(undefined);
-    setFormState(props.newItem());
+    const fresh = props.newItem();
+    initialForm.current = JSON.stringify(fresh);
+    setFormState(fresh);
     setIsFormOpen(true);
   };
 
@@ -245,9 +246,57 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     setSubmitted(false);
     setLocalError(undefined);
     setGate(undefined);
+    initialForm.current = JSON.stringify(item);
     setFormState(item);
     setIsFormOpen(true);
   };
+
+  // keys that act on the list: n new, e edit, j and k move through the records; the effect below reads the latest values from here
+  const shortcutRef = React.useRef<{ busy: boolean; canCreate: boolean; selected: T | undefined; selectedId: number | undefined; ids: number[]; create: () => void; edit: (item: T) => void; select: (id: number) => void }>();
+  shortcutRef.current = {
+    busy: isFormOpen || isDetailOpen || isCsvOpen || confirm !== undefined,
+    canCreate: !props.hideNew,
+    selected: selected && (!props.canEdit || props.canEdit(selected)) ? selected : undefined,
+    selectedId,
+    ids: visible.filter(i => i.id !== undefined).map(i => i.id as number),
+    create: openCreate,
+    edit: openEdit,
+    select: setSelectedId
+  };
+
+  // "/" jumps to the search box, like in most tools
+  React.useEffect(() => {
+    const onKey = (event: KeyboardEvent): void => {
+      const target = event.target as HTMLElement | null;
+      const typing = !!target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+      if (event.key === '/' && !typing && !event.ctrlKey && !event.metaKey && searchRef.current) {
+        event.preventDefault();
+        searchRef.current.focus();
+        return;
+      }
+      const state = shortcutRef.current;
+      if (!state || typing || state.busy || event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+      if (event.key === 'n' && state.canCreate) {
+        event.preventDefault();
+        state.create();
+      } else if (event.key === 'e' && state.selected) {
+        event.preventDefault();
+        state.edit(state.selected);
+      } else if (event.key === 'j' || event.key === 'k') {
+        event.preventDefault();
+        const ids = state.ids;
+        if (ids.length > 0) {
+          const index = state.selectedId === undefined ? -1 : ids.indexOf(state.selectedId);
+          const next = event.key === 'j' ? Math.min(ids.length - 1, index + 1) : Math.max(0, index - 1);
+          state.select(ids[next]);
+        }
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
   const save = async (): Promise<void> => {
     setLocalError(undefined);
@@ -301,9 +350,21 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     return result.consumesApproval ? { titleKey: '', consumes: true } : undefined;
   };
 
+  const closeForm = (): void => {
+    if (isFormOpen && JSON.stringify(form) !== initialForm.current) {
+      setConfirm('discard');
+    } else {
+      setIsFormOpen(false);
+    }
+  };
+
   const runConfirmed = async (): Promise<void> => {
     const action = confirm;
     setConfirm(undefined);
+    if (action === 'discard') {
+      setIsFormOpen(false);
+      return;
+    }
     if (!selected || !selected.id || !action) {
       return;
     }
@@ -529,6 +590,18 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
     downloadTextFile(props.csvFileName, toCsv(checkedItems(), props.csvColumns));
   };
 
+  const canBoard = statuses.length > 1;
+  const canCalendar = hasDueDates(scoped);
+  const shown: Layout = (layout === 'board' && !canBoard) || (layout === 'calendar' && !canCalendar) ? 'cards' : layout;
+
+  const moveOnBoard = (item: T, status: string): void => {
+    if (props.quickStatuses && props.quickStatuses(item).indexOf(status) === -1) {
+      setLocalError(t('board.notAllowed', { status: t(`status.${status}`) }));
+      return;
+    }
+    changeStatus(item, status);
+  };
+
   const identity = identityForList(props.listName);
 
   // the facts a card shows besides the tags: the first few columns that are not already a tag or the title
@@ -628,6 +701,28 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
             onChange={(_, checked) => setView(prev => ({ ...prev, showClosed: !!checked }))}
           />
         )}
+        {shown === 'table' && (
+          <Dropdown
+            multiSelect
+            ariaLabel={t('columns.button')}
+            placeholder={t('columns.button')}
+            selectedKeys={tableColumns.filter(c => c.key !== 'favorite' && hiddenCols.indexOf(c.key) === -1).map(c => c.key)}
+            options={tableColumns.filter(c => c.key !== 'favorite' && c.name).map(c => ({ key: c.key, text: String(c.name) }))}
+            styles={{ root: { minWidth: 140 } }}
+            onChange={(_, option) => {
+              if (!option) {
+                return;
+              }
+              const key = String(option.key);
+              const next = hiddenCols.indexOf(key) > -1 ? hiddenCols.filter(k => k !== key) : hiddenCols.concat([key]);
+              const left = tableColumns.filter(c => c.key !== 'favorite' && next.indexOf(c.key) === -1).length;
+              if (left > 0) {
+                setHiddenCols(next);
+                writeMemory(`cols.${props.listName}`, next);
+              }
+            }}
+          />
+        )}
         <SavedViewsMenu
           listName={props.listName}
           current={view}
@@ -638,6 +733,8 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
         <Stack horizontal tokens={{ childrenGap: 4 }} role="group" aria-label={t('view.label')}>
           <DefaultButton text={t('view.table')} iconProps={{ iconName: 'Table' }} toggle checked={layout === 'table'} onClick={() => setLayout('table')} />
           <DefaultButton text={t('view.cards')} iconProps={{ iconName: 'GridViewMedium' }} toggle checked={layout === 'cards'} onClick={() => setLayout('cards')} />
+          {canBoard && <DefaultButton text={t('view.board')} iconProps={{ iconName: 'KanbanBoard' }} toggle checked={shown === 'board'} onClick={() => setLayout('board')} />}
+          {canCalendar && <DefaultButton text={t('view.calendar')} iconProps={{ iconName: 'Calendar' }} toggle checked={shown === 'calendar'} onClick={() => setLayout('calendar')} />}
         </Stack>
       </Stack>
 
@@ -679,7 +776,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
       )}
       {hasAnyItems && visible.length === 0 && <Text>{t('common.noResults')}</Text>}
 
-      {visible.length > 0 && layout === 'cards' && (
+      {visible.length > 0 && shown === 'cards' && (
         <ItemCards<T>
           items={visible}
           selectedId={selectedId}
@@ -700,11 +797,32 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
         />
       )}
 
-      {visible.length > 0 && layout === 'table' && (
+      {visible.length > 0 && shown === 'board' && (
+        <BoardView<T>
+          items={visible}
+          statuses={statuses}
+          getStatus={getStatus}
+          getTitle={props.getTitle}
+          getId={item => item.id}
+          allowedFor={item => (props.quickStatuses ? props.quickStatuses(item) : undefined)}
+          onMove={moveOnBoard}
+          onOpen={invoke}
+          onSelect={item => setSelectedId(item.id)}
+          selectedId={selectedId}
+          identity={identity}
+          t={t}
+        />
+      )}
+
+      {visible.length > 0 && shown === 'calendar' && (
+        <CalendarView<T> items={visible} getTitle={props.getTitle} getStatus={getStatus} getId={item => item.id} onOpen={invoke} onSelect={item => setSelectedId(item.id)} t={t} />
+      )}
+
+      {visible.length > 0 && shown === 'table' && (
         <div style={{ overflow: 'auto', maxHeight: '72vh', borderRadius: 12, border: `1px solid ${getTheme().palette.neutralLighter}`, background: getTheme().palette.white }}>
           <DetailsList
             items={visible}
-            columns={tableColumns}
+            columns={tableColumns.filter(c => c.key === 'favorite' || hiddenCols.indexOf(c.key) === -1)}
             selection={selectionRef.current}
             selectionMode={multi ? SelectionMode.multiple : SelectionMode.single}
             setKey="entity"
@@ -719,7 +837,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
 
       <Panel
         isOpen={isFormOpen}
-        onDismiss={() => setIsFormOpen(false)}
+        onDismiss={closeForm}
         type={PanelType.large}
         closeButtonAriaLabel={t('common.close')}
         headerText={selected ? t(`${textKey}.edit`) : t(`${textKey}.create`)}
@@ -754,7 +872,7 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
           )}
           <Stack horizontal tokens={{ childrenGap: 8 }}>
             <PrimaryButton text={t('common.save')} onClick={() => { save().catch(() => undefined); }} />
-            <DefaultButton text={t('common.cancel')} onClick={() => setIsFormOpen(false)} />
+            <DefaultButton text={t('common.cancel')} onClick={closeForm} />
           </Stack>
         </Stack>
       </Panel>
@@ -785,11 +903,13 @@ function EntityScreen<T extends IEntityBase>(props: IEntityScreenProps<T>): Reac
 
       <ConfirmDialog
         isOpen={confirm !== undefined}
-        title={confirm === 'delete' ? t('confirm.deleteTitle') : t('confirm.archiveTitle')}
-        message={confirm === 'delete'
-          ? t('confirm.deleteMessage', { name: selected ? props.getTitle(selected) : '' })
-          : t('confirm.archiveMessage', { name: selected ? props.getTitle(selected) : '' })}
-        confirmText={confirm === 'delete' ? t('common.delete') : t('common.archive')}
+        title={confirm === 'discard' ? t('confirm.discardTitle') : confirm === 'delete' ? t('confirm.deleteTitle') : t('confirm.archiveTitle')}
+        message={confirm === 'discard'
+          ? t('confirm.discardMessage')
+          : confirm === 'delete'
+            ? t('confirm.deleteMessage', { name: selected ? props.getTitle(selected) : '' })
+            : t('confirm.archiveMessage', { name: selected ? props.getTitle(selected) : '' })}
+        confirmText={confirm === 'discard' ? t('confirm.discardConfirm') : confirm === 'delete' ? t('common.delete') : t('common.archive')}
         onConfirm={() => { runConfirmed().catch(() => undefined); }}
         onCancel={() => setConfirm(undefined)}
       />

@@ -3,8 +3,9 @@ import { DefaultButton, getTheme, MessageBar, MessageBarType, PrimaryButton, Sta
 import { SOURCES } from '../../config/navMap';
 import { AppConfig } from '../../config/AppConfig';
 import { useLanguage, useT } from '../../i18n/I18n';
-import { buildDigest, digestText, IDigestSource, isWebhookUrl, mailtoLink, webhookPayload } from '../../rules/digest';
-import { readField } from '../../rules/insights';
+import { buildDigest, digestText, isWebhookUrl, mailtoLink, webhookPayload } from '../../rules/digest';
+import { dataQuality } from '../../rules/views3';
+import { sourcesFromHub } from '../shared/hubSources';
 import { useHubData } from '../shared/HubData';
 import { useNav } from '../shared/Nav';
 import { readMemory, writeMemory } from '../shared/viewMemory';
@@ -28,17 +29,8 @@ const Alerts: React.FC = () => {
   const [message, setMessage] = React.useState<{ type: MessageBarType; text: string } | undefined>();
   const now = new Date();
 
-  const sources: IDigestSource[] = SOURCES.map(source => {
-    const state = hub[source.hub] as unknown as { items: unknown[] } | undefined;
-    return {
-      key: String(source.hub),
-      title: t(source.kind),
-      tab: source.tab,
-      items: state ? state.items : [],
-      getStatus: item => readField(item, 'status'),
-      getTitle: item => readField(item, 'title')
-    };
-  });
+  const sources = sourcesFromHub(hub, t);
+  const quality = dataQuality(sources, now);
   const digest = buildDigest(sources, now);
   const dateLabel = now.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
   const text = digestText(digest, { title: t('alerts.mailSubject'), late: t('alerts.late'), today: t('alerts.today'), soon: t('alerts.soon'), none: t('alerts.none') }, dateLabel);
@@ -105,6 +97,28 @@ const Alerts: React.FC = () => {
           </Stack>
         </Card>
       ))}
+
+      <Card title={`🧹 ${t('quality.title')}`}>
+        {quality.length === 0 ? (
+          <Text>{t('quality.none')}</Text>
+        ) : (
+          <Stack tokens={{ childrenGap: 6 }}>
+            <Text variant="small">{t('quality.intro')}</Text>
+            {quality.map(issue => (
+              <button
+                key={`${issue.source}-${issue.kind}`}
+                type="button"
+                onClick={() => { const src = sourceOf(issue.source); nav.goTo(issue.tab, src && issue.examples.length > 0 ? { listName: src.listName, search: issue.examples[0] } : undefined); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left', border: `1px solid ${theme.palette.neutralLighter}`, background: theme.palette.neutralLighterAlt, color: theme.palette.neutralPrimary, borderRadius: 8, padding: '6px 10px', cursor: 'pointer', font: 'inherit' }}
+              >
+                <Pill tone="warning" emoji="🧹">{issue.count}</Pill>
+                <span style={{ flex: 1 }}><strong>{issue.title}</strong> · {t(`quality.${issue.kind}`)}</span>
+                <span style={{ color: theme.palette.neutralSecondary, fontSize: 12, maxWidth: '40%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{issue.examples.join(', ')}</span>
+              </button>
+            ))}
+          </Stack>
+        )}
+      </Card>
 
       <Card title={t('alerts.flowTitle')}>
         <Stack tokens={{ childrenGap: 8 }}>

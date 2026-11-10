@@ -18,9 +18,11 @@ import { isActionDueToday, isActionDueWithinDays, isOverdueAction, isProjectAtRi
 import { dayKeyToSharePoint, toDayKey } from '../../rules/dates';
 import ApprovalDecisionDialog from '../shared/ApprovalDecisionDialog';
 import BarChart from '../shared/Charts';
-import { useHubData } from '../shared/HubData';
+import { IHubData, useHubData } from '../shared/HubData';
 import { weeklyActivity } from '../../rules/visual';
-import { AttentionRow, Card, Hero, Section, Spark, StatCard, Tone } from '../shared/ui';
+import { workloadByOwner } from '../../rules/views3';
+import { sourcesFromHub } from '../shared/hubSources';
+import { AttentionRow, Avatar, Card, Hero, Section, Spark, StatCard, Tone } from '../shared/ui';
 import QuickLinks from '../Links/QuickLinks';
 import { usePurchaseRole } from '../Purchases/usePurchaseRole';
 import { useNav } from '../shared/Nav';
@@ -251,6 +253,8 @@ const Dashboard: React.FC = () => {
   const everything: unknown[] = [];
   Object.keys(hubState).forEach(key => { const list = hubState[key]; if (list && Array.isArray(list.items)) { list.items.forEach(i => everything.push(i)); } });
   const activity = weeklyActivity(everything, 8, now);
+  const workload = workloadByOwner(sourcesFromHub(hubState as unknown as IHubData, t), now);
+  const workloadMax = Math.max(1, ...workload.map(w => w.open));
 
   const level = (danger: boolean, warning: boolean): Tone => danger ? 'danger' : warning ? 'warning' : 'good';
 
@@ -321,6 +325,23 @@ const Dashboard: React.FC = () => {
       {activity.some(n => n > 0) && (
         <Card title={t('dashboard.activity')}>
           <Spark values={activity} labels={activity.map((_, i) => t('insights.activityWeek', { n: i + 1 }))} height={64} ariaLabel={t('dashboard.activity')} />
+        </Card>
+      )}
+
+      {workload.length > 0 && (
+        <Card title={t('dashboard.workload')}>
+          <Stack tokens={{ childrenGap: 6 }}>
+            {workload.map(w => (
+              <div key={w.owner} style={{ display: 'grid', gridTemplateColumns: '24px minmax(80px, 200px) 1fr 70px', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                <Avatar text={w.owner} size={22} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{w.owner}</span>
+                <span aria-hidden="true" style={{ background: theme.palette.neutralLighter, borderRadius: 4, height: 8, display: 'block' }}>
+                  <span style={{ display: 'block', height: 8, borderRadius: 4, background: w.late > 0 ? theme.palette.orange : theme.palette.themePrimary, width: `${Math.max(6, Math.round((w.open / workloadMax) * 100))}%` }} />
+                </span>
+                <span style={{ textAlign: 'right' }}><strong>{w.open}</strong>{w.late > 0 ? ` · 🔥${w.late}` : ''}</span>
+              </div>
+            ))}
+          </Stack>
         </Card>
       )}
 

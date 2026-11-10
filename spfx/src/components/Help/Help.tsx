@@ -145,6 +145,7 @@ const Help: React.FC = () => {
         <Text>{t('help.forms1')}</Text>
         <Text>{t('help.forms2')}</Text>
       </Section>
+      <Section title={t('help.shortcutsTitle')}><Text>{t('help.shortcuts')}</Text></Section>
       <Section title={t('help.dataTitle')}>
         <Text>{t('help.data1')}</Text>
         <Text>{lists.ideas} · {lists.initiatives} · {lists.projects} · {lists.actions} · {lists.notes} · {lists.meetings}</Text>
